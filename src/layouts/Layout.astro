@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'Seiltips.no – værvarsel, seiltips og nyheter for norske seilere.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Seiltips.no" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>{title} · Seiltips.no</title>
+  </head>
+  <body class="min-h-screen bg-cloud font-sans text-navy-dark antialiased flex flex-col">
+    <a
+      href="#innhold"
+      class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-4 focus:rounded-xl focus:bg-white focus:px-4 focus:py-2"
+      >Hopp til innhold</a
+    >
+    <Header />
+    <main id="innhold" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

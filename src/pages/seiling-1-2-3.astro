@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const steps = [
+  {
+    number: '1',
+    title: 'Før du legger fra land',
+    color: 'bg-sky',
+    tips: [
+      'Sjekk værmelding, vind og eventuelle farevarsler for turen din.',
+      'Fortell noen på land hvor du skal og når du forventes tilbake.',
+      'Gå gjennom sikkerhetsutstyr: redningsvest til alle om bord, brannslukker og signalutstyr.',
+      'Sjekk at seil, rigg og løpende rigg er i god stand.',
+    ],
+  },
+  {
+    number: '2',
+    title: 'Under seiling',
+    color: 'bg-mint',
+    tips: [
+      'Hold utkikk 360 grader rundt båten hele tiden – ikke bare fremover.',
+      'Tilpass seilføringen til vindstyrken – rev i tide, ikke i siste liten.',
+      'Vær bevisst på høyre-regelen og vikeplikt i møte med annen trafikk.',
+      'Fordel vekten i båten jevnt, og hold deg lavt i krappe svinger.',
+    ],
+  },
+  {
+    number: '3',
+    title: 'Ved retur og fortøyning',
+    color: 'bg-navy-light',
+    tips: [
+      'Planlegg innseilingen i god tid – reduser fart tidlig.',
+      'Ha fendere og fortøyningstau klare før du nærmer deg brygga.',
+      'Ta hensyn til vind og strøm når du legger til.',
+      'Gå gjennom båten en siste gang: gass av, strøm av, alt sikret.',
+    ],
+  },
+];
+---
+
+<Layout
+  title="Seiling 1-2-3"
+  description="Enkle steg-for-steg seiltips for deg som er ny til rors eller trenger en oppfriskning."
+>
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Seiling 1-2-3</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      Tre enkle steg som hjelper deg å komme trygt fra brygga, gjennom seilturen og trygt hjem
+      igjen. Perfekt for nybegynnere – og en fin oppfriskning for erfarne seilere.
+    </p>
+
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      {
+        steps.map((step) => (
+          <div class="flex flex-col rounded-3xl bg-white p-6 shadow-card">
+            <span class={`flex h-12 w-12 items-center justify-center rounded-2xl ${step.color} font-display text-xl font-extrabold text-navy shadow-card`}>
+              {step.number}
+            </span>
+            <h2 class="mt-4 font-display text-xl font-bold text-navy">{step.title}</h2>
+            <ul class="mt-4 space-y-3 text-sm text-navy-dark/80">
+              {step.tips.map((tip) => (
+                <li class="flex gap-2">
+                  <span aria-hidden="true" class="text-mint-dark">✓</span>
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-10 rounded-3xl bg-navy p-6 text-white shadow-soft sm:p-8">
+      <h2 class="font-display text-xl font-bold text-mint">Husk: sjekk været før du drar</h2>
+      <p class="mt-2 text-white/80">
+        Se dagens og ukens forhold, med tips tilpasset vind, nedbør og temperatur.
+      </p>
+      <a
+        href="/vaer"
+        class="mt-4 inline-flex items-center gap-2 rounded-full bg-mint px-5 py-2 text-sm font-semibold text-navy hover:bg-mint-dark"
+      >
+        Se værvarsel for 7 dager →
+      </a>
+    </div>
+  </section>
+</Layout>

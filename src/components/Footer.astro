@@ -1,0 +1,41 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-16 bg-navy text-white/90">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
+    <div>
+      <div class="flex items-center gap-2 font-display text-lg font-bold text-white">
+        <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-mint text-navy" aria-hidden="true">⛵</span>
+        Seiltips<span class="text-mint">.no</span>
+      </div>
+      <p class="mt-3 max-w-xs text-sm text-white/70">
+        Værvarsel, seiltips og nyheter for deg som elsker livet på sjøen langs norskekysten.
+      </p>
+    </div>
+
+    <nav aria-label="Snarveier">
+      <h2 class="font-display text-sm font-semibold uppercase tracking-wide text-mint">Snarveier</h2>
+      <ul class="mt-3 space-y-2 text-sm">
+        <li><a href="/vaer" class="hover:text-white">Værvarsel 7 dager</a></li>
+        <li><a href="/seiling-1-2-3" class="hover:text-white">Seiling 1-2-3</a></li>
+        <li><a href="/baater" class="hover:text-white">Båter</a></li>
+        <li><a href="/nyheter" class="hover:text-white">Nyhetsarkiv</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="font-display text-sm font-semibold uppercase tracking-wide text-mint">Om værdataene</h2>
+      <p class="mt-3 text-sm text-white/70">
+        Værdata leveres av
+        <a href="https://www.met.no" class="underline decoration-mint underline-offset-2 hover:text-white" target="_blank" rel="noopener noreferrer">MET Norway</a>
+        (Yr.no) under
+        <a href="https://data.norge.no/nlod/no" class="underline decoration-mint underline-offset-2 hover:text-white" target="_blank" rel="noopener noreferrer">NLOD-lisensen</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10 py-4 text-center text-xs text-white/60">
+    © {year} Seiltips.no
+  </div>
+</footer>

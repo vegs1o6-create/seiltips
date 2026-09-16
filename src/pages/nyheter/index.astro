@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('news', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Layout title="Nyhetsarkiv" description="Alle nyheter og saker fra Seiltips.no, samlet i ett arkiv.">
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Nyhetsarkiv</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      Alle sakene vi har publisert på Seiltips.no – nyeste øverst.
+    </p>
+
+    {
+      allPosts.length === 0 ? (
+        <p class="mt-10 text-navy-dark/70">Ingen nyheter er publisert ennå. Kom tilbake snart!</p>
+      ) : (
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {allPosts.map((post) => (
+            <NewsCard post={post} />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</Layout>

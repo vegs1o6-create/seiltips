@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const boatTypes = [
+  {
+    title: 'Daysailer / jolle',
+    description:
+      'Liten, lettseilt båt uten eller med enkel kahytt. Perfekt for læring og korte turer i skjærgården.',
+    icon: '🛶',
+  },
+  {
+    title: 'Kjølbåt / turseiler',
+    description:
+      'Stabil familiebåt med kahytt, gjerne 25–40 fot. God balanse mellom komfort og seilegenskaper.',
+    icon: '⛵',
+  },
+  {
+    title: 'Motorseiler',
+    description:
+      'Kombinerer seil og kraftig motor for fleksibilitet – populær for langturer langs kysten.',
+    icon: '🚤',
+  },
+  {
+    title: 'Racer / regattabåt',
+    description: 'Lett og rigget for fart. Krever mer erfaring, men gir stor seilglede i frisk vind.',
+    icon: '🏁',
+  },
+];
+
+const maintenanceTips = [
+  'Skyll av salt med ferskvann etter hver tur for å skåne rigg og beslag.',
+  'Sjekk bunnstoff og skrog for gjengroing minst én gang i sesongen.',
+  'Kontroller wire, tau og skjøter for slitasje før hver tur.',
+  'Server motoren årlig: olje, filter og impeller er billig forsikring.',
+  'Test batterier, lensepumpe og navigasjonslys jevnlig – ikke bare når noe er galt.',
+];
+---
+
+<Layout title="Båter" description="Båttyper, valg av båt og gode vedlikeholdstips for seilbåten din.">
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Båter</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      En kjapp oversikt over vanlige båttyper, pluss vedlikeholdstips som holder båten i god
+      stand år etter år.
+    </p>
+
+    <h2 class="mt-10 font-display text-2xl font-bold text-navy">Vanlige båttyper</h2>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+      {
+        boatTypes.map((boat) => (
+          <div class="flex gap-4 rounded-2xl bg-white p-6 shadow-card">
+            <span class="text-3xl" aria-hidden="true">{boat.icon}</span>
+            <div>
+              <h3 class="font-display font-bold text-navy">{boat.title}</h3>
+              <p class="mt-1 text-sm text-navy-dark/80">{boat.description}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl font-bold text-navy">Vedlikeholdstips</h2>
+    <div class="mt-6 rounded-3xl bg-white p-6 shadow-card sm:p-8">
+      <ul class="space-y-3">
+        {
+          maintenanceTips.map((tip) => (
+            <li class="flex gap-3 text-navy-dark/80">
+              <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-mint/40 text-sm text-navy" aria-hidden="true">
+                ✓
+              </span>
+              <span>{tip}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="mt-10 rounded-3xl bg-sky/10 p-6 text-navy sm:p-8">
+      <h2 class="font-display text-xl font-bold">Ny til seiling?</h2>
+      <p class="mt-2 text-navy-dark/80">
+        Ta en titt på våre grunnleggende tips før du legger ut på tur.
+      </p>
+      <a
+        href="/seiling-1-2-3"
+        class="mt-4 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-dark"
+      >
+        Se Seiling 1-2-3 →
+      </a>
+    </div>
+  </section>
+</Layout>

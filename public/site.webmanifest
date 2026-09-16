@@ -1,0 +1,16 @@
+{
+  "name": "Seiltips.no",
+  "short_name": "Seiltips",
+  "description": "Værvarsel, seiltips og nyheter for norske seilere.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E8F6FF",
+  "theme_color": "#0B3D91",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

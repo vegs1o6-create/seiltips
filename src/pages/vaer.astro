@@ -1,0 +1,162 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { locations, defaultLocation } from '../data/locations';
+---
+
+<Layout
+  title="Vær 7 dager"
+  description="7-dagers værvarsel for norske farvann med seiltips basert på vind, nedbør og temperatur."
+>
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Værvarsel – 7 dager</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      Live værdata fra MET Norway (Yr.no), med enkle seiltips basert på vind, nedbør og
+      temperatur for hver dag.
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <label for="location" class="text-sm font-semibold text-navy">Velg sted:</label>
+      <select
+        id="location"
+        class="rounded-full border-2 border-sky/40 bg-white px-4 py-2 text-sm font-semibold text-navy shadow-card focus:border-sky focus:outline-none"
+      >
+        {locations.map((loc) => <option value={loc.slug}>{loc.name}</option>)}
+      </select>
+      <button
+        id="refresh"
+        type="button"
+        class="rounded-full bg-sky px-4 py-2 text-sm font-semibold text-white shadow-card hover:bg-sky-dark"
+      >
+        Oppdater
+      </button>
+    </div>
+
+    <p id="status" class="mt-4 text-sm text-navy-dark/70" role="status">Henter værdata …</p>
+
+    <div id="forecast" class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7"></div>
+
+    <p class="mt-8 text-xs text-navy-dark/60">
+      Værdata levert av <a href="https://www.met.no" class="underline hover:text-navy" target="_blank" rel="noopener noreferrer">MET Norway</a>
+      (Yr.no) under NLOD-lisensen. Seiltipsene er automatisk generert og erstatter ikke egen
+      vurdering eller offisielle farevarsler – sjekk alltid
+      <a href="https://www.yr.no" class="underline hover:text-navy" target="_blank" rel="noopener noreferrer">yr.no</a>
+      og <a href="https://varsom.no" class="underline hover:text-navy" target="_blank" rel="noopener noreferrer">varsom.no</a>
+      før du legger ut på tur.
+    </p>
+  </section>
+</Layout>
+
+<script is:inline define:vars={{ locations, defaultSlug: defaultLocation.slug }}>
+  const symbolMap = {
+    clearsky: { icon: '☀️', label: 'Klart' },
+    fair: { icon: '🌤️', label: 'Lettskyet' },
+    partlycloudy: { icon: '⛅', label: 'Delvis skyet' },
+    cloudy: { icon: '☁️', label: 'Skyet' },
+    fog: { icon: '🌫️', label: 'Tåke' },
+    rainshowers: { icon: '🌦️', label: 'Regnbyger' },
+    rainshowersandthunder: { icon: '⛈️', label: 'Torden og byger' },
+    sleetshowers: { icon: '🌨️', label: 'Sluddbyger' },
+    snowshowers: { icon: '🌨️', label: 'Snøbyger' },
+    rain: { icon: '🌧️', label: 'Regn' },
+    heavyrain: { icon: '🌧️', label: 'Kraftig regn' },
+    lightrain: { icon: '🌦️', label: 'Lett regn' },
+    sleet: { icon: '🌨️', label: 'Sludd' },
+    snow: { icon: '❄️', label: 'Snø' },
+    lightsnow: { icon: '🌨️', label: 'Lett snø' },
+    heavysnow: { icon: '❄️', label: 'Kraftig snø' },
+    thunder: { icon: '⛈️', label: 'Torden' },
+  };
+
+  function describeSymbol(symbolCode) {
+    if (!symbolCode) return { icon: '🌡️', label: 'Ukjent' };
+    const base = symbolCode.replace(/_day|_night|_polartwilight/g, '');
+    return symbolMap[base] ?? { icon: '🌡️', label: symbolCode };
+  }
+
+  function windArrow(direction) {
+    if (direction === null || direction === undefined) return '';
+    // "wind_from_direction" -> arrow should point where the wind is blowing TO.
+    const rotation = (direction + 180) % 360;
+    return rotation;
+  }
+
+  function formatDayLabel(dateStr, index) {
+    const date = new Date(`${dateStr}T12:00:00`);
+    if (index === 0) return 'I dag';
+    if (index === 1) return 'I morgen';
+    return date.toLocaleDateString('nb-NO', { weekday: 'long' });
+  }
+
+  function formatDateLabel(dateStr) {
+    const date = new Date(`${dateStr}T12:00:00`);
+    return date.toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' });
+  }
+
+  function renderForecast(days) {
+    const container = document.getElementById('forecast');
+    container.innerHTML = '';
+
+    days.forEach((day, index) => {
+      const { icon, label } = describeSymbol(day.symbolCode);
+      const card = document.createElement('article');
+      card.className = 'flex flex-col rounded-2xl bg-white p-5 shadow-card';
+
+      const arrowRotation = windArrow(day.windDirection);
+
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="font-display font-bold capitalize text-navy">${formatDayLabel(day.date, index)}</p>
+            <p class="text-xs text-navy-dark/60">${formatDateLabel(day.date)}</p>
+          </div>
+          <span class="text-3xl" aria-hidden="true">${icon}</span>
+        </div>
+        <p class="mt-2 text-sm text-navy-dark/70">${label}</p>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span class="text-2xl font-bold text-navy">${day.maxTemp ?? '–'}°</span>
+          <span class="text-sm text-navy-dark/60">${day.minTemp ?? '–'}°</span>
+        </div>
+        <div class="mt-3 flex items-center gap-2 text-sm text-navy-dark/80">
+          <span aria-hidden="true" style="display:inline-block; transform: rotate(${arrowRotation}deg);">⬆️</span>
+          <span>${day.maxWindKnots ?? '–'} kt</span>
+          <span class="text-navy-dark/40">·</span>
+          <span>💧 ${day.precipitation ?? 0} mm</span>
+        </div>
+        <ul class="mt-4 space-y-1 border-t border-cloud pt-3 text-xs text-navy-dark/80">
+          ${day.tips.map((tip) => `<li class="flex gap-1"><span aria-hidden="true">⛵</span><span>${tip}</span></li>`).join('')}
+        </ul>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  async function loadForecast(slug) {
+    const location = locations.find((loc) => loc.slug === slug) ?? locations[0];
+    const status = document.getElementById('status');
+    status.textContent = `Henter værdata for ${location.name} …`;
+
+    try {
+      const response = await fetch(`/api/weather?lat=${location.lat}&lon=${location.lon}`);
+      if (!response.ok) throw new Error('Nettverksfeil');
+      const data = await response.json();
+      if (!data.days || data.days.length === 0) throw new Error('Tomt svar');
+
+      renderForecast(data.days);
+      const updated = data.updatedAt
+        ? new Date(data.updatedAt).toLocaleString('nb-NO', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })
+        : null;
+      status.textContent = `Værvarsel for ${location.name}${updated ? ` · oppdatert ${updated}` : ''}`;
+    } catch (error) {
+      status.textContent = 'Klarte ikke å hente værdata akkurat nå. Prøv igjen om litt.';
+    }
+  }
+
+  const select = document.getElementById('location');
+  const refreshButton = document.getElementById('refresh');
+  select.value = defaultSlug;
+
+  select.addEventListener('change', () => loadForecast(select.value));
+  refreshButton.addEventListener('click', () => loadForecast(select.value));
+
+  loadForecast(defaultSlug);
+</script>
