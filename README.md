@@ -42,6 +42,31 @@ Den nyeste saken (høyest `pubDate`) vises automatisk fremhevet på forsiden, og
 listes i [nyhetsarkivet](/nyheter). Sett `draft: true` i frontmatter for å skjule en sak uten
 å slette den.
 
+## Artikler (automatisk generert)
+
+I tillegg til `nyheter` finnes en egen samling `artikler` i `src/content/artikler/`, for
+lengre, mer tidløse artikler om seiling, vær, sikkerhet og båtliv. Skjemaet
+(`src/content.config.ts`) ligner på `news`, men har også `tags` og `sources` (URL-ene
+artikkelen er researchet fra).
+
+En GitHub Action (`.github/workflows/daglig-seilartikkel.yml`) kjører hver dag rundt
+kl. 21:30 norsk tid og bruker [`anthropics/claude-code-action`](https://github.com/anthropics/claude-code-action)
+til å:
+
+1. Se på hva som allerede er publisert i `src/content/news/` og `src/content/artikler/`
+   for å unngå å skrive om samme tema på nytt.
+2. Research aktuelle, sesongrelevante seilertemaer på nettet (vær, sikkerhet,
+   praktiske tips, båtvedlikehold, miljø, norske seilingsdestinasjoner) og notere ned
+   kildene som brukes.
+3. Skrive en ny Markdown-fil i `src/content/artikler/` med gyldig frontmatter, og
+   committe/pushe den direkte til hovedgrenen.
+
+For at workflowen skal virke må repoet ha en `ANTHROPIC_API_KEY`-secret (Settings →
+Secrets and variables → Actions), og GitHub Actions må ha lov til å pushe direkte til
+hovedgrenen (`contents: write`-rettigheten er satt i workflowen, men en eventuell
+branch protection-regel på hovedgrenen kan likevel blokkere direkte push fra Actions).
+Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub (`workflow_dispatch`).
+
 ## Værvarsel (yr.no / MET Norway)
 
 Værsiden (`/vaer`) henter data fra [MET Norways Locationforecast API](https://api.met.no)
@@ -110,13 +135,15 @@ akkurat som i produksjon.
 ## Struktur
 
 ```
+.github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
 src/
-  components/     Header, Footer, NewsCard
-  content/news/   Nyhetsartikler (Markdown)
-  data/           Steder for værvarsel
-  layouts/        Felles sidemal
-  pages/          Forside, nyhetsarkiv, vær, seiling-1-2-3, båter
-worker/           Cloudflare Worker: index.js ruter forespørsler,
-                  weather.js er værproxyen mot MET Norway
-wrangler.jsonc    Deploy-konfigurasjon (Worker-entry + assets-mappe)
+  components/        Header, Footer, NewsCard, ArtikkelCard
+  content/news/       Nyhetsartikler (Markdown)
+  content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)
+  data/               Steder for værvarsel
+  layouts/            Felles sidemal
+  pages/              Forside, nyhetsarkiv, artikler, vær, seiling-1-2-3, båter
+worker/             Cloudflare Worker: index.js ruter forespørsler,
+                    weather.js er værproxyen mot MET Norway
+wrangler.jsonc      Deploy-konfigurasjon (Worker-entry + assets-mappe)
 ```

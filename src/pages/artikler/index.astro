@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArtikkelCard from '../../components/ArtikkelCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('artikler', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<Layout title="Artikler" description="Utdypende artikler om seiling, vær, sikkerhet og båtliv langs norskekysten.">
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Artikler</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      Utdypende artikler om seiling, vær, sikkerhet og båtliv – for deg som vil lære mer.
+    </p>
+
+    {
+      allPosts.length === 0 ? (
+        <p class="mt-10 text-navy-dark/70">Ingen artikler er publisert ennå. Kom tilbake snart!</p>
+      ) : (
+        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {allPosts.map((post) => (
+            <ArtikkelCard post={post} />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</Layout>
