@@ -1,13 +1,13 @@
 name: Daglig seilartikkel
 
-# Kjører hver dag rundt kl. 22:00 norsk tid. GitHub Actions cron kjører alltid i UTC og
+# Kjører hver dag rundt kl. 22:30 norsk tid. GitHub Actions cron kjører alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for vintertid CET,
 # ett for sommertid CEST) og lar en vaktbikkje-steg avgjøre hvilken kjøring som faktisk
 # skal gjøre jobben.
 on:
   schedule:
-    - cron: '00 21 * * *' # 22:00 CET (vintertid, UTC+1)
-    - cron: '00 20 * * *' # 22:00 CEST (sommertid, UTC+2)
+    - cron: '30 21 * * *' # 22:30 CET (vintertid, UTC+1)
+    - cron: '30 20 * * *' # 22:30 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
@@ -33,11 +33,11 @@ jobs:
         run: |
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" > "21:45" && "$now_oslo" < "22:15" ]]; then
+          if [[ "$now_oslo" > "22:15" && "$now_oslo" < "22:45" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           else
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (21:45–22:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            echo "Utenfor tidsvinduet (22:15–22:45 norsk tid), denne av de to cron-kjøringene gjør ingenting."
           fi
 
       - name: Sett opp Git-bruker for commit
