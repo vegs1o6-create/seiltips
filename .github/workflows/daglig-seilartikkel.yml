@@ -74,31 +74,30 @@ jobs:
 
             ## 2. Research – bruk WebSearch/WebFetch
             Velg ett konkret tema innenfor en av disse kategoriene (velg det som er mest
-            aktuelt akkurat nå OG minst dekket fra før):
-            - Værforhold/sesongvarsler og hvordan lese dem (kilder: yr.no, met.no,
-              Stormgeo, NRK Vær)
+            aktuelt akkurat nå OG minst dekket fra før, husk på variasjon):
+            - Værforhold/sesongvarsler og hvordan lese dem (kilder uten prioritering: windy.com, yr.no, predictwind.com, met.no,
+              Stormgeo, ecmwf.int, weather.gov/marine)
             - Sikkerhet til sjøs: redningsvester, brannsikkerhet, sjøveisregler, mann-over-
-              bord-rutiner (kilder: Sjøfartsdirektoratet, Redningsselskapet,
-              Norges Seilforbund)
+              bord-rutiner (kilder uten prioritering: Sjøfartsdirektoratet, imo.org, Redningsselskapet, rya.org.uk,
+              Norges Seilforbund, rnli.org, sailing.org/inside-world-sailing/rules-regulations/offshore-special-regulations/)
             - Praktisk seilerkunnskap: knop, navigasjon, fortøyning, ankring, seiltrim
-              (kilder: Norges Seilforbund, Seilmagasinet, Båtmagasinet, evt. anerkjente
+              (kilder uten prioritering: Norges Seilforbund, Seilmagasinet, ussailing.org/education, Båtmagasinet, evt. anerkjente
               internasjonale seilersider som Yachting World / Practical Boat Owner –
               tilpass innholdet til norsk kontekst og norske forhold)
             - Båtvedlikehold og utstyr: sesongklargjøring, vinteropplag, sjøsetting,
-              motorvedlikehold, elektronikk/navigasjonsutstyr
+              motorvedlikehold, elektronikk/navigasjonsutstyr (tips til kilder men ikke begrenset til disse: pbo.co.uk/practical, boatus.com 
             - Bærekraft og miljø til sjøs: forsøpling, bunnstoff, elektrifisering av
-              fritidsbåter, marint verneområder
+              fritidsbåter, marint verneområder (tips til kilder men ikke begrenset til disse: sailorsforthesea.org, thegreenblue.org.uk, europeanboatingindustry.eu)
             - Norske seilingsdestinasjoner: skjærgårder, gjestehavner, seilingsleder,
               severdigheter man kan nå med båt
 
-            Gjør minst 3–5 websøk. Prioriter norske/skandinaviske kilder der det finnes,
-            og kryssjekk faktapåstander i minst 2 kilder før du bruker dem. Noter ned de
+            Gjør minst 3–5 websøk. Noter ned de
             fulle URL-ene du faktisk hentet informasjon fra – disse skal inn i
             `sources`-feltet i frontmatter.
 
             ## 3. Skriving
             - Se på stilen i eksisterende filer i `src/content/news/` som forbilde: norsk
-              bokmål, vennlig og konkret tone, ikke høytidelig. Typisk lengde 200–450 ord,
+              bokmål, uformell og morsom tone, informativ, men ikke høytidelig. Typisk lengde 250–500 ord,
               gjerne med en mellomtittel eller punktliste der det er naturlig.
             - Skjemaet for "artikler"-samlingen står i `src/content.config.ts`. Lag en ny
               Markdown-fil i `src/content/artikler/` med et beskrivende, kebab-case
@@ -118,6 +117,8 @@ jobs:
               det kildene faktisk sier – skriv heller mer generelt/forsiktig enn å gjette.
             - Nevn eventuelle norske lov-/forskriftskrav (f.eks. fra Sjøfartsdirektoratet)
               korrekt og tydelig, uten å overdrive eller skremme unødig.
+            - Alle internasjonale artikler skal oversettes til norsk, denne siden er utelukkende med norsk språk. 
+            - Skriv aldri ordrett av det samme som du finner i artiklene/søkene dine, alt skal skrives med egne ord. 
 
             ## 4. Commit og push
             Når artikkelen er skrevet og du har verifisert at frontmatter er gyldig
