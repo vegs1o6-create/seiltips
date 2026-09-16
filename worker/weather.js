@@ -1,5 +1,6 @@
-// Cloudflare Pages Function: proxies MET Norway's Locationforecast API (yr.no)
-// and aggregates the raw timeseries into a 7-day forecast with sailing tips.
+// Proxies MET Norway's Locationforecast API (yr.no) and aggregates the raw
+// timeseries into a 7-day forecast with sailing tips. Called from the Worker
+// entry point (worker/index.js) for requests to /api/weather.
 //
 // MET Norway's Terms of Service require every client to send an identifying
 // User-Agent header (https://api.met.no/doc/TermsOfService). Update the
@@ -160,8 +161,8 @@ function aggregateByDay(timeseries) {
     .slice(0, 7);
 }
 
-export async function onRequestGet(context) {
-  const { searchParams } = new URL(context.request.url);
+export async function handleWeatherRequest(request, waitUntil) {
+  const { searchParams } = new URL(request.url);
   const lat = Number.parseFloat(searchParams.get('lat') ?? '');
   const lon = Number.parseFloat(searchParams.get('lon') ?? '');
 
@@ -179,7 +180,7 @@ export async function onRequestGet(context) {
 
   const cacheKey = new Request(
     `https://cache.seiltips.no/weather?lat=${roundedLat}&lon=${roundedLon}`,
-    context.request
+    request
   );
   const cache = caches.default;
   const cached = await cache.match(cacheKey);
@@ -213,6 +214,6 @@ export async function onRequestGet(context) {
     { 'cache-control': 'public, max-age=600' }
   );
 
-  context.waitUntil(cache.put(cacheKey, response.clone()));
+  waitUntil(cache.put(cacheKey, response.clone()));
   return response;
 }

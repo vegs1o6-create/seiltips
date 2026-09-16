@@ -2,7 +2,8 @@
 
 Nettsiden for Seiltips.no – værvarsel, seiltips og nyheter for norske seilere. Bygget med
 [Astro](https://astro.build) + [Tailwind CSS](https://tailwindcss.com), og laget for å
-publiseres på [Cloudflare Pages](https://pages.cloudflare.com).
+publiseres som en Cloudflare Worker med statiske assets (Cloudflares nyeste,
+samlede Git-integrasjon for Pages/Workers).
 
 ## Kom i gang lokalt
 
@@ -44,7 +45,9 @@ listes i [nyhetsarkivet](/nyheter). Sett `draft: true` i frontmatter for å skju
 ## Værvarsel (yr.no / MET Norway)
 
 Værsiden (`/vaer`) henter data fra [MET Norways Locationforecast API](https://api.met.no)
-(kjent fra Yr.no) via en Cloudflare Pages Function i `functions/api/weather.js`. Funksjonen:
+(kjent fra Yr.no) via Worker-koden i `worker/weather.js`, kalt fra `worker/index.js` når en
+forespørsel treffer `/api/weather`. Alle andre forespørsler serveres som statiske filer fra
+`dist/` via `env.ASSETS`. Funksjonen:
 
 - Kjører på Cloudflares kant (edge), så ingen API-nøkkel eller hemmelighet trengs.
 - Setter en identifiserbar `User-Agent`-header slik MET Norways
@@ -53,7 +56,7 @@ Værsiden (`/vaer`) henter data fra [MET Norways Locationforecast API](https://a
 - Regner ut min/maks temperatur, maks vind, nedbør og et symbol per dag, samt enkle
   seiltips basert på forholdene.
 
-**Husk:** Oppdater `MET_USER_AGENT`-konstanten i `functions/api/weather.js` med riktig
+**Husk:** Oppdater `MET_USER_AGENT`-konstanten i `worker/weather.js` med riktig
 kontakt-URL/e-post for din utgivelse, i tråd med MET sine retningslinjer.
 
 Værdata er lisensiert under [NLOD](https://data.norge.no/nlod/no) – attribusjon til MET
@@ -62,28 +65,47 @@ Norway/Yr.no vises i bunnteksten og på værsiden.
 Stedene i værvelgeren (Oslofjorden, Kristiansand, Bergen, osv.) er definert i
 `src/data/locations.ts` – legg gjerne til flere kyststrekninger der.
 
-## Publisere på Cloudflare Pages
+## Publisere på Cloudflare
+
+Prosjektet deployes som en **Cloudflare Worker med statiske assets**, konfigurert via
+`wrangler.jsonc` i rotmappen. Dette er Cloudflares nyeste, samlede modell for
+Git-tilkoblede nettsteder (etterfølgeren til klassisk "Pages"), og bruker
+`npx wrangler versions upload` som deploy-kommando.
 
 1. Push repoet til GitHub/GitLab.
-2. Gå til **Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git**, og
-   velg dette repoet.
-3. Byggeinnstillinger:
-   - **Framework preset:** Astro
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-4. `functions/`-mappen plukkes opp automatisk av Cloudflare Pages som en Pages Function
-   (ingen ekstra konfigurasjon nødvendig for `/api/weather`).
-5. Deploy.
+2. Gå til **Cloudflare Dashboard → Workers & Pages → Create → Connect to Git**, og velg
+   dette repoet.
+3. I prosjektinnstillingene (Settings → Build):
+   - **Build command:** `npm run build` (bygger Astro-siden til `./dist` – dette må settes
+     eksplisitt, ellers finnes ikke `dist/` når Wrangler skal deploye).
+   - **Deploy command:** `npx wrangler versions upload` (dette er som regel forhåndsutfylt).
+4. `wrangler.jsonc` forteller Wrangler hva som skal deployes:
+   - `main: "worker/index.js"` – Worker-koden som ruter `/api/weather` og ellers serverer
+     statiske filer.
+   - `assets.directory: "./dist"` – selve Astro-bygget.
+5. Deploy. Sjekk byggeloggen – du skal se både en `npm run build`-steg og en vellykket
+   `wrangler versions upload` uten "Missing entry-point"-feil.
 
 ### Koble til seiltips.no
 
-1. I det publiserte Pages-prosjektet: **Custom domains → Set up a custom domain**.
+1. I det publiserte Worker-prosjektet: **Custom domains → Set up a custom domain** (evt.
+   under **Triggers** hvis prosjektet vises som en ren Worker).
 2. Legg til `seiltips.no` (og evt. `www.seiltips.no`).
 3. Hvis domenet allerede ligger i Cloudflare, blir DNS-oppføringene lagt til automatisk.
    Ligger domenet hos en annen registrar, følg instruksjonene Cloudflare gir for
    CNAME/DNS-oppsett.
 4. Vent på DNS-propagering og SSL-sertifikat (går som regel raskt når domenet er i
    Cloudflare fra før).
+
+### Lokal test av selve Workeren
+
+```bash
+npm run build
+npx wrangler dev --local
+```
+
+Dette starter en lokal Worker som ruter `/api/weather` og serverer resten fra `dist/`,
+akkurat som i produksjon.
 
 ## Struktur
 
@@ -94,5 +116,7 @@ src/
   data/           Steder for værvarsel
   layouts/        Felles sidemal
   pages/          Forside, nyhetsarkiv, vær, seiling-1-2-3, båter
-functions/api/    Cloudflare Pages Function (værproxy mot MET Norway)
+worker/           Cloudflare Worker: index.js ruter forespørsler,
+                  weather.js er værproxyen mot MET Norway
+wrangler.jsonc    Deploy-konfigurasjon (Worker-entry + assets-mappe)
 ```
