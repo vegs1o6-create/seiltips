@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('artikler', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'artikler'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formattedDate = post.data.pubDate.toLocaleDateString('nb-NO', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+  <article class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <a href="/artikler" class="text-sm font-semibold text-sky hover:text-sky-dark">← Tilbake til artikler</a>
+
+    <time datetime={post.data.pubDate.toISOString()} class="mt-6 block text-sm font-semibold uppercase tracking-wide text-sky">
+      {formattedDate}
+    </time>
+    <h1 class="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl">{post.data.title}</h1>
+    <p class="mt-4 text-lg text-navy-dark/80">{post.data.description}</p>
+
+    {
+      post.data.tags && post.data.tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {post.data.tags.map((tag) => (
+            <span class="rounded-full bg-mint/30 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose mt-8 max-w-none rounded-3xl bg-white p-6 shadow-card prose-headings:font-display prose-headings:text-navy prose-a:text-sky sm:p-10">
+      <Content />
+    </div>
+
+    {
+      post.data.sources && post.data.sources.length > 0 && (
+        <div class="mt-6 rounded-2xl bg-white/60 p-6 text-sm text-navy-dark/70">
+          <h2 class="font-display text-sm font-semibold uppercase tracking-wide text-navy">Kilder</h2>
+          <ul class="mt-2 list-inside list-disc space-y-1">
+            {post.data.sources.map((source) => (
+              <li>
+                <a href={source} class="text-sky hover:text-sky-dark" target="_blank" rel="noopener noreferrer">
+                  {source}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </article>
+</Layout>
