@@ -1,7 +1,9 @@
 {
   "name": "seiltips",
   "compatibility_date": "2024-09-23",
+  "main": "worker/index.js",
   "assets": {
-    "directory": "."
+    "directory": "./dist",
+    "binding": "ASSETS"
   }
 }
