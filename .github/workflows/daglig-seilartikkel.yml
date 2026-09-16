@@ -54,7 +54,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
           claude_args: |
-            --model claude-sonnet-5
+            --model claude-haiku-4-5-20251001
             --max-turns 40
             --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Edit,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git config:*),Bash(date:*),Bash(ls:*),Bash(cat:*)"
           prompt: |
