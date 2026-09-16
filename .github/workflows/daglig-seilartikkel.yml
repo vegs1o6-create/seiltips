@@ -1,6 +1,6 @@
 name: Daglig seilartikkel
 
-# Kjører hver dag rundt kl. 21:30 norsk tid. GitHub Actions cron kjører alltid i UTC og
+# Kjører hver dag rundt kl. 21:50 norsk tid. GitHub Actions cron kjører alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for vintertid CET,
 # ett for sommertid CEST) og lar en vaktbikkje-steg avgjøre hvilken kjøring som faktisk
 # skal gjøre jobben.
