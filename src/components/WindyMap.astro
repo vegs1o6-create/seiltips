@@ -18,6 +18,7 @@ const zoom = 8;
 }
 
 {apiKey && <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />}
+{apiKey && <script is:inline src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" />}
 {apiKey && <script is:inline src="https://api.windy.com/assets/map-forecast/libBoot.js" />}
 {
   apiKey && (
