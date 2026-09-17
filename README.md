@@ -106,6 +106,15 @@ variables → Actions):
   nødvendigvis samme som modellnavnet), slik den heter under "Models + endpoints" i
   Foundry-portalen.
 
+Valgfrie secrets/miljøvariabler for å justere kallet til modellen:
+
+- `AZURE_FOUNDRY_MAX_TOKENS` – overstyrer `max_completion_tokens` (standard 16000).
+  Reasoning-modeller (bl.a. gpt-5-familien) bruker en ukjent andel av dette budsjettet
+  på skjulte resonnement-tokens før selve svarteksten – for lavt tall gir et tomt svar
+  med `finish_reason: "length"`.
+- `AZURE_FOUNDRY_TEMPERATURE` – setter `temperature` (utelates helt som standard, siden
+  enkelte reasoning-modeller avviser parameteren uansett verdi).
+
 I tillegg må GitHub Actions ha lov til å pushe direkte til hovedgrenen (`contents:
 write`-rettigheten er satt i workflowen, men en eventuell branch protection-regel på
 hovedgrenen kan likevel blokkere direkte push fra Actions). Workflowen kan også trigges
