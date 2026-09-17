@@ -271,11 +271,15 @@ function commitAndPushImage(imagePath, title) {
   return git(['rev-parse', 'HEAD']);
 }
 
+// Bruker "Instagram API with Instagram Login" (graph.instagram.com), ikke den
+// eldre "Instagram API with Facebook Login" (graph.facebook.com) – kjennetegnes
+// på at access-tokenet starter med "IGAA...". Denne varianten krever ingen
+// tilkoblet Facebook-side, men bruker et annet vertsnavn for API-kall.
 async function publishToInstagram({ imageUrl, caption }) {
   const accessToken = requireEnv('IG_ACCESS_TOKEN');
   const igUserId = requireEnv('IG_USER_ID');
   const apiVersion = process.env.IG_GRAPH_API_VERSION || DEFAULT_GRAPH_API_VERSION;
-  const base = `https://graph.facebook.com/${apiVersion}`;
+  const base = `https://graph.instagram.com/${apiVersion}`;
 
   const createRes = await fetch(`${base}/${igUserId}/media`, {
     method: 'POST',

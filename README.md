@@ -167,27 +167,33 @@ spesifikt for den ressursen. Det klassiske, deployment-baserte endepunktet med e
 fungerer heller ikke for nyere modeller som `gpt-image-1-mini` (utgitt oktober 2025, etter at
 Azure sluttet å utgi nye daterte versjoner).
 
-**Instagram (Meta Graph API):**
+**Instagram (Instagram API with Instagram Login):**
 
-- `IG_ACCESS_TOKEN` – en *long-lived* access token med tilgang til
-  `instagram_basic`, `instagram_content_publish`, `pages_show_list` og
-  `pages_read_engagement` for Facebook-siden som er koblet til Instagram-kontoen.
-- `IG_USER_ID` – Instagram Business-/Creator-kontoens numeriske "Instagram Business
-  Account ID" (finnes f.eks. via `GET /{page-id}?fields=instagram_business_account`).
+Bruker den nyere **"Instagram API with Instagram Login"**
+(`graph.instagram.com`), ikke den eldre "Instagram API with Facebook Login"
+(`graph.facebook.com`) – kjennetegnes på at access-tokenet starter med
+`IGAA...`. Denne varianten krever ingen tilkoblet Facebook-side.
+
+- `IG_ACCESS_TOKEN` – access-tokenet (starter med `IGAA...`) generert for
+  Instagram-kontoen i Meta for Developers, med tilgang til
+  `instagram_business_basic` og `instagram_business_content_publish`.
+- `IG_USER_ID` – den numeriske Instagram-bruker-ID-en som vises sammen med
+  kontoen når tokenet genereres.
 
 Valgfri: `IG_GRAPH_API_VERSION` (standard `v21.0`).
 
-Kort oppsett av Instagram-siden av dette (gjøres i [Meta for Developers](https://developers.facebook.com/)):
+Kort oppsett (gjøres i [Meta for Developers](https://developers.facebook.com/)):
 
-1. Konverter Instagram-kontoen til en Business- eller Creator-konto, og koble den til en
-   Facebook-side du administrerer (kreves av Graph API – en vanlig privat konto virker ikke).
-2. Opprett en Meta-utviklerapp, legg til produktet **Instagram** (Content Publishing), og
-   generer en access token med rettighetene nevnt over.
-3. Bytt token til en *long-lived* token (varer ~60 dager) via Metas
-   `/oauth/access_token`-endepunkt med `grant_type=fb_exchange_token`.
-4. **Viktig:** long-lived tokens utløper etter ca. 60 dager og må fornyes manuelt (eller med
-   et eget script som kaller forlengelses-endepunktet før utløp) – det er ikke satt opp noen
-   automatisk fornyelse i dette repoet ennå.
+1. Konverter Instagram-kontoen til en Business- eller Creator-konto (kreves for
+   API-tilgang – en vanlig privat konto virker ikke).
+2. Opprett en Meta-app, legg til produktet **Instagram** med "Instagram API with
+   Instagram Login", og generer et access token med rettighetene nevnt over
+   direkte i app-dashbordet (ingen Facebook-side involvert).
+3. **Viktig:** tokens generert her kan være kortlevde – sjekk utløpsdato i
+   Meta-dashbordet og bytt til et *long-lived* token (varer ~60 dager) via
+   `GET https://graph.instagram.com/access_token?grant_type=ig_exchange_token`
+   om nødvendig. Det er ikke satt opp noen automatisk fornyelse i dette
+   repoet ennå, så tokenet må fornyes manuelt før det utløper.
 
 Kjøringen kan trigges manuelt via **Actions → Instagram-innlegg for ny artikkel →
 Run workflow**, med filstien til en artikkel i feltet `artikkel_fil`, for å teste hele
