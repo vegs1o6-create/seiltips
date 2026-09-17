@@ -90,11 +90,13 @@ ${body.slice(0, 3000)}
 Skriv to ting:
 
 1. CAPTION – en Instagram-bildetekst på norsk bokmål. Uformell og engasjerende tone,
-   maks ca. 120 ord, som gir lyst til å lese mer uten å avsløre alt. Avslutt med
-   "Les hele saken på seiltips.no" (ren tekst, IKKE en klikkbar lenke eller URL,
-   siden Instagram-bildetekster ikke støtter lenker). Legg til 5–8 relevante
-   hashtags på egen linje til slutt (norske og/eller engelske, f.eks. #seiling
-   #seilbåt #seiltips #norge – velg de som faktisk passer temaet).
+   maks ca. 120 ord, som gir lyst til å lese mer uten å avsløre alt. Avslutt ALLTID
+   med en oppfordring om å lese hele saken via lenken i bio (f.eks. "Lenke i bio for
+   hele saken 👆" eller en naturlig variant av dette – ALDRI en URL eller "seiltips.no"
+   skrevet ut, siden Instagram-bildetekster ikke støtter klikkbare lenker – lenken
+   ligger allerede i kontoens bio). Legg til 5–8 relevante hashtags på egen linje til
+   slutt (norske og/eller engelske, f.eks. #seiling #seilbåt #seiltips #norge – velg
+   de som faktisk passer temaet).
 2. IMAGE_PROMPT – en bildegenereringsprompt PÅ ENGELSK til en fotorealistisk
    AI-bildemodell. Beskriv et konkret, fotorealistisk motiv relatert til
    artikkelens tema (norsk kystnatur, seilbåt, vær, sjøliv e.l., alt etter hva
