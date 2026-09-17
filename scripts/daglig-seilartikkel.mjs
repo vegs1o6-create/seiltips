@@ -134,6 +134,18 @@ sources: ["<url1>", "<url2>"]
 <selve artikkelteksten i Markdown>`;
 }
 
+// Hostet websøk finnes kun på Responses-API-et (/v1/responses), ikke på
+// Chat Completions (/v1/chat/completions) – der er "tools" begrenset til
+// egendefinerte function/custom-verktøy, uten server-side søk.
+function extractResponseText(data) {
+  for (const item of data.output ?? []) {
+    if (item.type !== 'message' || !Array.isArray(item.content)) continue;
+    const textPart = item.content.find((c) => c.type === 'output_text');
+    if (textPart?.text) return textPart.text;
+  }
+  return null;
+}
+
 async function callFoundry(userPrompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_API_KEY');
@@ -141,16 +153,16 @@ async function callFoundry(userPrompt) {
 
   const body = {
     model,
-    messages: [{ role: 'user', content: userPrompt }],
+    input: userPrompt,
     // Aktiverer modellens innebygde websøk/browsing, slik at artikkelen kan
     // baseres på fersk research i stedet for bare treningskunnskap.
     tools: [{ type: 'web_search' }],
-    max_completion_tokens: process.env.AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS
+    max_output_tokens: process.env.AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS
       ? Number(process.env.AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS)
       : 16000,
   };
 
-  const res = await fetch(`${endpoint}/openai/v1/chat/completions`, {
+  const res = await fetch(`${endpoint}/openai/v1/responses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify(body),
@@ -162,14 +174,13 @@ async function callFoundry(userPrompt) {
   }
 
   const data = await res.json();
-  const choice = data.choices?.[0];
-  const content = choice?.message?.content;
+  const content = extractResponseText(data);
   if (!content) {
-    if (choice?.finish_reason === 'length') {
+    if (data.status === 'incomplete') {
       throw new Error(
-        'Modellen brukte opp hele tokenbudsjettet (trolig på skjulte resonnement- eller ' +
-          'søketokens) uten å skrive noe svar. Sett AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS til en ' +
-          'høyere verdi enn dagens 16000.'
+        `Modellen fullførte ikke svaret (status "incomplete", grunn: ` +
+          `${data.incomplete_details?.reason ?? 'ukjent'}). Sett ` +
+          `AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS til en høyere verdi enn dagens 16000.`
       );
     }
     throw new Error(`Fikk ikke noe svarinnhold fra modellen. Rått svar: ${JSON.stringify(data).slice(0, 500)}`);
