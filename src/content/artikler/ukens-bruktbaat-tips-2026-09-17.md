@@ -1,37 +1,37 @@
 ---
-title: "Tre bruktbåtkjøp på Finn.no som skiller seg ut nå"
-description: "Vi har sammenlignet aktuelle seilbåter på Finn.no og plukket ut tre interessante kjøp i ulike størrelser og prisklasser."
+title: "Tre gode bruktbåtkjøp på Finn.no akkurat nå"
+description: "Vi har sammenlignet pris, alder, størrelse og utstyr på aktuelle seilbåter – og plukket ut tre som skiller seg positivt ut."
 pubDate: 2026-09-17
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
-sources: ["https://www.finn.no/mobility/item/472573558", "https://www.finn.no/mobility/item/476404840", "https://www.finn.no/mobility/item/476370498"]
+sources: ["https://www.finn.no/mobility/item/476404840", "https://www.finn.no/mobility/item/474900901", "https://www.finn.no/mobility/item/270406415"]
 ---
 
-## Tre bruktbåtkjøp på Finn.no som skiller seg ut nå
+# Tre gode bruktbåtkjøp på Finn.no akkurat nå
 
-Det ligger mange seilbåter ute på Finn.no, fra enkle 25-fotere til store langturbåter. Vi har sammenlignet pris, størrelse, alder, motor og utstyr, og funnet tre annonser som gir mye båt for pengene – riktignok i tre ganske ulike kategorier.
+Det ligger mange seilbåter ute på Finn.no, fra små turbåter til store havseilere. Vi har sett nærmere på pris, byggeår, størrelse og utstyr, og plukket ut tre annonser som fremstår som spesielt interessante for ulike typer kjøpere.
 
-### Bavaria 36 AC – stor familieseiler til 580 000 kroner
+## Jeanneau 27 – mye oppgradering for 90 000 kroner
 
-Denne Bavaria 36 AC fra 2004 er 36 fot lang og har tre lugarer, åtte sitteplasser og åtte oppgitte soveplasser. Motoren er en Volvo Penta D2-40F på 40 hk fra 2012, med bare 452 timer. Båten har jernkjøl på 1,70 meter og ligger i Skjebergkilen. ([finn.no](https://www.finn.no/mobility/item/472573558))
+Denne Jeanneau 27-en fra 1987 er 27 fot lang og ligger i Sandvika. Prisen er 90 000 kroner. Det er en kompakt størrelse som passer godt for par, små familier eller seilere som ønsker en lett håndterlig båt langs kysten.
 
-Utstyrslisten er kort, men interessant: Alle fall går til cockpit, slik at båten kan seiles av én person. Annonsen oppgir også ny Raymarine Axiom 12-kartplotter fra 2025, to nye litiumbatterier fra 2026 og byttet «seilbelg» i 2026. [Se annonsen her](https://www.finn.no/mobility/item/472573558).
+Båten har en Volvo Penta D1-20-dieselmotor fra 2010, med rundt 600 motortimer. Annonsen oppgir også ny propell, ny drivstofftank, ny lyddemper og nytt toalett. I tillegg følger relativt nytt autopilotsystem og Raymarine-kartplotter med. Interiøret er oppgradert, og skroget er polert og bunnstoffet i nyere tid.
 
-Dette fremstår som et godt kjøp for familien som vil ha mye plass uten å gå opp i 40-fotsklassen. Prisen er ikke lavest, men kombinasjonen av størrelse, nyere motor, moderne elektronikk og litiumbatterier trekker opp.
+Til denne prisen er kombinasjonen av innenbordsmotor, navigasjon og oppgraderinger interessant. Det gjør båten mer klar for bruk enn mange rimelige 27-fotere. [Se annonsen her](https://www.finn.no/mobility/item/476404840). ([finn.no](https://www.finn.no/mobility/item/476404840))
 
-### Jeanneau 27 – oppgradert turbåt til 90 000 kroner
+## Dromor Athena 44 – stor bobåt for 600 000 kroner
 
-For den som ønsker en mindre og rimeligere seilbåt, er Jeanneau 27 fra 1987 et spennende alternativ. Den er 27 fot lang, har innenbordsmotor og selges for 90 000 kroner. Volvo Penta-dieselen på 20 hk er fra 2010 og skal ha gått omtrent 600 timer. ([finn.no](https://www.finn.no/mobility/item/476404840))
+For den som ønsker mye plass, er Dromor Athena 44 fra 1998 et alternativ som skiller seg ut. Båten er 44 fot lang, har åtte oppgitte sitteplasser og koster 600 000 kroner. Den ligger i Haugesund.
 
-Her følger det med flere oppgraderinger: ny propell, drivstofftank, lyddemper og toalett. Båten har også relativt nytt autopilotsystem, Raymarine-kartplotter, oppgradert interiør og nytt bunnstoff. Annonsen beskriver båten som velholdt og klar for nye turer. [Se annonsen her](https://www.finn.no/mobility/item/476404840).
+Dette er først og fremst en stor turbåt og bobåt. Annonsen beskriver rundt 190 centimeters ståhøyde, åtte ordinære sengeplasser, fire lugarer og to toaletter. Motoren er en Volvo Penta MD22P på 57 hk, installert i 2004. Seilutrustningen omfatter rullestorseil, rullesystem for forseil, ekstra seil, babystag og to whisker poles. Stående rigg ble byttet i 2007, mens seilene ble byttet i 2014/15.
 
-Dette er særlig interessant fordi nyere motor og elektronikk ofte er blant de dyreste oppgraderingene på eldre båter. Jeanneau 27 bør kunne fungere fint som førstebåt, helgebåt eller enkel familieseiler.
+Utstyrslisten er omfattende, med Raymarine-navigasjon, autopilot, radar, ekkolodd, VHF, GPS/kartplotter, vindinstrument, baugpropell, elektriske ankervinsjer, solcellepaneler og litiumbatteri. Jolle og 6 hk påhengsmotor kan følge med etter avtale. [Se annonsen her](https://www.finn.no/mobility/item/474900901). ([finn.no](https://www.finn.no/mobility/item/474900901))
 
-### Maxi 84 – klassisk seilglede til 55 000 kroner
+## Bavaria 36 Cruiser – oppgradert familieseiler til 550 000 kroner
 
-Maxi 84 fra 1981 er 28 fot lang og koster 55 000 kroner. Den har en Yanmar innenbordsmotor på 13 hk, og selger oppgir at motoren starter lett og går fint. Båten har fem soveplasser og ligger i Halden. ([finn.no](https://www.finn.no/mobility/item/476370498))
+Bavaria 36 Cruiser fra 2004 er 36 fot lang og annonsert for 550 000 kroner. Den har tre lugarer, seks faste sengeplasser og mulighet for ytterligere køyer i salongen.
 
-Utstyret er overraskende omfattende for prisklassen: storseil, genua med Furlex, dieselvarmer, solcellepanel, ferskvannstank, septiktank, kjøleboks, badeplattform og formsydd opplagspresenning. Båten er nylig primet, bunnstoffet og fått ny sink, men blokker og tauverk bør følges opp. [Se annonsen her](https://www.finn.no/mobility/item/476370498).
+Her er det særlig utstyrslisten som gjør båten interessant. Motoren er en totaloverhalt Volvo Penta MD2030 fra 2020. Båten har lithiumbatteribank med Victron-lader og solcellepanel, elektriske ankervinsjer både forut og akter, Side-Power baugpropell med fjernkontroll og moderne Garmin-, Raymarine- og Orca-navigasjon. Jefa-rorlager og Flex-o-Fold foldepropell er også oppgitt som nyere oppgraderinger.
 
-Dette er et svært interessant lavbudsjettkjøp for en kjøper som vil ha en enkel, brukbar turbåt – ikke nødvendigvis det nyeste, men mye praktisk utstyr for pengene.
+For en familie som vil ha god plass og mye teknisk utstyr uten å gå opp i 40-fotsklassen, fremstår dette som en sterk pakke. [Se annonsen her](https://www.finn.no/mobility/item/270406415). ([finn.no](https://www.finn.no/mobility/item/270406415))
 
-**Merk:** Dette er et øyeblikksbilde per 17. september 2026. Finn.no-annonser kan bli solgt eller fjernet når som helst, og lenkene kan derfor slutte å virke.
+*Dette er et øyeblikksbilde per 17. september 2026. Annonser på Finn.no kan bli solgt eller fjernet når som helst, så lenkene kan slutte å virke.*
