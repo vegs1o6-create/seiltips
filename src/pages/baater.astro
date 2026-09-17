@@ -7,23 +7,27 @@ const boatTypes = [
     description:
       'Liten, lettseilt båt uten eller med enkel kahytt. Perfekt for læring og korte turer i skjærgården.',
     icon: '🛶',
+    href: '/baater/daysailer-jolle',
   },
   {
     title: 'Kjølbåt / turseiler',
     description:
       'Stabil familiebåt med kahytt, gjerne 25–40 fot. God balanse mellom komfort og seilegenskaper.',
     icon: '⛵',
+    href: '/baater/kjolbaat-turseiler',
   },
   {
     title: 'Motorseiler',
     description:
       'Kombinerer seil og kraftig motor for fleksibilitet – populær for langturer langs kysten.',
     icon: '🚤',
+    href: '/baater/motorseiler',
   },
   {
     title: 'Racer / regattabåt',
     description: 'Lett og rigget for fart. Krever mer erfaring, men gir stor seilglede i frisk vind.',
     icon: '🏁',
+    href: '/baater/racer-regattabaat',
   },
 ];
 
@@ -45,16 +49,23 @@ const maintenanceTips = [
     </p>
 
     <h2 class="mt-10 font-display text-2xl font-bold text-navy">Vanlige båttyper</h2>
+    <p class="mt-2 text-sm text-navy-dark/60">Trykk på en båttype for å lese mer om kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller.</p>
     <div class="mt-6 grid gap-6 sm:grid-cols-2">
       {
         boatTypes.map((boat) => (
-          <div class="flex gap-4 rounded-2xl bg-white p-6 shadow-card">
+          <a
+            href={boat.href}
+            class="group flex gap-4 rounded-2xl bg-white p-6 shadow-card transition hover:shadow-soft"
+          >
             <span class="text-3xl" aria-hidden="true">{boat.icon}</span>
             <div>
-              <h3 class="font-display font-bold text-navy">{boat.title}</h3>
+              <h3 class="font-display font-bold text-navy group-hover:text-sky-dark">{boat.title}</h3>
               <p class="mt-1 text-sm text-navy-dark/80">{boat.description}</p>
+              <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-sky group-hover:text-sky-dark">
+                Les mer →
+              </span>
             </div>
-          </div>
+          </a>
         ))
       }
     </div>

@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BoatDetail from '../../components/BoatDetail.astro';
+---
+
+<Layout
+  title="Racer / regattabåt"
+  description="Alt du trenger å vite om racere og regattabåter: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
+>
+  <BoatDetail
+    icon="🏁"
+    title="Racer / regattabåt"
+    tagline="Bygget for fart – lett, slank og krevende å seile godt."
+    intro={[
+      'Racer- og regattabåter er konstruert med ett mål for øye: maksimal fart i forhold til seilareal og skrogvekt. Skroget er så lett som klassen tillater, ofte i avansert komposittmateriale som karbon eller kevlar, og innredningen er minimalistisk eller nærmest fraværende – hver kilo som ikke bidrar til fart, er en kilo for mye.',
+      'Kjølen er typisk dyp og slank, ofte med en bulb eller vinge på undersiden som konsentrerer ballasten lengst mulig ned og reduserer det våte skrogarealet. Riggen er høy og slank, gjerne i karbon, og seilarealet er stort i forhold til skrogets størrelse. Mange racere seiler med flere seilsett tilpasset ulike vindstyrker, samt gennaker eller spinnaker for lens.',
+      'Kategorien spenner fra rimelige, eldre one-design-klasser som Folkebåten og H-båten, via moderne sportsbåter som J/70 og Melges 24, til de mest ekstreme offshore-racerne som seiler jorden rundt. Det de har til felles er at de krever mer erfaring, presisjon og fysisk innsats enn en turseiler – men gir til gjengjeld en seilopplevelse med langt mer fart og direkte tilbakemelding.',
+    ]}
+    specs={[
+      { label: 'Lengde', value: '6–45+ fot, typisk klubbregatta 25–40 fot' },
+      { label: 'Skrog', value: 'Lett komposittmateriale (karbon/kevlar) eller optimalisert GRP' },
+      { label: 'Kjøltype', value: 'Dyp, slank finnekjøl med bulb eller vinge' },
+      { label: 'Rigg', value: 'Høy, slank mast og stort seilareal, ofte karbon' },
+      { label: 'Besetning', value: '2–10+ personer avhengig av klasse' },
+      { label: 'Prisnivå brukt', value: '100 000 – flere titalls millioner kr' },
+    ]}
+    sailingIntro="Racerbåten er svært responsiv og krever presis vektfordeling og aktiv styring for å utnytte potensialet fullt ut, både opp mot vinden og på lens."
+    sailingPoints={[
+      'Høy fart-til-vekt-ratio gir rask akselerasjon og stor følsomhet for feil i seiltrim eller rorgang.',
+      'Krever konstant vektforflytning og trimjustering fra mannskapet for å holde optimal fart og balanse.',
+      'Mindre tilgivende enn en turseiler – feil i manøvrering kan raskt føre til tap av fart eller kontroll.',
+      'God oppoverkryssevne takket være dyp, effektiv kjøl og stivt, optimalisert skrog.',
+      'Ofte utstyrt med gennaker eller spinnaker som krever trening og godt samspill i mannskapet for effektiv bruk.',
+    ]}
+    useCaseIntro="Racerbåten er laget for konkurranse og for seilere som søker maksimal fart og et aktivt, engasjerende samspill med båt og mannskap."
+    useCasePoints={[
+      'Klubbregattaer og one-design-klasser der alle båter er identiske, slik at det er seilerens ferdigheter som avgjør.',
+      'Banelag og distanseseilaser som Skagen Race og Færder, der fart og taktikk er avgjørende.',
+      'Erfarne seilere som ønsker mer fysisk og teknisk krevende seiling enn en turseiler kan tilby.',
+      'Seilere som vil bygge et sosialt og konkurransepreget miljø rundt en fast klasse og faste regattaer.',
+      'De mest ekstreme offshore-klassene, forbeholdt profesjonelle eller svært erfarne mannskaper på lange havseilaser.',
+    ]}
+    pros={[
+      'Stor seilglede og betydelig høyere fartspotensial enn turseiler og motorseiler.',
+      'Aktiv og engasjerende å seile, med umiddelbar tilbakemelding på trim og manøvrering.',
+      'Sterkt sosialt og konkurransepreget miljø rundt de fleste faste klassene.',
+      'One-design-klasser sikrer jevn og rettferdig konkurranse basert på seilerferdighet.',
+      'Rask utvikling av seilteknikk og sjøvett for de som seiler regelmessig i klasse.',
+    ]}
+    cons={[
+      'Krever betydelig mer erfaring og fysisk innsats enn en turseiler for å seiles trygt og godt.',
+      'Spartansk innredning gir liten eller ingen komfort for overnatting eller dårlig vær.',
+      'Høyere vedlikeholdskostnader på rigg og seil på grunn av hard og hyppig bruk.',
+      'Mer utsatt for skader ved feilmanøvrering, kollisjoner eller grunnstøting enn en tyngre turseiler.',
+      'Mindre egnet som første båt for nybegynnere uten grunnleggende seilerfaring.',
+    ]}
+    equipment={[
+      'Godkjent kappseilingsvest tilpasset aktiv seiling og eventuelt trapesbruk.',
+      'Trapesutstyr eller hikingstropper for effektiv vektforflytning i klasser som krever det.',
+      'Sikkerhetsutstyr i tråd med Seilforbundets og World Sailings kappseilingsregler for aktuell klasse og løp.',
+      'Kommunikasjonsutstyr (VHF) for banelag og lengre distanseseilaser.',
+      'Kniv lett tilgjengelig for å kutte tau eller skjøter raskt ved kritiske situasjoner.',
+      'Godt tilpasset bekledning for aktiv seiling, inkludert vind- og vanntette lag selv i mildt vær.',
+    ]}
+    maintenance={[
+      'Sjekk stående og løpende rigg hyppig, siden racerbåter ofte seiles hardere og nærmere materialgrensene enn turseilere.',
+      'Behandle seil varsomt – unngå unødig UV-eksponering og flapping, som reduserer levetiden betydelig.',
+      'Poler og voks skroget jevnlig for å minimere friksjon og opprettholde toppfart.',
+      'Kontroller kjøl og ror for skader etter enhver grunnstøting eller hard kontakt, selv ved lav fart.',
+      'Sjekk blokker, vinsjer og annet løpende rigg-utstyr for slitasje, siden disse utsettes for høy belastning under regatta.',
+      'Følg klassereglenes krav til vedlikehold og eventuelle målebrev for å sikre at båten forblir konkurransedyktig og lovlig i klassen.',
+    ]}
+    models={[
+      { name: 'Folkebåten', price: '20 000 – 80 000 kr', note: 'Rimelig one-design, stort og aktivt miljø' },
+      { name: 'H-båten', price: '30 000 – 120 000 kr', note: 'Klassisk regattaklasse, god skoleovergang' },
+      { name: 'Yngling', price: '40 000 – 150 000 kr', note: 'Tremanns one-design, tidligere OL-klasse' },
+      { name: 'J/70', price: '400 000 – 900 000 kr', note: 'Moderne sportsbåt, stort internasjonalt miljø' },
+      { name: 'Melges 24', price: '300 000 – 800 000 kr', note: 'Rask, krevende, høyt konkurransenivå' },
+      { name: 'X-35 / X-41', price: '600 000 – 2 500 000 kr', note: 'Rask cruiser/racer med noe komfort' },
+    ]}
+    buyingTips={[
+      'Sjekk seilnummer og målebrev for one-design-klasser, slik at båten er godkjent for regatta i ønsket klasse.',
+      'Undersøk om båten er korrekt "målt" og i samsvar med klassereglene før du melder deg på regattaer.',
+      'Vær ekstra nøye med riggkontrollen, siden racerbåter typisk seiles hardere og nærmere materialgrensene enn turseilere.',
+      'Spør om båtens konkurransehistorikk og eventuelle skader fra grunnstøting eller kollisjon under regatta.',
+    ]}
+    prev={{ href: '/baater/motorseiler', title: 'Motorseiler', icon: '🚤' }}
+    next={{ href: '/baater/daysailer-jolle', title: 'Daysailer / jolle', icon: '🛶' }}
+  />
+</Layout>

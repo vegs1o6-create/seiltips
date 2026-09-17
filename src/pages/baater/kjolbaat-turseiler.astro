@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BoatDetail from '../../components/BoatDetail.astro';
+---
+
+<Layout
+  title="Kjølbåt / turseiler"
+  description="Alt du trenger å vite om kjølbåter og turseilere: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
+>
+  <BoatDetail
+    icon="⛵"
+    title="Kjølbåt / turseiler"
+    tagline="Den klassiske familiebåten – stabil, trygg og laget for overnatting om bord."
+    intro={[
+      'Kjølbåten, eller turseileren, er den mest vanlige typen seilbåt langs norskekysten. I motsetning til jollen har den en fast kjøl med ballast (bly eller støpejern) permanent montert under skroget. Denne vekten lavt i båten gjør den selvopprettende – den kantrer ikke på samme måte som en jolle, selv i frisk vind og krapp sjø.',
+      'Turseileren er bygget for komfort og trygghet over tid: full stående høyde i kahytten, faste køyer, kjøkkenkrok (kabyss) og som regel eget toalett. Dette gjør den til den naturlige båten for familier og vennegjenger som vil kombinere seiling med overnatting, matlaging og et sosialt liv om bord – enten det er en helgetur til en nærliggende øy eller en lengre ferietur langs kysten, for eksempel fra Oslofjorden mot Kosterøyene.',
+      'De fleste norske seilere som eier egen båt, eier en kjølbåt av denne typen. Størrelsen varierer stort, fra kompakte 25-fotere som er lette å håndtere alene, til 40-fotere med plass til to familier og lange overnattingsturer.',
+    ]}
+    specs={[
+      { label: 'Lengde', value: '25–45 fot (7,5–14 meter)' },
+      { label: 'Skrog', value: 'GRP vanligst, noen i aluminium/stål' },
+      { label: 'Kjøltype', value: 'Fast kjøl med ballast (fin, bulb eller langkjøl)' },
+      { label: 'Rigg', value: 'Sluffrigg med storseil og fokk/genoa, ofte rulleseil' },
+      { label: 'Besetning', value: '2–6 personer' },
+      { label: 'Prisnivå brukt', value: '150 000 – 3 000 000+ kr' },
+    ]}
+    sailingIntro="Ballasten i kjølen gjør turseileren stabil og forutsigbar. Den tåler mer vind og sjø enn en jolle, men responderer tregere på ror og seiltrim."
+    sailingPoints={[
+      'Selvopprettende – båten krenger i vind, men går normalt ikke rundt, noe som gir en tryggere følelse for uerfarne mannskaper.',
+      'Roligere og mer forutsigbar gange enn en jolle, spesielt i krapp sjø, fordi vekten i kjølen demper bevegelsene.',
+      'Kryssegenskapene (evnen til å seile mot vinden) er ofte gode takket være dyp, effektiv kjøl som hindrer avdrift.',
+      'Krever mer plass og tid til manøvrering enn en lett jolle, spesielt ved fortøyning og i trange havner.',
+      'Rullefokk og ofte rullestorseil gjør at seilarealet enkelt kan tilpasses vindstyrken, selv med lite mannskap.',
+    ]}
+    useCaseIntro="Turseileren er allsidig og dekker det store flertallet av norske seilbehov – fra kveldstur til flere ukers sommerferie langs kysten."
+    useCasePoints={[
+      'Helgeturer og ferieseiling med overnatting om bord for familie eller venner.',
+      'Kystseiling over flere dager, der komfort, lagringsplass og god manøvrerbarhet i havn er viktig.',
+      'Nybegynnere som har tatt grunnleggende seilopplæring og ønsker en trygg, tilgivende båt å utvikle seg videre i.',
+      'Faste plasser i båtforening eller marina, der båten ofte ligger klar til bruk gjennom sesongen.',
+      'Familier med barn, siden god stabilitet og fast rekkverk/lifeline gjør det tryggere å ha unger om bord.',
+    ]}
+    pros={[
+      'God plass til mannskap, utstyr og proviant – egnet for flere dagers tur.',
+      'Trygg og stabil, med lav risiko for kantring under normal bruk.',
+      'Komfortabel for overnatting, med egen kahytt, køyer og ofte toalett.',
+      'Brukervennlig for familier og mindre erfarne seilere, spesielt med rullereving.',
+      'Bredt bruktmarked med stort utvalg i alle prisklasser og størrelser.',
+    ]}
+    cons={[
+      'Betydelig dyrere i innkjøp, drift og vedlikehold enn en jolle.',
+      'Krever fast havneplass eller vinteropplag, som ofte har venteliste og kostnad.',
+      'Tregere og mindre manøvrerbar i trangt farvann sammenlignet med mindre båter.',
+      'Dypere kjøl kan hindre seiling i grunne farvann og enkelte skjærgårdsviker.',
+      'Tyngre vedlikeholdsarbeid (bunnstoff, rigg, motor) krever mer tid og kunnskap enn en jolle.',
+    ]}
+    equipment={[
+      'Redningsvest eller flyteplagg til alle om bord, og gjerne en redningsflåte på lengre turer.',
+      'Håndholdt eller fastmontert VHF-radio for værmelding og nødkommunikasjon.',
+      'AIS og kartplotter for trygg navigasjon, spesielt i skipslei og dårlig sikt.',
+      'Brannslukningsapparat plassert lett tilgjengelig, samt gassvarsler dersom båten har gasskomfyr.',
+      'Fullgodt ankerutstyr tilpasset båtens vekt, og reservedeler til rigg og motor på lengre turer.',
+      'Manuell og elektrisk lensepumpe, samt fungerende navigasjonslys for seiling i mørket.',
+    ]}
+    maintenance={[
+      'Bunnstoff påføres årlig eller hvert annet år for å hindre begroing som senker farten og øker drivstofforbruket.',
+      'Sjekk gjennomføringer (bunnventiler) og pakkboks jevnlig – dette er kritiske punkter for båtens tetthet.',
+      'Kontroller stående rigg og wire for slitasje, rust og skader – bytt wire eldre enn 10–15 år.',
+      'Service dieselmotoren årlig: olje, filter og impeller er billig forsikring mot dyre havarier.',
+      'Test batterier, elektrisk anlegg og lensepumper jevnlig, ikke bare når noe allerede har gått galt.',
+      'Kontroller gassanlegg og slanger årlig dersom båten har gasskomfyr eller gassvarmer om bord.',
+    ]}
+    models={[
+      { name: 'Folkebåten', price: '20 000 – 80 000 kr', note: 'Rimelig klassiker, stort miljø og godt reservedelstilbud' },
+      { name: 'Compromis 888/999', price: '100 000 – 350 000 kr', note: 'Familie, rimelig i drift, god på kryss' },
+      { name: 'Albin Vega', price: '80 000 – 250 000 kr', note: 'Robust klassiker, populær for lengre turer' },
+      { name: 'Bavaria 34–38', price: '150 000 – 500 000 kr', note: 'God balanse mellom pris, plass og fart' },
+      { name: 'Dufour 35/38', price: '200 000 – 600 000 kr', note: 'Komfortprioritert familiebåt' },
+      { name: 'Hallberg-Rassy 31–37', price: '400 000 – 2 000 000 kr', note: 'Kvalitetsbevisste, egnet for offshore' },
+    ]}
+    buyingTips={[
+      'Se båten på land før kjøp, slik at du kan vurdere skrog, kjøl og eventuell osmose ordentlig.',
+      'Be om servicehistorikk på motor, og sjekk timetall opp mot alder for å avdekke lite eller mye bruk.',
+      'Vurder å bestille profesjonell besiktigelse gjennom Kongelig Norsk Båtforbund (KNBF) før du signerer kontrakt.',
+      'Sjekk panteregisteret hos Skipsregisteret dersom båten er over syv meter, slik at du ikke overtar skjult gjeld.',
+    ]}
+    prev={{ href: '/baater/daysailer-jolle', title: 'Daysailer / jolle', icon: '🛶' }}
+    next={{ href: '/baater/motorseiler', title: 'Motorseiler', icon: '🚤' }}
+  />
+</Layout>
