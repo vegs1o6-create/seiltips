@@ -117,15 +117,16 @@ Workflowen bruker `scripts/post-instagram.mjs` til å:
 1. Be tekstmodellen i Azure AI Foundry (samme `gpt-5.6-luna`-deployment som artiklene
    skrives med) om å lage en norsk Instagram-bildetekst (inkl. hashtags) og en engelsk
    bildegenereringsprompt, basert kun på den ferdigskrevne artikkelen.
-2. Generere et fotorealistisk bilde ut fra den promptet med en **egen** Azure
-   OpenAI-bildemodell (`gpt-image-1.5`) via det samlede
-   `/openai/v1/images/generations`-endepunktet – lagre bildet i
+2. Generere et fotorealistisk bilde ut fra den promptet med en Azure OpenAI-bildemodell
+   (gpt-image-serien, f.eks. `gpt-image-2.5-sunburst`), lagre det i
    `public/instagram/<slug>.png`, og committe/pushe det med én gang. Det gjøres for at
    bildet skal få en offentlig URL (`raw.githubusercontent.com`) Instagram kan hente det
-   fra, uten å måtte vente på at Cloudflare bygger og deployer nettsiden.
-3. Publisere et bilde-innlegg på Instagram via **Metas offisielle Graph API**
-   (Content Publishing API) – dette er den reelt gratis, "offisielle" veien til å
-   publisere programmatisk (ikke et tredjepartsverktøy), og krever ingen abonnementer.
+   fra, uten å måtte vente på at Cloudflare bygger og deployer nettsiden. **Krever at
+   repoet er offentlig** – Instagrams servere kan ikke hente bilder fra
+   `raw.githubusercontent.com` i et privat repo.
+3. Publisere et bilde-innlegg på Instagram via **Instagram API with Instagram Login**
+   (Metas offisielle Content Publishing API) – gratis, ingen abonnement, ingen
+   tredjepartsverktøy.
 
 **Trigger:** Både `daglig-seilartikkel.yml` og `ukentlig-bruktbaat-tips.yml` committer med
 standard `GITHUB_TOKEN`, og slike pushes trigger *ikke* andre workflowers `on: push`
@@ -139,40 +140,25 @@ opp en artikkel du selv committer manuelt) og `workflow_dispatch` (for manuell t
 I tillegg til `AZURE_FOUNDRY_ENDPOINT`/`AZURE_FOUNDRY_API_KEY` (allerede satt for de andre
 workflowene), trengs:
 
-**Azure OpenAI – gpt-image-1-serien (deployet på SAMME ressurs/prosjekt som tekstmodellen):**
+**Azure OpenAI – bildemodell (deployet på SAMME ressurs/prosjekt som tekstmodellen):**
 
-- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – **samme verdi som `AZURE_FOUNDRY_ENDPOINT`** (bildemodellen
-  må deployes på samme Foundry-ressurs/prosjekt som `gpt-5.6-luna`, ikke en separat
-  Azure OpenAI-ressurs – se forklaring under).
-- `AZURE_FOUNDRY_IMAGE_API_KEY` – kan være samme verdi som `AZURE_FOUNDRY_API_KEY` (samme
-  ressurs), brukes som `Authorization: Bearer`-token.
+- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – samme verdi som `AZURE_FOUNDRY_ENDPOINT`. Bildemodellen må
+  deployes på samme Foundry-ressurs/prosjekt som `gpt-5.6-luna`, ikke en separat Azure
+  OpenAI-ressurs, siden skriptet bruker Azures versjonsløse v1-API
+  (`/openai/v1/images/generations`, `Authorization: Bearer`, ingen `api-version`) – samme
+  mønster som allerede fungerer for tekstmodellen mot `/openai/v1/responses`.
+- `AZURE_FOUNDRY_IMAGE_API_KEY` – kan være samme verdi som `AZURE_FOUNDRY_API_KEY`.
 - `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av bildemodellen (f.eks.
-  `gpt-image-1-mini`), slik den heter under "Deployments" i Foundry-portalen.
+  `gpt-image-2.5-sunburst`), slik den heter under "Deployments" i Foundry-portalen.
 
 Valgfrie: `AZURE_FOUNDRY_IMAGE_SIZE` (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT`
 (standard `png`), `AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`),
 `AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
 
-**Viktig – kvote:** gpt-image-1-serien har egne, ofte lave kvoter per deployment. Sjekk
-"Models + endpoints" → deploymentet → kvote i Foundry-portalen dersom kall avvises, og be
-om økt kvote (eller velg en annen gpt-image-1-variant med ledig kvote) om nødvendig.
-
-**Hvorfor samme ressurs som tekstmodellen:** Skriptet bruker Azures "neste generasjons v1
-API" (`/openai/v1/images/generations`, ingen `api-version`, `Authorization: Bearer`) – samme
-mønster som allerede er bekreftet å fungere for tekstmodellen mot `/openai/v1/responses`. En
-tidligere, separat Azure-ressurs avviste `api-version` på `/v1`-stien uansett verdi (i strid
-med Microsofts dokumentasjon), sannsynligvis pga. et utrulling-/provisjoneringsavvik
-spesifikt for den ressursen. Det klassiske, deployment-baserte endepunktet med en datert
-`api-version` (f.eks. `2025-04-01-preview`, siste daterte versjon som noensinne ble utgitt)
-fungerer heller ikke for nyere modeller som `gpt-image-1-mini` (utgitt oktober 2025, etter at
-Azure sluttet å utgi nye daterte versjoner).
+Sjekk kvote for deploymentet under "Models + endpoints" i Foundry-portalen dersom kall
+avvises, og be om økt kvote (eller velg en annen gpt-image-variant med ledig kvote).
 
 **Instagram (Instagram API with Instagram Login):**
-
-Bruker den nyere **"Instagram API with Instagram Login"**
-(`graph.instagram.com`), ikke den eldre "Instagram API with Facebook Login"
-(`graph.facebook.com`) – kjennetegnes på at access-tokenet starter med
-`IGAA...`. Denne varianten krever ingen tilkoblet Facebook-side.
 
 - `IG_ACCESS_TOKEN` – access-tokenet (starter med `IGAA...`) generert for
   Instagram-kontoen i Meta for Developers, med tilgang til
