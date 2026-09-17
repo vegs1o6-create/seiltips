@@ -9,12 +9,11 @@
 //    de andre skriptene, standard "gpt-5.6-luna") skrive en norsk
 //    Instagram-bildetekst + en engelsk bildegenereringsprompt, basert KUN på
 //    den ferdigskrevne artikkelen (ingen nytt websøk).
-// 2. Genererer et fotorealistisk bilde med en egen Azure AI Foundry
-//    bilde-deployment (gpt-image-1-serien – DALL-E 3 er pensjonert), skriver
-//    det til public/instagram/<slug>.png, og committer/pusher det, slik at
-//    det får en offentlig URL (raw.githubusercontent.com) Instagram kan
-//    hente bildet fra – uten å vente på at Cloudflare skal bygge/deploye
-//    nettsiden først.
+// 2. Genererer et fotorealistisk bilde med en egen MAI-bildemodell (Microsoft
+//    AI, f.eks. MAI-Image-2.6) i Microsoft Foundry, skriver det til
+//    public/instagram/<slug>.png, og committer/pusher det, slik at det får en
+//    offentlig URL (raw.githubusercontent.com) Instagram kan hente bildet fra
+//    – uten å vente på at Cloudflare skal bygge/deploye nettsiden først.
 // 3. Publiserer et bilde-innlegg på Instagram via Metas offisielle Graph API
 //    (Content Publishing API): opprett media-container -> vent til den er
 //    ferdig prosessert -> publiser.
@@ -32,7 +31,6 @@ import path from 'node:path';
 
 const IMAGE_DIR = 'public/instagram';
 const DEFAULT_TEXT_MODEL = 'gpt-5.6-luna';
-const DEFAULT_IMAGE_API_VERSION = '2025-04-01-preview';
 const DEFAULT_GRAPH_API_VERSION = 'v21.0';
 
 function requireEnv(name) {
@@ -184,29 +182,26 @@ async function callFoundryText(userPrompt) {
   return content;
 }
 
-// Genererer ett bilde med en Azure AI Foundry-bildemodell (gpt-image-1-serien
-// – DALL-E 3 ble pensjonert av Azure i mars 2026). Bruker det klassiske,
-// deployment-baserte endepunktet ("/openai/deployments/<deployment>/images/
-// generations"), som krever en "api-key"-header (ikke "Authorization: Bearer"
-// slik tekstmodellene over bruker).
+// Genererer ett bilde med en MAI-bildemodell (Microsoft AI, f.eks.
+// MAI-Image-2.6) i Microsoft Foundry. Dette er IKKE en Azure OpenAI-modell
+// (gpt-image-1/DALL-E), og bruker derfor sitt eget, separate
+// "/mai/v1/images/generations"-endepunkt – uten api-version-parameter, med
+// "width"/"height" (ikke "size"/"quality"/"n"), og svaret er alltid
+// base64 (b64_json). Se
+// https://learn.microsoft.com/azure/foundry/foundry-models/how-to/use-foundry-models-mai-image
 //
-// Merk: Det samlede "/openai/v1/images/generations"-endepunktet (uten
-// deployment i stien) ga først en 400 ("api-version query parameter is not
-// allowed when using /v1 path"), og deretter – uten api-version – en tom 404,
-// dvs. selve ruten finnes ikke på denne ressursen. Sannsynlig årsak: denne
-// bilde-ressursen er en vanlig Azure OpenAI-ressurs (ikke et AI Foundry
-// "prosjekt" slik AZURE_FOUNDRY_ENDPOINT er), der kun det
-// deployment-baserte endepunktet er tilgjengelig.
+// Merk: MAI-bildemodeller har 0 forespørsler/minutt på "Free"-kvotetier –
+// deploymentet må ha minst kvotetier 1 i Foundry-portalen for at kall i det
+// hele tatt skal slippe gjennom.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || DEFAULT_IMAGE_API_VERSION;
-  const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
-  const quality = process.env.AZURE_FOUNDRY_IMAGE_QUALITY || 'high';
+  const width = Number(process.env.AZURE_FOUNDRY_IMAGE_WIDTH) || 1024;
+  const height = Number(process.env.AZURE_FOUNDRY_IMAGE_HEIGHT) || 1024;
 
-  const body = { model, prompt, size, quality, n: 1 };
-  const url = `${endpoint}/openai/deployments/${encodeURIComponent(model)}/images/generations?api-version=${apiVersion}`;
+  const body = { model, prompt, width, height };
+  const url = `${endpoint}/mai/v1/images/generations`;
 
   let res;
   for (let attempt = 0; ; attempt++) {

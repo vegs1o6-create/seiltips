@@ -117,12 +117,13 @@ Workflowen bruker `scripts/post-instagram.mjs` til å:
 1. Be tekstmodellen i Azure AI Foundry (samme `gpt-5.6-luna`-deployment som artiklene
    skrives med) om å lage en norsk Instagram-bildetekst (inkl. hashtags) og en engelsk
    bildegenereringsprompt, basert kun på den ferdigskrevne artikkelen.
-2. Generere et fotorealistisk bilde ut fra den promptet med en **egen**
-   Azure AI Foundry-bilde-deployment (`gpt-image-1`-serien – DALL-E 3 ble pensjonert av
-   Azure i mars 2026 og kan ikke brukes i nye deployments), lagre det i
-   `public/instagram/<slug>.png`, og committe/pushe det med én gang. Det gjøres for at
-   bildet skal få en offentlig URL (`raw.githubusercontent.com`) Instagram kan hente det
-   fra, uten å måtte vente på at Cloudflare bygger og deployer nettsiden.
+2. Generere et fotorealistisk bilde ut fra den promptet med en **egen** MAI-bildemodell
+   (Microsoft AI, f.eks. `MAI-Image-2.6`) i Microsoft Foundry – en annen modellfamilie
+   enn Azure OpenAI sine bildemodeller (gpt-image-1/DALL-E), med sitt eget
+   `/mai/v1/images/generations`-endepunkt – lagre bildet i `public/instagram/<slug>.png`,
+   og committe/pushe det med én gang. Det gjøres for at bildet skal få en offentlig URL
+   (`raw.githubusercontent.com`) Instagram kan hente det fra, uten å måtte vente på at
+   Cloudflare bygger og deployer nettsiden.
 3. Publisere et bilde-innlegg på Instagram via **Metas offisielle Graph API**
    (Content Publishing API) – dette er den reelt gratis, "offisielle" veien til å
    publisere programmatisk (ikke et tredjepartsverktøy), og krever ingen abonnementer.
@@ -139,17 +140,21 @@ opp en artikkel du selv committer manuelt) og `workflow_dispatch` (for manuell t
 I tillegg til `AZURE_FOUNDRY_ENDPOINT`/`AZURE_FOUNDRY_API_KEY` (allerede satt for de andre
 workflowene), trengs:
 
-**Azure AI Foundry – bildemodell (egen ressurs/deployment):**
+**Microsoft Foundry – MAI-bildemodell (egen ressurs/deployment):**
 
-- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – endepunktet til Azure OpenAI-ressursen med
-  bildemodellen (f.eks. `https://<ressursnavn>.openai.azure.com`).
+- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – ressurs-endepunktet med MAI-bildemodellen (f.eks.
+  `https://<ressursnavn>.services.ai.azure.com`).
 - `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen.
-- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av bildemodellen (en
-  `gpt-image-1`-modell), slik den heter under "Models + endpoints" i Foundry-portalen.
+- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av en MAI-bildemodell
+  (f.eks. `MAI-Image-2.6`), slik den heter under "Deployments" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2025-04-01-preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
-(standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_QUALITY` (standard `high`),
+Valgfrie: `AZURE_FOUNDRY_IMAGE_WIDTH`/`AZURE_FOUNDRY_IMAGE_HEIGHT` (standard `1024`/`1024` –
+begge må være minst 768, og produktet kan maks være 1 048 576),
 `AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
+
+**Viktig – kvotetier:** MAI-bildemodeller har **0 forespørsler/minutt på standard
+"Free"-kvotetier**. Deploymentet må ha minst kvotetier 1 satt i Foundry-portalen
+(Models + endpoints → deploymentet → rediger kvote), ellers avvises alle kall.
 
 **Instagram (Meta Graph API):**
 
