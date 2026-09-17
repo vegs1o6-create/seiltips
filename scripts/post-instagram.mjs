@@ -32,7 +32,6 @@ import path from 'node:path';
 
 const IMAGE_DIR = 'public/instagram';
 const DEFAULT_TEXT_MODEL = 'gpt-5.6-luna';
-const DEFAULT_IMAGE_API_VERSION = 'preview';
 const DEFAULT_GRAPH_API_VERSION = 'v21.0';
 
 function requireEnv(name) {
@@ -188,19 +187,27 @@ async function callFoundryText(userPrompt) {
 // – DALL-E 3 ble pensjonert av Azure i mars 2026). Bruker det samlede
 // "/openai/v1/images/generations"-endepunktet, som krever en "api-key"-header
 // (ikke "Authorization: Bearer" slik tekstmodellene over bruker).
+//
+// Merk: Azure AI Foundry-prosjektendepunkter avviser "api-version" på
+// /v1-stien med en 400 ("api-version query parameter is not allowed when
+// using /v1 path") – i motsetning til rene Azure OpenAI-ressurs-endepunkter,
+// der /v1-dokumentasjonen viser api-version=preview i eksemplene. Vi sender
+// derfor kun med api-version dersom AZURE_FOUNDRY_IMAGE_API_VERSION er
+// eksplisitt satt.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || DEFAULT_IMAGE_API_VERSION;
+  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '';
   const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
   const quality = process.env.AZURE_FOUNDRY_IMAGE_QUALITY || 'high';
 
   const body = { model, prompt, size, quality, n: 1 };
+  const url = `${endpoint}/openai/v1/images/generations${apiVersion ? `?api-version=${apiVersion}` : ''}`;
 
   let res;
   for (let attempt = 0; ; attempt++) {
-    res = await fetch(`${endpoint}/openai/v1/images/generations?api-version=${apiVersion}`, {
+    res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
       body: JSON.stringify(body),
