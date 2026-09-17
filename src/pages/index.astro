@@ -49,37 +49,69 @@ const ctaButtons = [
 
 <Layout title="Forside" description="Værvarsel og seiltips for Oslofjorden til Kosterøyene – samlet på ett sted.">
   <section class="bg-gradient-to-b from-navy to-navy-light text-white">
-    <div class="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-20">
-      <h1 class="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">
-        Klar for en ny dag på sjøen?
-      </h1>
-      <p class="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
-        Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden og
-        ned til Kosterøyene – enten du er nybegynner eller erfaren skipper.
-      </p>
+    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div>
+          <h1 class="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Klar for en ny dag på sjøen?
+          </h1>
+          <p class="mt-4 max-w-xl text-base text-white/80 sm:text-lg">
+            Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden
+            og ned til Kosterøyene – enten du er nybegynner eller erfaren skipper.
+          </p>
 
-      <div class="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          ctaButtons.map((cta) => (
-            <a
-              href={cta.href}
-              class:list={[
-                'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
-                cta.style,
-              ]}
-            >
-              {cta.iconSrc ? (
-                <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain" aria-hidden="true" />
-              ) : (
-                <span class="text-2xl" aria-hidden="true">
-                  {cta.icon}
+          <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            {
+              ctaButtons.map((cta) => (
+                <a
+                  href={cta.href}
+                  class:list={[
+                    'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
+                    cta.style,
+                  ]}
+                >
+                  {cta.iconSrc ? (
+                    <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain" aria-hidden="true" />
+                  ) : (
+                    <span class="text-2xl" aria-hidden="true">
+                      {cta.icon}
+                    </span>
+                  )}
+                  <span class="font-display text-sm">{cta.title}</span>
+                  <span class="text-xs font-normal opacity-90">{cta.description}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+
+        <div>
+          {
+            latest && (
+              <a
+                href={`/artikler/${latest.id}`}
+                class="group flex flex-col rounded-3xl bg-white p-6 text-center shadow-soft transition-transform hover:-translate-y-1 sm:p-8"
+              >
+                <span class="mx-auto rounded-full bg-mint/30 px-4 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+                  Siste artikkel
                 </span>
-              )}
-              <span class="font-display text-sm">{cta.title}</span>
-              <span class="text-xs font-normal opacity-90">{cta.description}</span>
-            </a>
-          ))
-        }
+                <time datetime={latest.data.pubDate.toISOString()} class="mt-4 text-sm font-semibold text-sky">
+                  {latestFormatted}
+                </time>
+                <h2 class="mt-2 font-display text-xl font-extrabold text-navy group-hover:text-sky sm:text-2xl">
+                  {latest.data.title}
+                </h2>
+                <p class="mx-auto mt-3 max-w-xl text-navy-dark/80">{latest.data.description}</p>
+                <span class="mx-auto mt-6 inline-flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white">
+                  Les hele saken
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+              </a>
+            )
+          }
+        </div>
       </div>
     </div>
   </section>
@@ -95,33 +127,5 @@ const ctaButtons = [
       <a href="/vaer" class="text-sm font-semibold text-sky hover:text-sky-dark">Se 7-dagers varsel →</a>
     </div>
     <WindyMap />
-  </section>
-
-  <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-    {
-      latest && (
-        <a
-          href={`/artikler/${latest.id}`}
-          class="group mx-auto flex max-w-3xl flex-col rounded-3xl bg-white p-8 text-center shadow-soft transition-transform hover:-translate-y-1 sm:p-10"
-        >
-          <span class="mx-auto rounded-full bg-mint/30 px-4 py-1 text-xs font-bold uppercase tracking-wide text-navy">
-            Siste artikkel
-          </span>
-          <time datetime={latest.data.pubDate.toISOString()} class="mt-4 text-sm font-semibold text-sky">
-            {latestFormatted}
-          </time>
-          <h2 class="mt-2 font-display text-2xl font-extrabold text-navy group-hover:text-sky sm:text-3xl">
-            {latest.data.title}
-          </h2>
-          <p class="mx-auto mt-3 max-w-xl text-navy-dark/80">{latest.data.description}</p>
-          <span class="mx-auto mt-6 inline-flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white">
-            Les hele saken
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </span>
-        </a>
-      )
-    }
   </section>
 </Layout>
