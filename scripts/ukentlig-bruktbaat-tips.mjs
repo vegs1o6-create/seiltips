@@ -111,8 +111,14 @@ function extractResponseText(data) {
   return null;
 }
 
-const RATE_LIMIT_RETRIES = 3;
-const RATE_LIMIT_DEFAULT_WAIT_SECONDS = 30;
+const RATE_LIMIT_RETRIES = 4;
+// Azure sin Retry-After-header har vist seg å love ledig kapasitet igjen om
+// noen få sekunder, uten at det stemmer (påfølgende forsøk får 429 på nytt
+// med en gang) – trolig fordi deploymentet har en lav TPM/RPM-kvote som
+// flere tunge kall (websøk + reasoning) fyller opp igjen momentant. Vi
+// stoler derfor ikke blindt på headeren, men venter minst like lenge som en
+// økende backoff-gulv, og lar headeren kun forlenge ventetiden.
+const RATE_LIMIT_BACKOFF_FLOOR_SECONDS = [20, 45, 90, 180];
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -131,9 +137,10 @@ async function callFoundry(userPrompt) {
     // annonsesidene (open_page/find_in_page krever en reasoning-modell OG at
     // reasoning.effort er satt – ellers har modellen ikke nok til å lese
     // pris/mål/byggeår/utstyr fra selve Finn.no-annonsen, og bør heller si
-    // fra enn å dikte opp tall).
-    reasoning: { effort: process.env.AZURE_FOUNDRY_BRUKTBAAT_REASONING_EFFORT || 'high' },
-    tools: [{ type: 'web_search', search_context_size: 'high' }],
+    // fra enn å dikte opp tall). "medium" holder for å slå på agentisk søk
+    // (åpne/lese sider), og er billigere i tokens enn "high".
+    reasoning: { effort: process.env.AZURE_FOUNDRY_BRUKTBAAT_REASONING_EFFORT || 'medium' },
+    tools: [{ type: 'web_search', search_context_size: 'medium' }],
     max_output_tokens: process.env.AZURE_FOUNDRY_BRUKTBAAT_MAX_TOKENS
       ? Number(process.env.AZURE_FOUNDRY_BRUKTBAAT_MAX_TOKENS)
       : 32000,
@@ -150,7 +157,8 @@ async function callFoundry(userPrompt) {
     if (res.status !== 429 || attempt >= RATE_LIMIT_RETRIES) break;
 
     const retryAfter = Number(res.headers.get('retry-after'));
-    const waitSeconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : RATE_LIMIT_DEFAULT_WAIT_SECONDS;
+    const floor = RATE_LIMIT_BACKOFF_FLOOR_SECONDS[attempt] ?? RATE_LIMIT_BACKOFF_FLOOR_SECONDS.at(-1);
+    const waitSeconds = Number.isFinite(retryAfter) ? Math.max(retryAfter, floor) : floor;
     console.log(`Fikk 429 (rate limit) fra Azure AI Foundry, venter ${waitSeconds}s før nytt forsøk …`);
     await sleep(waitSeconds * 1000);
   }

@@ -79,13 +79,21 @@ mandag og torsdag rundt kl. 07:00 norsk tid og bruker
 
 1. Be en modell (`gpt-5.6-luna`, kan overstyres med `AZURE_FOUNDRY_BRUKTBAAT_MODEL`) som
    kjører i Microsoft (Azure) AI Foundry – med websøk aktivert i *agentisk* modus
-   (`reasoning.effort: "high"`, kan overstyres med
+   (`reasoning.effort: "medium"`, kan overstyres med
    `AZURE_FOUNDRY_BRUKTBAAT_REASONING_EFFORT`) – søke på Google (bl.a. med
    `site:finn.no seilbåt til salgs`), faktisk åpne og lese hver kandidat-annonse (ikke
    bare søketreff-snippeten), og sammenligne dem på pris, størrelse, alder og utstyr. Uten
    `reasoning.effort` satt kjører web-søket kun i "rask" modus (sender søket videre og
    leser treff-snippets) og kan ikke åpne selve annonsesidene – da svarer modellen heller
    at den ikke fant nok informasjon enn å dikte opp tall.
+
+   **Kvote-/rate limit-begrensning:** Websøk + agentisk reasoning er tunge kall, og
+   `gpt-5.6-luna`-deploymentet kan ha en relativt lav TPM/RPM-kvote. Skriptet venter og
+   prøver på nytt (inntil 4 ganger, med økende ventetid) ved 429-feil, men gjentatte
+   manuelle testkjøringer rett etter hverandre kan likevel tømme kvoten. Vedvarende
+   429-feil selv med god margin mellom kjøringer betyr at deploymentets kvote bør økes i
+   Azure AI Foundry-portalen (Models + endpoints → gpt-5.6-luna → Edit → juster
+   tokens-per-minute), eller at et annet deployment med mer ledig kapasitet bør brukes.
 2. Velge ut de 3 annonsene som fremstår som best verdi for pengene, og skrive en artikkel
    (400–600 ord) om dem med lenke til hver annonse og en tydelig merknad om at
    Finn.no-annonser kan bli solgt eller fjernet når som helst.
