@@ -9,11 +9,11 @@
 //    de andre skriptene, standard "gpt-5.6-luna") skrive en norsk
 //    Instagram-bildetekst + en engelsk bildegenereringsprompt, basert KUN på
 //    den ferdigskrevne artikkelen (ingen nytt websøk).
-// 2. Genererer et fotorealistisk bilde med en egen MAI-bildemodell (Microsoft
-//    AI, f.eks. MAI-Image-2.6) i Microsoft Foundry, skriver det til
-//    public/instagram/<slug>.png, og committer/pusher det, slik at det får en
-//    offentlig URL (raw.githubusercontent.com) Instagram kan hente bildet fra
-//    – uten å vente på at Cloudflare skal bygge/deploye nettsiden først.
+// 2. Genererer et fotorealistisk bilde med en egen Azure OpenAI-bildemodell
+//    (gpt-image-1.5), skriver det til public/instagram/<slug>.png, og
+//    committer/pusher det, slik at det får en offentlig URL
+//    (raw.githubusercontent.com) Instagram kan hente bildet fra – uten å
+//    vente på at Cloudflare skal bygge/deploye nettsiden først.
 // 3. Publiserer et bilde-innlegg på Instagram via Metas offisielle Graph API
 //    (Content Publishing API): opprett media-container -> vent til den er
 //    ferdig prosessert -> publiser.
@@ -182,40 +182,34 @@ async function callFoundryText(userPrompt) {
   return content;
 }
 
-// Genererer ett bilde med en MAI-bildemodell (Microsoft AI, f.eks.
-// MAI-Image-2.6) i Microsoft Foundry. Dette er IKKE en Azure OpenAI-modell
-// (gpt-image-1/DALL-E), og bruker derfor sitt eget, separate
-// "/mai/v1/images/generations"-endepunkt, med "width"/"height" (ikke
-// "size"/"quality"/"n"), og svaret er alltid base64 (b64_json). Se
-// https://learn.microsoft.com/azure/foundry/foundry-models/how-to/use-foundry-models-mai-image
-//
-// Merk: Microsofts eget how-to-eksempel utelater api-version helt for dette
-// endepunktet, men denne ressursen ga faktisk en 400 ("Missing required
-// query parameter: api-version") uten den. Den generiske verdien "preview"
-// (brukt av bl.a. /openai/v1/-endepunktene) ga så en 400 ("API version not
-// supported") – denne ressursen ser i stedet ut til å bruke modellversjonen
-// (som vist i Foundry-portalen for MAI-Image-2.6-deploymentet) direkte som
-// api-version-verdi.
-//
-// Merk 2: MAI-bildemodeller har 0 forespørsler/minutt på "Free"-kvotetier –
-// deploymentet må ha minst kvotetier 1 i Foundry-portalen for at kall i det
-// hele tatt skal slippe gjennom.
+// Genererer ett bilde med en Azure OpenAI-bildemodell (gpt-image-1.5) via det
+// samlede "/openai/v1/images/generations"-endepunktet – INGEN api-version i
+// URL-en (i motsetning til deployment-baserte endepunkter), og
+// "Authorization: Bearer"-header (ikke "api-key"). Svaret er alltid base64
+// (b64_json), aldri en url, for gpt-image-1-serien.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '2026-07-31-preview';
-  const width = Number(process.env.AZURE_FOUNDRY_IMAGE_WIDTH) || 1024;
-  const height = Number(process.env.AZURE_FOUNDRY_IMAGE_HEIGHT) || 1024;
+  const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
+  const outputFormat = process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT || 'png';
+  const outputCompression = Number(process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION) || 100;
 
-  const body = { model, prompt, width, height };
-  const url = `${endpoint}/mai/v1/images/generations?api-version=${apiVersion}`;
+  const body = {
+    prompt,
+    model,
+    size,
+    n: 1,
+    output_format: outputFormat,
+    output_compression: outputCompression,
+  };
+  const url = `${endpoint}/openai/v1/images/generations`;
 
   let res;
   for (let attempt = 0; ; attempt++) {
     res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(body),
     });
 
