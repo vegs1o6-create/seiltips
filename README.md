@@ -74,7 +74,7 @@ fra Actions). Du kan også trigge kjøringen manuelt fra fanen **Actions** i Git
 ## Ukens bruktbåt-tips (automatisk generert)
 
 En egen GitHub Action (`.github/workflows/ukentlig-bruktbaat-tips.yml`) kjører hver
-mandag og torsdag rundt kl. 07:00 norsk tid og bruker
+søndag rundt kl. 18:00 norsk tid og bruker
 `scripts/ukentlig-bruktbaat-tips.mjs` (samme mønster som `daglig-seilartikkel.mjs`) til å:
 
 1. Be en modell (`gpt-5.6-luna`, kan overstyres med `AZURE_FOUNDRY_BRUKTBAAT_MODEL`) som
@@ -256,7 +256,7 @@ akkurat som i produksjon.
 
 ```
 .github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
-                    ukentlig-bruktbaat-tips.yml – ukentlig bruktbåt-tips (man/tor)
+                    ukentlig-bruktbaat-tips.yml – ukentlig bruktbåt-tips (søndager)
                     seilruteplanlegger.yml – automatisk seilruteplan (vær)
 .github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
 scripts/             seilruteplanlegger.mjs – henter værdata + kaller Azure AI Foundry

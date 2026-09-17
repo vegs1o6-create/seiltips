@@ -1,13 +1,13 @@
 name: Ukens bruktbåt-tips
 
-# Kjører hver mandag og torsdag rundt kl. 07:00 norsk tid. GitHub Actions cron
-# kjører alltid i UTC og følger ikke sommertid, så vi legger inn to
-# cron-tidspunkter (ett for vintertid CET, ett for sommertid CEST) og lar et
-# vaktbikkje-steg avgjøre hvilken kjøring som faktisk skal gjøre jobben.
+# Kjører hver søndag rundt kl. 18:00 norsk tid. GitHub Actions cron kjører
+# alltid i UTC og følger ikke sommertid, så vi legger inn to cron-tidspunkter
+# (ett for vintertid CET, ett for sommertid CEST) og lar et vaktbikkje-steg
+# avgjøre hvilken kjøring som faktisk skal gjøre jobben.
 on:
   schedule:
-    - cron: '0 6 * * 1,4' # 07:00 CET (vintertid, UTC+1)
-    - cron: '0 5 * * 1,4' # 07:00 CEST (sommertid, UTC+2)
+    - cron: '0 17 * * 0' # 18:00 CET (vintertid, UTC+1)
+    - cron: '0 16 * * 0' # 18:00 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk at klokken er rundt 07:00 i Norge
+      - name: Sjekk at klokken er rundt 18:00 i Norge
         id: tidssjekk
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -37,11 +37,11 @@ jobs:
           fi
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" > "06:45" && "$now_oslo" < "07:15" ]]; then
+          if [[ "$now_oslo" > "17:45" && "$now_oslo" < "18:15" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           else
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (06:45–07:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            echo "Utenfor tidsvinduet (17:45–18:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
           fi
 
       - name: Sett opp Node.js
