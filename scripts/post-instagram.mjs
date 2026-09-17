@@ -204,7 +204,7 @@ async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '2026-07-31';
+  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '2026-07-31-preview';
   const width = Number(process.env.AZURE_FOUNDRY_IMAGE_WIDTH) || 1024;
   const height = Number(process.env.AZURE_FOUNDRY_IMAGE_HEIGHT) || 1024;
 

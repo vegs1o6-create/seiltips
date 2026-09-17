@@ -148,11 +148,13 @@ workflowene), trengs:
 - `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av en MAI-bildemodell
   (f.eks. `MAI-Image-2.6`), slik den heter under "Deployments" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2026-07-31` – modellversjonen til
-`MAI-Image-2.6`; sjekk "Get code" i Foundry-portalen for deploymentet ditt hvis du bruker
-en annen MAI-modell), `AZURE_FOUNDRY_IMAGE_WIDTH`/
-`AZURE_FOUNDRY_IMAGE_HEIGHT` (standard `1024`/`1024` – begge må være minst 768, og produktet
-kan maks være 1 048 576), `AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard
+Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2026-07-31-preview` – modellversjonen
+til `MAI-Image-2.6` med "-preview"-suffiks; verken Microsofts how-to-guide eller
+Foundry-portalens eget kodeeksempel oppgir denne parameteren i det hele tatt, så overstyr
+denne dersom du bruker en annen MAI-modell/versjon og standardverdien avvises),
+`AZURE_FOUNDRY_IMAGE_WIDTH`/`AZURE_FOUNDRY_IMAGE_HEIGHT` (standard `1024`/`1024` – begge må
+være minst 768, og produktet kan maks være 1 048 576), `AZURE_FOUNDRY_INSTAGRAM_MODEL`
+(overstyrer tekstmodellen, standard
 `gpt-5.6-luna`).
 
 **Viktig – kvotetier:** MAI-bildemodeller har **0 forespørsler/minutt på standard
