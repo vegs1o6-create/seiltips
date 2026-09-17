@@ -74,24 +74,43 @@ vises på `/seilvarsel`) inneholder seilruteplaner for strekningen Oslo–Drøba
 Hvaler–Kosterøyene.
 
 En GitHub Action (`.github/workflows/seilruteplanlegger.yml`) kjører hver 3. dag rundt
-kl. 07:00 norsk tid og bruker `anthropics/claude-code-action` – med en navigatør-/
-værvarsler-persona lastet fra `.github/prompts/seilruteplanlegger-persona.md` via
-`--append-system-prompt-file` – til å:
+kl. 07:00 norsk tid og bruker `scripts/seilruteplanlegger.mjs` (ren Node.js, ingen
+ekstra npm-avhengigheter) til å:
 
 1. Hente værdata (vind, kast, bølgehøyde, nedbør) direkte fra MET Norways
    locationforecast- og oceanforecast-API-er for de 5 faste målepunktene, for de neste
-   5 dagene.
-2. Analysere dataene og skrive en rapport med seilføring per dag, segmentvise
-   ruteanbefalinger, optimal timing sydover/nordover, en konfidensvurdering (høy for
-   dag 1–2, usikker for dag 3–5) og én konkret anbefaling.
-3. Skrive en ny Markdown-fil i `src/content/seilvarsel/` med gyldig frontmatter, og
+   5 dagene, og aggregere dette deterministisk til tallverdier per dag (ingen KI
+   involvert i selve tallknusingen).
+2. Sende disse tallene, sammen med en navigatør-/værvarsler-persona fra
+   `.github/prompts/seilruteplanlegger-persona.md`, til en GPT-modell som kjører i
+   Microsoft (Azure) AI Foundry, og be den skrive en rapport med seilføring per dag,
+   segmentvise ruteanbefalinger, optimal timing sydover/nordover, en
+   konfidensvurdering (høy for dag 1–2, usikker for dag 3–5) og én konkret anbefaling.
+3. Skrive svaret som en ny Markdown-fil i `src/content/seilvarsel/` med gyldig
+   frontmatter (skriptet validerer formatet før filen skrives), og
    committe/pushe den direkte til hovedgrenen.
 
 Persona-filen inneholder også en standard båtprofil (lettere 35-fots sloop, 2 i
 besetning, unngår >15–18 m/s) som styrer hvor forsiktige rådene er – juster denne filen
-direkte dersom rådene skal tilpasses en annen båt. Samme forutsetninger som over gjelder
-for secret og push-rettigheter, og workflowen kan også trigges manuelt via
-`workflow_dispatch`.
+direkte dersom rådene skal tilpasses en annen båt.
+
+For at workflowen skal virke må repoet ha disse tre secretene (Settings → Secrets and
+variables → Actions):
+
+- `AZURE_FOUNDRY_ENDPOINT` – prosjekt-/ressurs-endepunktet fra Azure AI Foundry (f.eks.
+  `https://<ressursnavn>.services.ai.azure.com` eller
+  `https://<ressursnavn>.services.ai.azure.com/api/projects/<prosjektnavn>` –
+  skriptet legger selv på `/openai/v1/chat/completions`).
+- `AZURE_FOUNDRY_API_KEY` – API-nøkkelen til ressursen/prosjektet.
+- `AZURE_FOUNDRY_MODEL` – navnet på **deployment**en av GPT-modellen (ikke
+  nødvendigvis samme som modellnavnet), slik den heter under "Models + endpoints" i
+  Foundry-portalen.
+
+I tillegg må GitHub Actions ha lov til å pushe direkte til hovedgrenen (`contents:
+write`-rettigheten er satt i workflowen, men en eventuell branch protection-regel på
+hovedgrenen kan likevel blokkere direkte push fra Actions). Workflowen kan også trigges
+manuelt via `workflow_dispatch`, og skriptet kan kjøres lokalt for feilsøking med
+`AZURE_FOUNDRY_ENDPOINT=... AZURE_FOUNDRY_API_KEY=... AZURE_FOUNDRY_MODEL=... node scripts/seilruteplanlegger.mjs`.
 
 ## Værvarsel (yr.no / MET Norway)
 
@@ -186,6 +205,7 @@ akkurat som i produksjon.
 .github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
                     seilruteplanlegger.yml – automatisk seilruteplan (vær)
 .github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
+scripts/             seilruteplanlegger.mjs – henter værdata + kaller Azure AI Foundry
 src/
   components/        Header, Footer, ArtikkelCard, SeilvarselCard
   content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)
