@@ -1,7 +1,7 @@
 ---
 title: "Vinteropplag på land: Slik klargjør du båtmotoren før frosten"
 description: "Før båten tas opp, bør motor, kjølesystem, drivstoff og batteri få en grundig gjennomgang. Her er en enkel sjekkliste."
-pubDate: 2026-09-17
+pubDate: 2026-09-17T23:37:00+02:00
 tags: ["vinteropplag", "båtvedlikehold"]
 sources: ["https://www.rs.no/aktuelt/vinterlagring-av-bat/", "https://www.volvopenta.com/marine/service-and-support/maintenance/winterization/", "https://www.yanmar.com/marine/service/maintenance/", "https://www.sdir.no/fritidsbat/sikkerhet-og-utstyr/"]
 ---

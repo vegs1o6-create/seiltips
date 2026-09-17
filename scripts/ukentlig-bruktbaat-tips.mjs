@@ -30,6 +30,14 @@ function todayOslo() {
   }).format(new Date());
 }
 
+// pubDate skal inkludere klokkeslett (ikke bare dato), slik at artikler som
+// publiseres samme dag likevel får en unik, korrekt sorterbar pubDate –
+// ellers sorterer flere artikler fra samme dag likt og faller tilbake til
+// alfabetisk filnavn-orden i stedet for faktisk publiseringstidspunkt.
+function nowIso() {
+  return new Date().toISOString();
+}
+
 function stripCodeFence(text) {
   const trimmed = text.trim();
   const match = trimmed.match(/^```[a-zA-Z]*\n([\s\S]*)\n```$/);
@@ -50,7 +58,7 @@ function validateContent(content) {
   return frontmatter;
 }
 
-function buildPrompt(today) {
+function buildPrompt(today, pubDate) {
   return `Du skal skrive en ukentlig tipsartikkel til Seiltips.no – en norsk
 nettside om seiling og båtliv langs norskekysten. Dagens dato er ${today}.
 
@@ -91,7 +99,7 @@ slik ut (fyll inn de spisse parentesene, behold resten ordrett):
 ---
 title: "<tittel, uten anførselstegn inni selve teksten>"
 description: "<kort ingress, maks ca. 160 tegn>"
-pubDate: ${today}
+pubDate: ${pubDate}
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
 sources: ["<url til annonse 1>", "<url til annonse 2>", "<url til annonse 3>"]
 ---
@@ -187,7 +195,7 @@ async function main() {
   const today = todayOslo();
 
   console.log('Ber Azure AI Foundry-modellen søke opp og skrive ukens bruktbåt-tips …');
-  const raw = await callFoundry(buildPrompt(today));
+  const raw = await callFoundry(buildPrompt(today, nowIso()));
   const content = stripCodeFence(raw);
   validateContent(content);
 

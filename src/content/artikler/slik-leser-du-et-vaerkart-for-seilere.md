@@ -1,7 +1,7 @@
 ---
 title: "Slik leser du et værkart som seiler"
 description: "Isobarer, fronter og vindpiler kan se kryptisk ut – her er en enkel innføring i hva de faktisk betyr for deg på sjøen."
-pubDate: 2026-09-15
+pubDate: 2026-09-15T09:00:00+02:00
 tags: ["vær", "sikkerhet", "grunnleggende"]
 sources: ["https://www.met.no", "https://www.yr.no"]
 ---

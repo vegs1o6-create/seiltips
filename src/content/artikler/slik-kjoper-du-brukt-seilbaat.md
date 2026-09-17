@@ -1,7 +1,7 @@
 ---
 title: "Kjøpsguide: Slik kjøper du brukt seilbåt"
 description: "En komplett guide til bruktbåtkjøp – fra behovsavklaring og driftskostnader til osmose, rigg, kontrakt og prisnivå på populære modeller."
-pubDate: 2026-09-17
+pubDate: 2026-09-17T08:00:00+02:00
 tags: ["kjøpsguide", "brukt seilbåt", "økonomi"]
 sources: ["https://knbf.no", "https://forbrukerradet.no", "https://www.brreg.no"]
 ---
