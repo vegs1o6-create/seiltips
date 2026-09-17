@@ -248,17 +248,13 @@ async function callFoundry(systemPrompt, userPrompt) {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    max_completion_tokens: 3000,
+    max_tokens: 3000,
+    temperature: process.env.AZURE_FOUNDRY_TEMPERATURE ? Number(process.env.AZURE_FOUNDRY_TEMPERATURE) : 0.3,
   };
-  // Noen "reasoning"-modeller (o-serien) støtter ikke temperature-parameteren
-  // i det hele tatt, så vi lar den være valgfri fremfor å risikere et 400-svar.
-  if (process.env.AZURE_FOUNDRY_TEMPERATURE) {
-    body.temperature = Number(process.env.AZURE_FOUNDRY_TEMPERATURE);
-  }
 
   const res = await fetch(`${endpoint}/openai/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify(body),
   });
 
