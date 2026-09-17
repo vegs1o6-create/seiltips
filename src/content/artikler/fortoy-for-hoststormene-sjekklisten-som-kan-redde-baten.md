@@ -1,7 +1,7 @@
 ---
 title: "Fortøy for høststormene: Sjekklisten som kan redde båten"
 description: "Høststormene kommer raskt langs kysten. Slik gjør du fortøyningen, kalesjen og tilsynet klart før vinden øker."
-pubDate: 2026-09-17
+pubDate: 2026-09-17T13:36:00+02:00
 tags: ["høststorm", "fortøyning"]
 sources: ["https://rs.no/sikker-til-sjos/fortoy-for-storm/", "https://www.if.no/magasinet/bat/unnga-at-baten-blir-skadet-i-ekstremvaer", "https://rs.no/sikker-til-sjos/tips-for-vinteropplag/", "https://www.met.no/vaer-og-klima/sesongvarsel"]
 ---

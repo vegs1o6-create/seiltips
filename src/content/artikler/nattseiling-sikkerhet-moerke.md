@@ -1,7 +1,7 @@
 ---
 title: "Nattseiling: sikkerhet når mørket faller"
 description: "Fra høsten av blir dagene kortere. Her er det du må vite om navigasjonslys, utstyr og rutiner for sikker seiling når det blir mørkt."
-pubDate: 2026-09-16
+pubDate: 2026-09-16T08:00:00+02:00
 tags: ["sikkerhet", "navigasjon", "høst"]
 sources: ["https://www.batmagasinet.no/allerbm-bm-bladarkiv-kart/navigasjon-nar-det-er-morkt/622834", "https://boatus.org/study-guide/navigation-maneuvering/navigation-lights/", "https://www.imo.org/en/about/conventions/pages/colreg.asp", "https://improvesailing.com/questions/navigation-lights-guide"]
 ---

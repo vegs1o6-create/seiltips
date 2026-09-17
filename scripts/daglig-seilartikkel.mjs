@@ -31,6 +31,14 @@ function todayOslo() {
   }).format(new Date());
 }
 
+// pubDate skal inkludere klokkeslett (ikke bare dato), slik at artikler som
+// publiseres samme dag likevel får en unik, korrekt sorterbar pubDate –
+// ellers sorterer flere artikler fra samme dag likt og faller tilbake til
+// alfabetisk filnavn-orden i stedet for faktisk publiseringstidspunkt.
+function nowIso() {
+  return new Date().toISOString();
+}
+
 function extractFrontmatterField(content, field) {
   const re = new RegExp(`^${field}:\\s*"?([^"\\n]+)"?\\s*$`, 'm');
   return content.match(re)?.[1]?.trim();
@@ -79,7 +87,7 @@ function validateContent(content) {
   return frontmatter;
 }
 
-function buildPrompt(recentEntries, today) {
+function buildPrompt(recentEntries, today, pubDate) {
   const recentList = recentEntries.length
     ? recentEntries.map((e) => `- ${e.title}${e.pubDate ? ` (${e.pubDate})` : ''}`).join('\n')
     : '(ingen tidligere artikler funnet)';
@@ -130,7 +138,7 @@ de spisse parentesene, behold resten ordrett):
 ---
 title: "<tittel, uten anførselstegn inni selve teksten>"
 description: "<kort ingress, maks ca. 160 tegn>"
-pubDate: ${today}
+pubDate: ${pubDate}
 tags: ["<tag1>", "<tag2>"]
 sources: ["<url1>", "<url2>"]
 ---
@@ -209,7 +217,7 @@ async function main() {
 
   console.log(`Fant ${recentEntries.length} nylig publiserte sak(er) å unngå duplikat av.`);
   console.log('Ber Azure AI Foundry-modellen research og skrive dagens artikkel …');
-  const raw = await callFoundry(buildPrompt(recentEntries, today));
+  const raw = await callFoundry(buildPrompt(recentEntries, today, nowIso()));
   const content = stripCodeFence(raw);
   const frontmatter = validateContent(content);
 

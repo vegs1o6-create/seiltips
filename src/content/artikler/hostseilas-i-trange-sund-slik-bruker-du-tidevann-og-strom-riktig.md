@@ -1,7 +1,7 @@
 ---
 title: "Høstseilas i trange sund: Slik bruker du tidevann og strøm riktig"
 description: "Tidevann og strøm kan endre hele seilasen i trange farvann. Slik planlegger du tryggere høstturer langs norskekysten."
-pubDate: 2026-09-17
+pubDate: 2026-09-17T23:45:00+02:00
 tags: ["tidevann", "navigasjon"]
 sources: ["https://www.kartverket.no/til-sjos/se-havniva/lar-om-tidevann-og-vannstand/sterke-tidevannsstrommer-i-norge", "https://www.kartverket.no/til-sjos/se-havniva/lar-om-tidevann-og-vannstand/tabellar-for-tidvatn", "https://www.kystverket.no/sjovegen/vartjenester/bolge--og-stromvarsel/", "https://dnl.kartverket.no/"]
 ---
