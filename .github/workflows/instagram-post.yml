@@ -1,0 +1,102 @@
+name: Instagram-innlegg for ny artikkel
+
+# Lager og publiserer et Instagram-innlegg (med et AI-generert bilde) hver
+# gang en ny artikkel legges til i src/content/artikler/.
+#
+# Merk: "Daglig seilartikkel" og "Ukens bruktbåt-tips" committer/pusher med
+# standard GITHUB_TOKEN, og slike pushes trigger IKKE andre workflowers
+# `on: push` (GitHubs innebygde løkke-beskyttelse). Vi bruker derfor
+# `workflow_run` for å kjede denne jobben pålitelig etter dem, i tillegg til
+# `push` (som fanger opp manuelle commits fra en faktisk person).
+on:
+  workflow_run:
+    workflows: ['Daglig seilartikkel', 'Ukens bruktbåt-tips']
+    types: [completed]
+  push:
+    branches: [claude/kind-bell-04ii6t]
+    paths:
+      - 'src/content/artikler/**.md'
+  workflow_dispatch:
+    inputs:
+      artikkel_fil:
+        description: 'Sti til én artikkel å poste om (for manuell testing), f.eks. src/content/artikler/min-sak.md'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Sjekk ut repoet
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
+          fetch-depth: 0
+
+      - name: Finn nye artikkelfiler
+        id: finn
+        run: |
+          case "${{ github.event_name }}" in
+            workflow_dispatch)
+              files="${{ github.event.inputs.artikkel_fil }}"
+              ;;
+            workflow_run)
+              # De genererende workflowene lager ett commit med én ny fil per kjøring.
+              files=$(git diff --name-status HEAD~1 HEAD -- src/content/artikler | awk '$1=="A" {print $2}')
+              ;;
+            push)
+              files=$(git diff --name-status "${{ github.event.before }}" "${{ github.event.after }}" -- src/content/artikler | awk '$1=="A" {print $2}')
+              ;;
+          esac
+
+          if [[ -z "$files" ]]; then
+            echo "Ingen nye artikkelfiler funnet – hopper over."
+            echo "har_filer=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "har_filer=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "filer<<EOF"
+            echo "$files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Fant nye artikler:"
+          echo "$files"
+
+      - name: Sett opp Node.js
+        if: steps.finn.outputs.har_filer == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sett opp Git-bruker for commit
+        if: steps.finn.outputs.har_filer == 'true'
+        run: |
+          git config user.name "seiltips-bot"
+          git config user.email "seiltips-bot@users.noreply.github.com"
+
+      - name: Generer bilde og publiser Instagram-innlegg
+        if: steps.finn.outputs.har_filer == 'true'
+        env:
+          AZURE_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          AZURE_FOUNDRY_IMAGE_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_IMAGE_ENDPOINT }}
+          AZURE_FOUNDRY_IMAGE_API_KEY: ${{ secrets.AZURE_FOUNDRY_IMAGE_API_KEY }}
+          AZURE_FOUNDRY_IMAGE_MODEL: ${{ secrets.AZURE_FOUNDRY_IMAGE_MODEL }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          while IFS= read -r fil; do
+            [[ -z "$fil" ]] && continue
+            node scripts/post-instagram.mjs "$fil"
+          done <<< "${{ steps.finn.outputs.filer }}"
