@@ -50,22 +50,26 @@ lengre, mer tidløse artikler om seiling, vær, sikkerhet og båtliv. Skjemaet
 artikkelen er researchet fra).
 
 En GitHub Action (`.github/workflows/daglig-seilartikkel.yml`) kjører hver dag rundt
-kl. 21:30 norsk tid og bruker [`anthropics/claude-code-action`](https://github.com/anthropics/claude-code-action)
-til å:
+kl. 16:25 norsk tid og bruker `scripts/daglig-seilartikkel.mjs` (ren Node.js, samme
+mønster som `seilruteplanlegger.mjs`) til å:
 
 1. Se på hva som allerede er publisert i `src/content/news/` og `src/content/artikler/`
-   for å unngå å skrive om samme tema på nytt.
-2. Research aktuelle, sesongrelevante seilertemaer på nettet (vær, sikkerhet,
-   praktiske tips, båtvedlikehold, miljø, norske seilingsdestinasjoner) og notere ned
-   kildene som brukes.
-3. Skrive en ny Markdown-fil i `src/content/artikler/` med gyldig frontmatter, og
-   committe/pushe den direkte til hovedgrenen.
+   de siste ca. 30 dagene, for å unngå å skrive om samme tema på nytt.
+2. Be en modell (`gpt-5.6-luna`, kan overstyres med `AZURE_FOUNDRY_ARTIKKEL_MODEL`) som
+   kjører i Microsoft (Azure) AI Foundry – med websøk aktivert – research et aktuelt,
+   sesongrelevant seilertema (vær, sikkerhet, praktiske tips, båtvedlikehold, miljø,
+   norske seilingsdestinasjoner) og skrive en artikkel basert på det, med kildene den
+   fant i et `sources`-felt.
+3. Skrive svaret som en ny Markdown-fil i `src/content/artikler/` med gyldig
+   frontmatter, og committe/pushe den direkte til hovedgrenen.
 
-For at workflowen skal virke må repoet ha en `ANTHROPIC_API_KEY`-secret (Settings →
-Secrets and variables → Actions), og GitHub Actions må ha lov til å pushe direkte til
-hovedgrenen (`contents: write`-rettigheten er satt i workflowen, men en eventuell
-branch protection-regel på hovedgrenen kan likevel blokkere direkte push fra Actions).
-Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub (`workflow_dispatch`).
+Workflowen bruker de samme `AZURE_FOUNDRY_ENDPOINT`- og `AZURE_FOUNDRY_API_KEY`-secretene
+som `seilruteplanlegger.yml` (se under) – ressursen må derfor ha en `gpt-5.6-luna`-modell
+deployet i tillegg til modellen ruteplanleggeren bruker. GitHub Actions må også ha lov
+til å pushe direkte til hovedgrenen (`contents: write`-rettigheten er satt i workflowen,
+men en eventuell branch protection-regel på hovedgrenen kan likevel blokkere direkte push
+fra Actions). Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub
+(`workflow_dispatch`), noe som hopper over tidsvindu-sjekken.
 
 ## Seilruteplan (automatisk ruteplanlegging basert på vær)
 

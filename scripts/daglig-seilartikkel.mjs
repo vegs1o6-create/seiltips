@@ -1,0 +1,218 @@
+#!/usr/bin/env node
+// Ser på hvilke nyheter/artikler som allerede er publisert (for å unngå
+// duplikater), ber en modell hosted i Microsoft (Azure) AI Foundry – med
+// websøk aktivert – research og skrive en ny seilartikkel, og skriver
+// resultatet til en ny fil i src/content/artikler/.
+//
+// Krever miljøvariablene AZURE_FOUNDRY_ENDPOINT og AZURE_FOUNDRY_API_KEY
+// (samme som scripts/seilruteplanlegger.mjs bruker). Modell-deploymentet kan
+// overstyres med AZURE_FOUNDRY_ARTIKKEL_MODEL (standard: gpt-5.6-luna).
+
+import { readdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const NEWS_DIR = 'src/content/news';
+const ARTIKLER_DIR = 'src/content/artikler';
+const DEFAULT_MODEL = 'gpt-5.6-luna';
+const RECENT_DAYS = 30;
+
+function requireEnv(name) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Mangler påkrevd miljøvariabel: ${name}`);
+  return value;
+}
+
+function todayOslo() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Oslo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+}
+
+function extractFrontmatterField(content, field) {
+  const re = new RegExp(`^${field}:\\s*"?([^"\\n]+)"?\\s*$`, 'm');
+  return content.match(re)?.[1]?.trim();
+}
+
+async function listRecentEntries(dir) {
+  const files = await readdir(dir).catch(() => []);
+  const entries = [];
+  for (const name of files) {
+    if (!name.endsWith('.md')) continue;
+    const content = await readFile(path.join(dir, name), 'utf8').catch(() => '');
+    const title = extractFrontmatterField(content, 'title');
+    const pubDate = extractFrontmatterField(content, 'pubDate');
+    if (title) entries.push({ title, pubDate });
+  }
+  return entries;
+}
+
+// Norske bokstaver skrives ut som ae/o/a i filnavn, som i eksisterende filer
+// (f.eks. src/content/news/hosten-er-fin-seilingstid.md).
+function slugify(title) {
+  return title
+    .toLowerCase()
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'o')
+    .replace(/å/g, 'a')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function stripCodeFence(text) {
+  const trimmed = text.trim();
+  const match = trimmed.match(/^```[a-zA-Z]*\n([\s\S]*)\n```$/);
+  return match ? match[1].trim() : trimmed;
+}
+
+function validateContent(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) throw new Error('Svaret fra modellen manglet gyldig frontmatter (--- ... ---).');
+  const [, frontmatter, body] = match;
+  for (const key of ['title:', 'description:', 'pubDate:']) {
+    if (!frontmatter.includes(key)) throw new Error(`Frontmatter i modell-svaret mangler feltet "${key}".`);
+  }
+  if (!body.trim()) throw new Error('Svaret fra modellen manglet selve artikkelteksten.');
+  return frontmatter;
+}
+
+function buildPrompt(recentEntries, today) {
+  const recentList = recentEntries.length
+    ? recentEntries.map((e) => `- ${e.title}${e.pubDate ? ` (${e.pubDate})` : ''}`).join('\n')
+    : '(ingen tidligere artikler funnet)';
+
+  return `Du skal skrive en ny artikkel til Seiltips.no – en norsk nettside om seiling og
+båtliv langs norskekysten.
+
+## 1. Unngå duplikater
+Disse temaene/titlene er allerede publisert nylig (nyheter + artikler) – velg IKKE
+samme tema, og velg et klart vinklet undertema hvis hovedtemaet er brukt nylig:
+
+${recentList}
+
+## 2. Velg tema og research med websøk
+Bruk websøket ditt til å research aktuell, sesongrelevant informasjon om seiling
+langs norskekysten. Dagens dato er ${today}. Velg ett konkret tema innenfor en av
+disse kategoriene (velg det som er mest aktuelt akkurat nå OG minst dekket fra før):
+
+- Værforhold/sesongvarsler og hvordan lese dem
+- Sikkerhet til sjøs: redningsvester, brannsikkerhet, sjøveisregler, mann-over-bord
+- Praktisk seilerkunnskap: knop, navigasjon, fortøyning, ankring, seiltrim
+- Båtvedlikehold og utstyr: sesongklargjøring, vinteropplag, sjøsetting, motor
+- Bærekraft og miljø til sjøs
+- Norske seilingsdestinasjoner: skjærgårder, gjestehavner, seilingsleder
+
+Gjør minst 3–5 websøk. Prioriter norske/skandinaviske kilder der det finnes, og
+kryssjekk faktapåstander i minst 2 kilder før du bruker dem. Noter ned de fulle
+URL-ene du faktisk hentet informasjon fra – disse skal inn i sources-feltet.
+
+## 3. Skriv artikkelen
+- Norsk bokmål, uformell og informativ tone (ikke høytidelig), 250–500 ord, gjerne
+  med en mellomtittel eller punktliste der det er naturlig.
+- Dikt ALDRI opp fakta, statistikk, tall eller sitater – hold deg strengt til det
+  kildene faktisk sier. Skriv heller mer generelt/forsiktig enn å gjette.
+- Alt skal skrives med egne ord, ikke avskrift fra kildene.
+- Nevn eventuelle norske lov-/forskriftskrav (f.eks. fra Sjøfartsdirektoratet)
+  korrekt og tydelig, uten å overdrive eller skremme unødig.
+
+## Svarformat (MÅ følges eksakt)
+Svar KUN med innholdet i en ferdig Markdown-fil, ingen annen tekst før eller etter,
+og ingen \`\`\`-kodeblokk rundt hele svaret. Filen skal se nøyaktig slik ut (fyll inn
+de spisse parentesene, behold resten ordrett):
+
+---
+title: "<tittel, uten anførselstegn inni selve teksten>"
+description: "<kort ingress, maks ca. 160 tegn>"
+pubDate: ${today}
+tags: ["<tag1>", "<tag2>"]
+sources: ["<url1>", "<url2>"]
+---
+
+<selve artikkelteksten i Markdown>`;
+}
+
+async function callFoundry(userPrompt) {
+  const endpoint = requireEnv('AZURE_FOUNDRY_ENDPOINT').replace(/\/+$/, '');
+  const apiKey = requireEnv('AZURE_FOUNDRY_API_KEY');
+  const model = process.env.AZURE_FOUNDRY_ARTIKKEL_MODEL || DEFAULT_MODEL;
+
+  const body = {
+    model,
+    messages: [{ role: 'user', content: userPrompt }],
+    // Aktiverer modellens innebygde websøk/browsing, slik at artikkelen kan
+    // baseres på fersk research i stedet for bare treningskunnskap.
+    tools: [{ type: 'web_search' }],
+    max_completion_tokens: process.env.AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS
+      ? Number(process.env.AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS)
+      : 16000,
+  };
+
+  const res = await fetch(`${endpoint}/openai/v1/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Kall til Azure AI Foundry feilet (${res.status} ${res.statusText}): ${text.slice(0, 500)}`);
+  }
+
+  const data = await res.json();
+  const choice = data.choices?.[0];
+  const content = choice?.message?.content;
+  if (!content) {
+    if (choice?.finish_reason === 'length') {
+      throw new Error(
+        'Modellen brukte opp hele tokenbudsjettet (trolig på skjulte resonnement- eller ' +
+          'søketokens) uten å skrive noe svar. Sett AZURE_FOUNDRY_ARTIKKEL_MAX_TOKENS til en ' +
+          'høyere verdi enn dagens 16000.'
+      );
+    }
+    throw new Error(`Fikk ikke noe svarinnhold fra modellen. Rått svar: ${JSON.stringify(data).slice(0, 500)}`);
+  }
+  return content;
+}
+
+async function main() {
+  const today = todayOslo();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - RECENT_DAYS);
+
+  const [newsEntries, artikkelEntries] = await Promise.all([
+    listRecentEntries(NEWS_DIR),
+    listRecentEntries(ARTIKLER_DIR),
+  ]);
+  const recentEntries = [...newsEntries, ...artikkelEntries].filter((e) => {
+    if (!e.pubDate) return true;
+    const d = new Date(e.pubDate);
+    return Number.isNaN(d.getTime()) || d >= cutoff;
+  });
+
+  console.log(`Fant ${recentEntries.length} nylig publiserte sak(er) å unngå duplikat av.`);
+  console.log('Ber Azure AI Foundry-modellen research og skrive dagens artikkel …');
+  const raw = await callFoundry(buildPrompt(recentEntries, today));
+  const content = stripCodeFence(raw);
+  const frontmatter = validateContent(content);
+
+  const title = frontmatter.match(/^title:\s*"?([^"\n]+)"?\s*$/m)?.[1]?.trim();
+  if (!title) throw new Error('Fant ikke title i frontmatter fra modell-svaret.');
+  const slug = slugify(title);
+  if (!slug) throw new Error(`Kunne ikke lage et gyldig filnavn fra tittelen: "${title}"`);
+
+  const outPath = path.join(ARTIKLER_DIR, `${slug}.md`);
+  await writeFile(outPath, content.endsWith('\n') ? content : `${content}\n`, 'utf8');
+  console.log(`Skrev ${outPath}`);
+
+  if (process.env.GITHUB_OUTPUT) {
+    await writeFile(process.env.GITHUB_OUTPUT, `file=${outPath}\n`, { flag: 'a' });
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 concurrency:
   group: daglig-seilartikkel
@@ -45,109 +44,40 @@ jobs:
             echo "Utenfor tidsvinduet (16:10–16:40 norsk tid), denne av de to cron-kjøringene gjør ingenting."
           fi
 
+      - name: Sett opp Node.js
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: Sett opp Git-bruker for commit
         if: steps.tidssjekk.outputs.proceed == 'true'
         run: |
           git config user.name "seiltips-bot"
           git config user.email "seiltips-bot@users.noreply.github.com"
 
-      - name: Research og skriv dagens artikkel med Claude
+      - name: Research og skriv dagens artikkel med Azure AI Foundry
         if: steps.tidssjekk.outputs.proceed == 'true'
-        id: claude
-        uses: anthropics/claude-code-action@v1
+        id: generer
         env:
-          CLAUDE_CODE_USE_FOUNDRY: "1"
-          ANTHROPIC_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
-          ANTHROPIC_FOUNDRY_BASE_URL: ${{ format('{0}/anthropic', secrets.AZURE_FOUNDRY_ENDPOINT) }}
-        with:
-          use_foundry: "true"
-          show_full_output: true
-          claude_args: |
-            --model claude-haiku-4-5-20251001
-            --max-turns 40
-            --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Edit,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git config:*),Bash(date:*),Bash(ls:*),Bash(cat:*)"
-          prompt: |
-            Du skriver en ny artikkel til Seiltips.no – en norsk nettside om seiling og
-            båtliv langs norskekysten (repo: ${{ github.repository }}).
+          AZURE_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+        run: node scripts/daglig-seilartikkel.mjs
 
-            Sjekk `git status` og `git log -1` først for å bekrefte at du står på riktig
-            gren med et rent arbeidstre.
-
-            ## 1. Kartlegging (gjør dette FØR du velger tema)
-            - Kjør `date` for å finne dagens dato/årstid, og tenk gjennom hva som er
-              sesongmessig relevant for seilere langs norskekysten akkurat nå (f.eks.
-              høstseiling, vinteropplag, isfare, vårpuss, sommersesong, kulingvarsler,
-              regattaer, o.l.).
-            - List filene i `src/content/news/` og `src/content/artikler/` og les
-              gjennom title/description (frontmatter) i hver av dem, slik at du IKKE
-              velger et tema som allerede er dekket i en artikkel fra de siste ca. 30
-              dagene. Velg et vinklet undertema hvis hovedtemaet er brukt nylig.
-
-            ## 2. Research – bruk WebSearch/WebFetch
-            Velg ett konkret tema innenfor en av disse kategoriene (velg det som er mest
-            aktuelt akkurat nå OG minst dekket fra før, husk på variasjon):
-            - Værforhold/sesongvarsler og hvordan lese dem (kilder uten prioritering: windy.com, yr.no, predictwind.com, met.no,
-              Stormgeo, ecmwf.int, weather.gov/marine)
-            - Sikkerhet til sjøs: redningsvester, brannsikkerhet, sjøveisregler, mann-over-
-              bord-rutiner (kilder uten prioritering: Sjøfartsdirektoratet, imo.org, Redningsselskapet, rya.org.uk,
-              Norges Seilforbund, rnli.org, sailing.org/inside-world-sailing/rules-regulations/offshore-special-regulations/)
-            - Praktisk seilerkunnskap: knop, navigasjon, fortøyning, ankring, seiltrim
-              (kilder uten prioritering: Norges Seilforbund, Seilmagasinet, ussailing.org/education, Båtmagasinet, evt. anerkjente
-              internasjonale seilersider som Yachting World / Practical Boat Owner –
-              tilpass innholdet til norsk kontekst og norske forhold)
-            - Båtvedlikehold og utstyr: sesongklargjøring, vinteropplag, sjøsetting,
-              motorvedlikehold, elektronikk/navigasjonsutstyr (tips til kilder men ikke begrenset til disse: pbo.co.uk/practical, boatus.com 
-            - Bærekraft og miljø til sjøs: forsøpling, bunnstoff, elektrifisering av
-              fritidsbåter, marint verneområder (tips til kilder men ikke begrenset til disse: sailorsforthesea.org, thegreenblue.org.uk, europeanboatingindustry.eu)
-            - Norske seilingsdestinasjoner: skjærgårder, gjestehavner, seilingsleder,
-              severdigheter man kan nå med båt
-
-            Gjør minst 3–5 websøk. Noter ned de
-            fulle URL-ene du faktisk hentet informasjon fra – disse skal inn i
-            `sources`-feltet i frontmatter.
-
-            ## 3. Skriving
-            - Se på stilen i eksisterende filer i `src/content/news/` som forbilde: norsk
-              bokmål, uformell og morsom tone, informativ, men ikke høytidelig. Typisk lengde 250–500 ord,
-              gjerne med en mellomtittel eller punktliste der det er naturlig.
-            - Skjemaet for "artikler"-samlingen står i `src/content.config.ts`. Lag en ny
-              Markdown-fil i `src/content/artikler/` med et beskrivende, kebab-case
-              filnavn (norske bokstaver som æøå skrives ut som ae/o/a i filnavnet, slik
-              som i eksisterende filer).
-            - Frontmatten MÅ se slik ut (fyll inn reelle verdier):
-              ```
-              ---
-              title: "..."
-              description: "..." (kort ingress, maks ca. 160 tegn)
-              pubDate: <dagens dato som YYYY-MM-DD>
-              tags: ["...", "..."] (1–4 relevante norske tagger, små bokstaver)
-              sources: ["https://...", "https://..."] (URL-ene du faktisk brukte)
-              ---
-              ```
-            - Dikt ALDRI opp fakta, statistikk, tall eller sitater. Hold deg strengt til
-              det kildene faktisk sier – skriv heller mer generelt/forsiktig enn å gjette.
-            - Nevn eventuelle norske lov-/forskriftskrav (f.eks. fra Sjøfartsdirektoratet)
-              korrekt og tydelig, uten å overdrive eller skremme unødig.
-            - Alle internasjonale artikler skal oversettes til norsk, denne siden er utelukkende med norsk språk. 
-            - Skriv aldri ordrett av det samme som du finner i artiklene/søkene dine, alt skal skrives med egne ord. 
-
-            ## 4. Commit og push
-            Når artikkelen er skrevet og du har verifisert at frontmatter er gyldig
-            (matcher skjemaet i `src/content.config.ts`):
-            1. `git add src/content/artikler/<filnavn>.md`
-            2. `git commit -m "Legg til artikkel: <tittel>"`
-            3. `git push`
-
-            Commit og push DIREKTE til grenen som allerede er sjekket ut. Lag IKKE en ny
-            branch, og opprett IKKE en pull request – dette er en automatisert daglig
-            publisering direkte til nettsiden.
+      - name: Commit og push artikkelen
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git add "${{ steps.generer.outputs.file }}"
+          tittel=$(grep -m1 '^title:' "${{ steps.generer.outputs.file }}" | sed -E 's/^title:\s*"?([^"]+)"?\s*$/\1/')
+          git commit -m "Legg til artikkel: ${tittel}"
+          git push
 
       - name: Verifiser at en artikkel faktisk ble publisert
         if: steps.tidssjekk.outputs.proceed == 'true'
         run: |
           git fetch origin "${{ github.ref_name }}"
           if [ -z "$(git log "origin/${{ github.ref_name }}" --since='30 minutes ago' -- src/content/artikler | head -1)" ]; then
-            echo "::error::Claude committet/pushet ingen ny artikkel til src/content/artikler/ denne kjøringen."
+            echo "::error::Ingen ny artikkel ble committet/pushet til src/content/artikler/ denne kjøringen."
             exit 1
           fi
           echo "Ny artikkel bekreftet pushet til src/content/artikler/."
