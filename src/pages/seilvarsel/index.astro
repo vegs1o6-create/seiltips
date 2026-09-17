@@ -1,37 +1,64 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import SeilvarselCard from '../../components/SeilvarselCard.astro';
-import { getCollection } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 
-const allPosts = (await getCollection('seilvarsel', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const entry = await getEntry('seilvarsel', 'naavarende-seilruteplan');
+const { Content } = entry ? await render(entry) : { Content: null };
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 
 <Layout
   title="Seilruteplan Oslofjorden–Kosterøyene"
-  description="Automatisk ruteplanlegging for seilas mellom Oslo og Kosterøyene, basert på værvarsel og oppdatert hver 3. dag."
+  description="Automatisk ruteplanlegging for seilas mellom Oslo og Kosterøyene, basert på værvarsel og tidevann, oppdatert hver 3. dag."
 >
-  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+  <section class="mx-auto max-w-3xl px-4 py-12 sm:px-6">
     <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">Seilruteplan</h1>
     <p class="mt-2 max-w-2xl text-navy-dark/80">
-      En AI-generert ruteplanlegger analyserer værvarselet for strekningen Oslo–Drøbak–Færder–
-      Hvaler–Kosterøyene hver 3. dag, og gir anbefalinger om seilføring, timing og
-      seilingsvindu. Erstatter ikke offisielle farevarsler – se alltid
+      En AI-generert ruteplanlegger analyserer værvarsel og tidevann for strekningen
+      Oslo–Drøbak–Færder–Hvaler–Kosterøyene hver 3. dag, og gir anbefalinger om seilføring,
+      timing og seilingsvindu. Denne siden viser alltid den nyeste ruteplanen – gamle
+      ruteplaner erstattes automatisk. Erstatter ikke offisielle farevarsler – se alltid
       <a href="https://www.yr.no" class="underline hover:text-sky" target="_blank" rel="noopener noreferrer">yr.no</a>
       og <a href="https://varsom.no" class="underline hover:text-sky" target="_blank" rel="noopener noreferrer">varsom.no</a>
       før du legger ut på tur.
     </p>
 
     {
-      allPosts.length === 0 ? (
-        <p class="mt-10 text-navy-dark/70">Ingen ruteplaner er publisert ennå. Kom tilbake snart!</p>
+      !entry || !Content ? (
+        <p class="mt-10 text-navy-dark/70">Ingen ruteplan er generert ennå. Kom tilbake snart!</p>
       ) : (
-        <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {allPosts.map((post) => (
-            <SeilvarselCard post={post} />
-          ))}
-        </div>
+        <>
+          <p class="mt-6 text-sm font-semibold uppercase tracking-wide text-sky">
+            Periode: {formatDate(entry.data.periodeFra)} – {formatDate(entry.data.periodeTil)}
+          </p>
+          <h2 class="mt-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">{entry.data.title}</h2>
+          <p class="mt-4 text-lg text-navy-dark/80">{entry.data.description}</p>
+
+          {entry.data.tags && entry.data.tags.length > 0 && (
+            <div class="mt-4 flex flex-wrap gap-2">
+              {entry.data.tags.map((tag) => (
+                <span class="rounded-full bg-mint/30 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div class="prose mt-8 max-w-none rounded-3xl bg-white p-6 shadow-card prose-headings:font-display prose-headings:text-navy prose-a:text-sky sm:p-10">
+            <Content />
+          </div>
+
+          <p class="mt-6 rounded-2xl bg-white/60 p-6 text-sm text-navy-dark/70">
+            Denne ruteplanen er automatisk generert basert på værvarsel og tidevannsdata fra
+            MET Norway og Kartverket, og erstatter ikke offisielle farevarsler eller egen
+            vurdering. Sjekk alltid
+            <a href="https://www.yr.no" class="text-sky hover:text-sky-dark" target="_blank" rel="noopener noreferrer">yr.no</a>
+            og <a href="https://varsom.no" class="text-sky hover:text-sky-dark" target="_blank" rel="noopener noreferrer">varsom.no</a>
+            før avgang.
+          </p>
+        </>
       )
     }
   </section>
