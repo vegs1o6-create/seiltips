@@ -31,6 +31,11 @@ jobs:
       - name: Sjekk at klokken er rundt 16:25 i Norge
         id: tidssjekk
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett klokkeslett."
+            exit 0
+          fi
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
           if [[ "$now_oslo" > "16:10" && "$now_oslo" < "16:40" ]]; then
@@ -50,8 +55,12 @@ jobs:
         if: steps.tidssjekk.outputs.proceed == 'true'
         id: claude
         uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_USE_FOUNDRY: "1"
+          ANTHROPIC_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          ANTHROPIC_FOUNDRY_BASE_URL: ${{ format('{0}/anthropic', secrets.AZURE_FOUNDRY_ENDPOINT) }}
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_foundry: "true"
           show_full_output: true
           claude_args: |
             --model claude-haiku-4-5-20251001
