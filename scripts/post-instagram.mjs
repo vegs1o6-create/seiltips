@@ -191,8 +191,11 @@ async function callFoundryText(userPrompt) {
 //
 // Merk: Microsofts eget how-to-eksempel utelater api-version helt for dette
 // endepunktet, men denne ressursen ga faktisk en 400 ("Missing required
-// query parameter: api-version") uten den – gatewayen foran /mai/v1/ krever
-// den tydeligvis likevel, i tråd med den generelle v1-preview-konvensjonen.
+// query parameter: api-version") uten den. Den generiske verdien "preview"
+// (brukt av bl.a. /openai/v1/-endepunktene) ga så en 400 ("API version not
+// supported") – denne ressursen ser i stedet ut til å bruke modellversjonen
+// (som vist i Foundry-portalen for MAI-Image-2.6-deploymentet) direkte som
+// api-version-verdi.
 //
 // Merk 2: MAI-bildemodeller har 0 forespørsler/minutt på "Free"-kvotetier –
 // deploymentet må ha minst kvotetier 1 i Foundry-portalen for at kall i det
@@ -201,7 +204,7 @@ async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || 'preview';
+  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '2026-07-31';
   const width = Number(process.env.AZURE_FOUNDRY_IMAGE_WIDTH) || 1024;
   const height = Number(process.env.AZURE_FOUNDRY_IMAGE_HEIGHT) || 1024;
 
