@@ -118,7 +118,7 @@ import { locations, defaultLocation } from '../data/locations';
         </div>
         <div class="mt-3 flex items-center gap-2 text-sm text-navy-dark/80">
           <span aria-hidden="true" style="display:inline-block; transform: rotate(${arrowRotation}deg);">⬆️</span>
-          <span>${day.maxWindKnots ?? '–'} kt</span>
+          <span>${day.maxWindMs ?? '–'} m/s</span>
           <span class="text-navy-dark/40">·</span>
           <span>💧 ${day.precipitation ?? 0} mm</span>
         </div>
