@@ -1,0 +1,30 @@
+---
+const apiKey = import.meta.env.PUBLIC_WINDY_API_KEY;
+
+// Sentrum av strekningen Oslofjorden til Kosterøyene, zoomet for å vise hele området.
+const lat = 59.4;
+const lon = 10.9;
+const zoom = 8;
+---
+
+{
+  apiKey ? (
+    <div id="windy" class="h-[420px] w-full overflow-hidden rounded-3xl shadow-soft sm:h-[480px]" />
+  ) : (
+    <p class="rounded-3xl bg-white p-6 text-sm text-navy-dark/70 shadow-card">
+      Værkartet er ikke tilgjengelig akkurat nå – mangler Windy API-nøkkel.
+    </p>
+  )
+}
+
+{apiKey && <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />}
+{apiKey && <script is:inline src="https://api.windy.com/assets/map-forecast/libBoot.js" />}
+{
+  apiKey && (
+    <script is:inline define:vars={{ apiKey, lat, lon, zoom }}>
+      windyInit({ key: apiKey, lat, lon, zoom, overlay: 'wind' }, (windyAPI) => {
+        // windyAPI.map er et Leaflet-kart om vi trenger å tilpasse det videre.
+      });
+    </script>
+  )
+}

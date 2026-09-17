@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import WindyMap from '../components/WindyMap.astro';
 import { getCollection } from 'astro:content';
 
 const allArticles = (await getCollection('artikler', ({ data }) => !data.draft)).sort(
@@ -84,6 +85,19 @@ const ctaButtons = [
   </section>
 
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Værkart</h2>
+        <p class="mt-1 max-w-xl text-sm text-navy-dark/70">
+          Live vind- og værkart for Oslofjorden til Kosterøyene, levert av Windy.com.
+        </p>
+      </div>
+      <a href="/vaer" class="text-sm font-semibold text-sky hover:text-sky-dark">Se 7-dagers varsel →</a>
+    </div>
+    <WindyMap />
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
     {
       latest && (
         <a

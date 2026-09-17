@@ -87,8 +87,27 @@ kontakt-URL/e-post for din utgivelse, i tråd med MET sine retningslinjer.
 Værdata er lisensiert under [NLOD](https://data.norge.no/nlod/no) – attribusjon til MET
 Norway/Yr.no vises i bunnteksten og på værsiden.
 
-Stedene i værvelgeren (Oslofjorden, Kristiansand, Bergen, osv.) er definert i
-`src/data/locations.ts` – legg gjerne til flere kyststrekninger der.
+Stedene i værvelgeren (Oslofjorden, Drøbak, Moss, Fredrikstad/Hvaler, Halden, Strömstad og
+Kosterøyene) er definert i `src/data/locations.ts` – legg gjerne til flere punkter langs
+strekningen der.
+
+## Værkart (Windy Map Forecast API)
+
+Forsiden viser et live vind-/værkart via [Windys Map Forecast API](https://api.windy.com),
+implementert i `src/components/WindyMap.astro` og sentrert på strekningen Oslofjorden til
+Kosterøyene (`lat: 59.4, lon: 10.9, zoom: 8`).
+
+- Nøkkelen leses fra miljøvariabelen `PUBLIC_WINDY_API_KEY` (`PUBLIC_`-prefikset gjør at
+  Astro bygger den inn i klient-bundlen, siden Windy sitt kart kjører i nettleseren).
+- Lokalt: kopier `.env.example` til `.env` og sett din egen nøkkel. `.env` er gitignored og
+  committes aldri.
+- I produksjon: nøkkelen må settes som **Build-variabel** i Cloudflare (se under), siden den
+  trengs når `npm run build` kjører – ikke bare ved kjøretid.
+- Hent en nøkkel på [api.windy.com/keys](https://api.windy.com/keys) – velg nøkkeltypen
+  **"Map Forecast API"** (ikke Point Forecast eller Webcams), og begrens den til ditt domene
+  i Windy sin nøkkeladministrasjon.
+- Mangler nøkkelen (f.eks. i en forhåndsvisning uten variabelen satt), viser komponenten en
+  enkel fallback-tekst i stedet for et tomt kart.
 
 ## Publisere på Cloudflare
 
@@ -104,6 +123,9 @@ Git-tilkoblede nettsteder (etterfølgeren til klassisk "Pages"), og bruker
    - **Build command:** `npm run build` (bygger Astro-siden til `./dist` – dette må settes
      eksplisitt, ellers finnes ikke `dist/` når Wrangler skal deploye).
    - **Deploy command:** `npx wrangler versions upload` (dette er som regel forhåndsutfylt).
+   - **Environment variables (Build):** legg til `PUBLIC_WINDY_API_KEY` med din Windy
+     Map Forecast-nøkkel (se avsnittet om værkartet over) – den må være satt her siden
+     Astro bygger den inn i siden under `npm run build`, ikke i selve Workeren.
 4. `wrangler.jsonc` forteller Wrangler hva som skal deployes:
    - `main: "worker/index.js"` – Worker-koden som ruter `/api/weather` og ellers serverer
      statiske filer.
