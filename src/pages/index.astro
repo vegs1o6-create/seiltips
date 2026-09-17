@@ -25,7 +25,7 @@ const ctaButtons = [
   },
   {
     href: '/seilvarsel',
-    iconSrc: '/icons/vaer.png',
+    iconSrc: '/icons/seilrute.png',
     title: 'Seilruteplan',
     description: 'Når bør du dra ut? Ruteplan og timing for Oslofjorden til Kosterøyene',
     style: 'bg-sky hover:bg-sky-dark',
@@ -39,7 +39,7 @@ const ctaButtons = [
   },
   {
     href: '/baater',
-    icon: '🚤',
+    iconSrc: '/icons/logo.png',
     title: 'Båter',
     description: 'Båttyper, utstyr og vedlikehold',
     style: 'bg-sky hover:bg-sky-dark',
@@ -70,13 +70,7 @@ const ctaButtons = [
                     cta.style,
                   ]}
                 >
-                  {cta.iconSrc ? (
-                    <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain" aria-hidden="true" />
-                  ) : (
-                    <span class="text-2xl" aria-hidden="true">
-                      {cta.icon}
-                    </span>
-                  )}
+                  <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain" aria-hidden="true" />
                   <span class="font-display text-sm">{cta.title}</span>
                   <span class="text-xs font-normal opacity-90">{cta.description}</span>
                 </a>
