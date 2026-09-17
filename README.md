@@ -78,9 +78,14 @@ mandag og torsdag rundt kl. 07:00 norsk tid og bruker
 `scripts/ukentlig-bruktbaat-tips.mjs` (samme mønster som `daglig-seilartikkel.mjs`) til å:
 
 1. Be en modell (`gpt-5.6-luna`, kan overstyres med `AZURE_FOUNDRY_BRUKTBAAT_MODEL`) som
-   kjører i Microsoft (Azure) AI Foundry – med websøk aktivert – søke på Google (bl.a.
-   med `site:finn.no seilbåt til salgs`) etter bruktbåt-annonser, og sammenligne dem på
-   pris, størrelse, alder og utstyr.
+   kjører i Microsoft (Azure) AI Foundry – med websøk aktivert i *agentisk* modus
+   (`reasoning.effort: "high"`, kan overstyres med
+   `AZURE_FOUNDRY_BRUKTBAAT_REASONING_EFFORT`) – søke på Google (bl.a. med
+   `site:finn.no seilbåt til salgs`), faktisk åpne og lese hver kandidat-annonse (ikke
+   bare søketreff-snippeten), og sammenligne dem på pris, størrelse, alder og utstyr. Uten
+   `reasoning.effort` satt kjører web-søket kun i "rask" modus (sender søket videre og
+   leser treff-snippets) og kan ikke åpne selve annonsesidene – da svarer modellen heller
+   at den ikke fant nok informasjon enn å dikte opp tall.
 2. Velge ut de 3 annonsene som fremstår som best verdi for pengene, og skrive en artikkel
    (400–600 ord) om dem med lenke til hver annonse og en tydelig merknad om at
    Finn.no-annonser kan bli solgt eller fjernet når som helst.

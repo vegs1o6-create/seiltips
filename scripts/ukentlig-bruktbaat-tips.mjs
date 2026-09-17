@@ -59,12 +59,18 @@ Bruk websøket ditt til å søke på Google etter seilbåtannonser, blant annet 
 søket \`site:finn.no seilbåt til salgs\`. Gjør flere søk om nødvendig (f.eks.
 med ulike størrelser/prisklasser) for å få et godt utvalg å sammenligne.
 
+Nøy deg ALDRI med bare søketreff-overskriften/snippeten – åpne hver
+kandidat-annonse du vurderer å bruke, og les selve annonseteksten, slik at
+pris, mål, byggeår og utstyr er hentet fra den faktiske annonsesiden, ikke
+gjettet ut fra søkeresultatet.
+
 ## 2. Velg de 3 beste kjøpene
 Sammenlign annonsene på pris, størrelse (lengde), alder (byggeår) og
 medfølgende utstyr (seil, elektronikk, motor osv.), og velg ut de 3
 annonsene som fremstår som best verdi for pengene akkurat nå. Bruk KUN
-informasjon du faktisk finner i annonsene – dikt aldri opp pris, mål,
-byggeår, utstyr eller andre detaljer.
+informasjon du faktisk fant ved å åpne annonsene – dikt aldri opp pris, mål,
+byggeår, utstyr eller andre detaljer. Klarer du ikke å åpne og lese nok
+annonser til å fylle 3 trygt, skriv heller om færre enn 3 båter enn å gjette.
 
 ## 3. Skriv artikkelen
 - Norsk bokmål, uformell og informativ tone, 400–600 ord.
@@ -120,12 +126,17 @@ async function callFoundry(userPrompt) {
   const body = {
     model,
     input: userPrompt,
-    // Aktiverer modellens innebygde websøk/browsing, slik at annonsene som
-    // omtales faktisk er hentet fra et ferskt Google-/Finn.no-søk.
-    tools: [{ type: 'web_search' }],
+    // Uten "reasoning" kjører web_search i rask modus: den sender kun
+    // søket videre og leser søketreff-snippets, uten å faktisk åpne
+    // annonsesidene (open_page/find_in_page krever en reasoning-modell OG at
+    // reasoning.effort er satt – ellers har modellen ikke nok til å lese
+    // pris/mål/byggeår/utstyr fra selve Finn.no-annonsen, og bør heller si
+    // fra enn å dikte opp tall).
+    reasoning: { effort: process.env.AZURE_FOUNDRY_BRUKTBAAT_REASONING_EFFORT || 'high' },
+    tools: [{ type: 'web_search', search_context_size: 'high' }],
     max_output_tokens: process.env.AZURE_FOUNDRY_BRUKTBAAT_MAX_TOKENS
       ? Number(process.env.AZURE_FOUNDRY_BRUKTBAAT_MAX_TOKENS)
-      : 16000,
+      : 32000,
   };
 
   let res;
