@@ -9,19 +9,21 @@
 //    de andre skriptene, standard "gpt-5.6-luna") skrive en norsk
 //    Instagram-bildetekst + en engelsk bildegenereringsprompt, basert KUN på
 //    den ferdigskrevne artikkelen (ingen nytt websøk).
-// 2. Genererer et fotorealistisk bilde med en egen Azure OpenAI-bildemodell i
-//    gpt-image-1-serien (f.eks. gpt-image-1-mini), skriver det til
-//    public/instagram/<slug>.png, og committer/pusher det, slik at det får en
-//    offentlig URL (raw.githubusercontent.com) Instagram kan hente bildet fra
-//    – uten å vente på at Cloudflare skal bygge/deploye nettsiden først.
-// 3. Publiserer et bilde-innlegg på Instagram via Metas offisielle Graph API
-//    (Content Publishing API): opprett media-container -> vent til den er
-//    ferdig prosessert -> publiser.
+// 2. Genererer et fotorealistisk bilde med en Azure OpenAI-bildemodell i
+//    gpt-image-serien (deployet på samme ressurs som tekstmodellen, f.eks.
+//    gpt-image-2.5-sunburst), skriver det til public/instagram/<slug>.png, og
+//    committer/pusher det, slik at det får en offentlig URL
+//    (raw.githubusercontent.com) Instagram kan hente bildet fra – uten å
+//    vente på at Cloudflare skal bygge/deploye nettsiden først. Krever at
+//    repoet er offentlig.
+// 3. Publiserer et bilde-innlegg på Instagram via Instagram API with
+//    Instagram Login: opprett media-container -> vent til den er ferdig
+//    prosessert -> publiser.
 //
 // Krever miljøvariablene:
 //   AZURE_FOUNDRY_ENDPOINT, AZURE_FOUNDRY_API_KEY   – tekstmodell (delt med de andre skriptene)
 //   AZURE_FOUNDRY_IMAGE_ENDPOINT, AZURE_FOUNDRY_IMAGE_API_KEY, AZURE_FOUNDRY_IMAGE_MODEL – bildemodell
-//   IG_ACCESS_TOKEN, IG_USER_ID                     – Instagram Graph API
+//   IG_ACCESS_TOKEN, IG_USER_ID                     – Instagram API with Instagram Login
 //   GITHUB_REPOSITORY                               – "eier/repo", satt automatisk av GitHub Actions
 // Se README.md for full oversikt over valgfrie miljøvariabler.
 
@@ -182,18 +184,11 @@ async function callFoundryText(userPrompt) {
   return content;
 }
 
-// Genererer ett bilde med en Azure OpenAI-bildemodell i gpt-image-1-serien,
+// Genererer ett bilde med en Azure OpenAI-bildemodell i gpt-image-serien,
 // deployet på SAMME Foundry-ressurs/prosjekt som tekstmodellen
 // (AZURE_FOUNDRY_ENDPOINT), via "/openai/v1/images/generations" – samme
 // mønster (ingen api-version, "Authorization: Bearer") som callFoundryText()
 // bruker mot /openai/v1/responses på den ressursen.
-//
-// Merk: En tidligere, separat Azure-ressurs ("seiltips-resource") avviste
-// api-version på /v1-stien uansett verdi (både "preview" og daterte
-// verdier), i strid med Microsofts dokumentasjon – trolig et
-// utrulling-/provisjoneringsavvik spesifikt for den ressursen. Ved å deploye
-// bildemodellen på den samme ressursen som allerede er bekreftet å håndtere
-// /openai/v1/ riktig (for tekstmodellen), unngår vi hele det problemet.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
