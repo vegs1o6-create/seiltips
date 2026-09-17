@@ -144,22 +144,25 @@ workflowene), trengs:
 - `AZURE_FOUNDRY_IMAGE_ENDPOINT` – ressurs-endepunktet med bildemodell-deploymentet
   (f.eks. `https://<ressursnavn>.services.ai.azure.com` – kan være samme ressurs som
   tekstmodellen, bare med en annen deployment).
-- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen.
+- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen (brukes som
+  `Authorization: Bearer`-token).
 - `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en (f.eks. `gpt-image-1-mini`),
   slik den heter under "Deployments" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2025-04-01-preview`),
-`AZURE_FOUNDRY_IMAGE_SIZE` (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT`
-(standard `png`), `AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`),
-`AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
+Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
+(standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT` (standard `png`),
+`AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`), `AZURE_FOUNDRY_INSTAGRAM_MODEL`
+(overstyrer tekstmodellen, standard `gpt-5.6-luna`).
 
 **Viktig – kvote:** gpt-image-1-serien har egne, ofte lave kvoter per deployment. Sjekk
 "Models + endpoints" → deploymentet → kvote i Foundry-portalen dersom kall avvises, og be
 om økt kvote (eller velg en annen gpt-image-1-variant med ledig kvote) om nødvendig.
 
-Merk: Det samlede `/openai/v1/images/generations`-endepunktet (uten deployment i URL-en)
-finnes ikke (ennå) på alle ressurser – skriptet bruker derfor det klassiske,
-deployment-baserte endepunktet, som er universelt støttet for hele gpt-image-1-serien.
+Merk: Skriptet bruker Azures "neste generasjons v1 API"
+(`/openai/v1/images/generations?api-version=preview`), laget nettopp for å slippe å
+oppgi daterte api-version-verdier som stadig blir utdatert – det klassiske,
+deployment-baserte endepunktet med en datert api-version (f.eks. `2025-04-01-preview`)
+ga "API version not supported" for `gpt-image-1-mini` (utgitt etter den api-versjonen).
 
 **Instagram (Meta Graph API):**
 
