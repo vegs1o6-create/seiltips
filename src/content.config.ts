@@ -14,4 +14,17 @@ const artikler = defineCollection({
   }),
 });
 
-export const collections = { artikler };
+const seilvarsel = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/seilvarsel' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.date(),
+    periodeFra: z.date(),
+    periodeTil: z.date(),
+    draft: z.boolean().optional().default(false),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { artikler, seilvarsel };
