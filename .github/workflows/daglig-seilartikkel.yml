@@ -49,8 +49,12 @@ jobs:
         if: steps.tidssjekk.outputs.proceed == 'true'
         id: claude
         uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_USE_FOUNDRY: "1"
+          ANTHROPIC_FOUNDRY_API_KEY: ${{ secrets.ANTHROPIC_FOUNDRY_API_KEY }}
+          ANTHROPIC_FOUNDRY_RESOURCE: ${{ secrets.ANTHROPIC_FOUNDRY_RESOURCE }}
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_foundry: "true"
           claude_args: |
             --model claude-sonnet-5
             --max-turns 40

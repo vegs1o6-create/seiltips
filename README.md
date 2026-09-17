@@ -61,8 +61,17 @@ til å:
 3. Skrive en ny Markdown-fil i `src/content/artikler/` med gyldig frontmatter, og
    committe/pushe den direkte til hovedgrenen.
 
-For at workflowen skal virke må repoet ha en `ANTHROPIC_API_KEY`-secret (Settings →
-Secrets and variables → Actions), og GitHub Actions må ha lov til å pushe direkte til
+Claude kjører via [Microsoft Foundry](https://ai.azure.com/) (Azure AI Foundry), ikke
+direkte mot Anthropics API. For at workflowen skal virke må repoet ha disse secretene
+(Settings → Secrets and variables → Actions):
+
+- `ANTHROPIC_FOUNDRY_API_KEY` – API-nøkkelen fra **Endpoints and keys** på
+  Foundry-ressursen din i [Microsoft Foundry-portalen](https://ai.azure.com/).
+- `ANTHROPIC_FOUNDRY_RESOURCE` – navnet på Foundry-ressursen (samme navn som i
+  ressurs-URL-en, ikke hele URL-en).
+
+Foundry-ressursen må ha en deployment av modellen som brukes i workflowen
+(`claude-sonnet-5`). GitHub Actions må også ha lov til å pushe direkte til
 hovedgrenen (`contents: write`-rettigheten er satt i workflowen, men en eventuell
 branch protection-regel på hovedgrenen kan likevel blokkere direkte push fra Actions).
 Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub (`workflow_dispatch`).
