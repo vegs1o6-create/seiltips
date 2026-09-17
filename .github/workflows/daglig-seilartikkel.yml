@@ -30,6 +30,11 @@ jobs:
       - name: Sjekk at klokken er rundt 21:30 i Norge
         id: tidssjekk
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett klokkeslett."
+            exit 0
+          fi
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
           if [[ "$now_oslo" > "21:15" && "$now_oslo" < "21:45" ]]; then
