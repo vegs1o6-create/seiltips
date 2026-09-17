@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BoatDetail from '../../components/BoatDetail.astro';
+---
+
+<Layout
+  title="Motorseiler"
+  description="Alt du trenger å vite om motorseilere: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
+>
+  <BoatDetail
+    icon="🚤"
+    title="Motorseiler"
+    tagline="Kompromissbåten som gir deg full fleksibilitet mellom seil og motor."
+    intro={[
+      'Motorseileren er en hybrid mellom seilbåt og motorbåt, konstruert for å gi god fremdrift under motor i tillegg til seilegenskaper. Skroget er som regel bredere og tyngre enn på en ren turseiler, med kraftigere motor og ofte mer drivstoffkapasitet. Seilarealet er derimot mindre i forhold til skrogstørrelsen, og masten kan være lavere for å redusere luftmotstand og tyngdepunkt når båten går for motor.',
+      'Tanken bak konseptet er fleksibilitet: du kan seile når forholdene ligger til rette, og slå på en kraftig motor når vinden uteblir, tiden er knapp, eller du ønsker en rolig og stabil gange gjennom bølger. Dette gjør motorseileren spesielt populær blant seilere som prioriterer komfort og forutsigbarhet på langtur, og blant dem som ikke lenger orker – eller ønsker – å være avhengig av vind for å komme seg fram.',
+      'Prisen for denne fleksibiliteten er at motorseileren sjelden utmerker seg på noen av områdene: den seiler ikke like effektivt som en renrasset turseiler, og er verken like rask eller like drivstoffgjerrig som en ren motorbåt. For mange er dette likevel et fornuftig kompromiss, spesielt på lengre kystturer der værforholdene skifter ofte.',
+    ]}
+    specs={[
+      { label: 'Lengde', value: '30–45 fot (9–14 meter)' },
+      { label: 'Skrog', value: 'GRP, bredere og tyngre enn ren seilbåt' },
+      { label: 'Kjøltype', value: 'Kort/grunn fast kjøl eller senkekjøl' },
+      { label: 'Rigg', value: 'Redusert seilareal, ofte ketch eller enkel sluffrigg' },
+      { label: 'Motor', value: 'Kraftig innenbordsmotor, sterkere enn på turseiler' },
+      { label: 'Prisnivå brukt', value: '300 000 – 3 000 000+ kr' },
+    ]}
+    sailingIntro="Motorseileren seiler tregere og krysser mindre effektivt mot vinden enn en ren turseiler, men gjør det opp med stor fleksibilitet og komfortabel gange for motor."
+    sailingPoints={[
+      'Mindre seilareal i forhold til skrogvekt gir lavere fart under seil, spesielt opp mot vinden.',
+      'Kraftig motor gjør at lange strekk kan tilbakelegges effektivt i vindstille eller ved tidsnød.',
+      'Tyngre og bredere skrog gir en stabil og komfortabel gange i sjø, både under seil og motor.',
+      'Enklere seilhåndtering enn på en fullrigget turseiler, siden seilarealet er mindre og ofte enklere rigget.',
+      'God allsidighet – du velger fremdriftsform etter vær, tid og hva som er mest behagelig for mannskapet.',
+    ]}
+    useCaseIntro="Motorseileren passer for dem som vil ha båtliv og fleksibilitet uten å være avhengig av vind – ofte litt eldre eller mer erfarne seilere med fokus på komfort."
+    useCasePoints={[
+      'Langtur langs kysten der man ønsker å kombinere seiling med effektiv og forutsigbar motorgange.',
+      'Seilere som vil redusere fysisk krevende seilhåndtering, uten å gå helt over til ren motorbåt.',
+      'Familier og par som verdsetter en romslig, komfortabel innredning som ofte likner en liten flytende hytte.',
+      'De som ferdes i farvann med mye stille vær eller trange havner der motorgange ofte er nødvendig uansett.',
+      'Eiere som ønsker forutsigbar ankomsttid, for eksempel ved faste avtaler eller værvinduer som lukker seg raskt.',
+    ]}
+    pros={[
+      'Stor fleksibilitet – velg seil eller motor etter forhold og behov.',
+      'Komfortabel og ofte romslig innredning, godt egnet for lengre opphold om bord.',
+      'Pålitelig fremdrift uavhengig av vind, med kraftig og stabil motor.',
+      'Roligere og mer stabil gange i sjø enn mange rene seilbåter av samme størrelse.',
+      'God for kystseiling der værforholdene ofte skifter raskt mellom vind og stille.',
+    ]}
+    cons={[
+      'Kompromissløsning – verken like god seiler som en turseiler eller like rask/effektiv som en ren motorbåt.',
+      'Høyere drivstofforbruk ved mye motorbruk, som gir økte driftskostnader over tid.',
+      'Dyrere vedlikehold, siden en kraftigere motor krever mer omfattende og hyppigere service.',
+      'Tyngre skrog gjør båten mindre morsom å seile i lett vind sammenlignet med en ren seilbåt.',
+      'Ofte høyere innkjøpspris enn en tilsvarende turseiler på grunn av kraftigere motor og mer utstyr.',
+    ]}
+    equipment={[
+      'Ekstra drivstoffkapasitet og reservekanner for lengre turer der motoren brukes mye.',
+      'Kullosvarsler i tillegg til brannslukningsapparat plassert nær motorrommet.',
+      'Servicekit og basisreservedeler til motoren (impeller, filter, kileremmer) for turer langt fra verksted.',
+      'To uavhengige batteribanker for redundans dersom ett anlegg skulle svikte.',
+      'AIS, kartplotter og gjerne værradar for lengre kystturer og seiling i redusert sikt.',
+      'Standard sikkerhetsutstyr som på turseiler: redningsvester, VHF-radio, brannslukker og ankerutstyr.',
+    ]}
+    maintenance={[
+      'Motoren er hjertet i en motorseiler – årlig service med olje-, filter- og impellerbytte er ikke valgfritt.',
+      'Sjekk eksosanlegg, kjølevannssystem og slanger jevnlig for lekkasjer eller slitasje.',
+      'Kontroller propell og akselpakning (stevnrørspakning) for slitasje og riktig innstilling.',
+      'Følg med på drivstoffkvaliteten – dieselpest og algevekst i tanken er en vanlig kilde til motorstopp ved mye lagret drivstoff.',
+      'Rigg og seil vedlikeholdes på samme måte som på en turseiler, selv om de brukes sjeldnere.',
+      'Sjekk batteribanker og ladesystem regelmessig, siden motorseilere ofte har høyere strømforbruk om bord.',
+    ]}
+    models={[
+      { name: 'Nauticat 33/35', price: '400 000 – 1 200 000 kr', note: 'Finsk klassiker, robust og komfortabel' },
+      { name: 'Malö Motorsailer', price: '600 000 – 2 000 000 kr', note: 'Høy kvalitet, egnet for lange turer' },
+      { name: 'Fisher 30/37', price: '300 000 – 900 000 kr', note: 'Britisk design, populær for kystcruising' },
+      { name: 'Najad Motorsailer', price: '700 000 – 2 500 000 kr', note: 'Solid bygget, god for offshore-bruk' },
+      { name: 'Hallberg-Rassy (eldre motorseilermodeller)', price: '500 000 – 1 800 000 kr', note: 'Kvalitetsbevisste, komfortfokus' },
+    ]}
+    buyingTips={[
+      'Vær ekstra grundig med motorens tilstand og timetall – dette er båtens viktigste og dyreste komponent.',
+      'Sjekk drivstofftanker for korrosjon eller forurensning, spesielt på eldre stål- eller aluminiumstanker.',
+      'Vurder ditt reelle bruksmønster: mye motorbruk betyr høyere løpende drivstoffkostnader enn du kanskje forventer.',
+      'Sammenlign driftskostnadene med en ren turseiler av samme størrelse før du bestemmer deg – forskjellen kan være betydelig.',
+    ]}
+    prev={{ href: '/baater/kjolbaat-turseiler', title: 'Kjølbåt / turseiler', icon: '⛵' }}
+    next={{ href: '/baater/racer-regattabaat', title: 'Racer / regattabåt', icon: '🏁' }}
+  />
+</Layout>

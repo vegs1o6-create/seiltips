@@ -1,0 +1,241 @@
+---
+export interface Spec {
+  label: string;
+  value: string;
+}
+
+export interface ModelRow {
+  name: string;
+  price: string;
+  note: string;
+}
+
+export interface NavLink {
+  href: string;
+  title: string;
+  icon: string;
+}
+
+export interface Props {
+  icon: string;
+  title: string;
+  tagline: string;
+  intro: string[];
+  specs: Spec[];
+  sailingIntro: string;
+  sailingPoints: string[];
+  useCaseIntro: string;
+  useCasePoints: string[];
+  pros: string[];
+  cons: string[];
+  equipment: string[];
+  maintenance: string[];
+  models: ModelRow[];
+  buyingTips: string[];
+  prev: NavLink;
+  next: NavLink;
+}
+
+const {
+  icon,
+  title,
+  tagline,
+  intro,
+  specs,
+  sailingIntro,
+  sailingPoints,
+  useCaseIntro,
+  useCasePoints,
+  pros,
+  cons,
+  equipment,
+  maintenance,
+  models,
+  buyingTips,
+  prev,
+  next,
+} = Astro.props;
+---
+
+<section class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+  <a href="/baater" class="text-sm font-semibold text-sky hover:text-sky-dark">← Tilbake til Båter</a>
+
+  <div class="mt-6 flex items-start gap-4">
+    <span class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-2xl bg-cloud text-4xl shadow-card" aria-hidden="true">
+      {icon}
+    </span>
+    <div>
+      <h1 class="font-display text-3xl font-extrabold text-navy sm:text-4xl">{title}</h1>
+      <p class="mt-1 text-lg text-navy-dark/80">{tagline}</p>
+    </div>
+  </div>
+
+  <div class="mt-8 space-y-4 text-navy-dark/80">
+    {intro.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Kjennetegn</h2>
+  <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+    {
+      specs.map((spec) => (
+        <div class="rounded-2xl bg-white p-5 shadow-card">
+          <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">{spec.label}</dt>
+          <dd class="mt-1 font-display font-bold text-navy">{spec.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Seilegenskaper</h2>
+  <p class="mt-4 text-navy-dark/80">{sailingIntro}</p>
+  <ul class="mt-4 space-y-3">
+    {
+      sailingPoints.map((point) => (
+        <li class="flex gap-3 text-navy-dark/80">
+          <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky/20 text-sm text-navy" aria-hidden="true">
+            ⛵
+          </span>
+          <span>{point}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Bruksområder og hvem passer det for</h2>
+  <p class="mt-4 text-navy-dark/80">{useCaseIntro}</p>
+  <ul class="mt-4 space-y-3">
+    {
+      useCasePoints.map((point) => (
+        <li class="flex gap-3 text-navy-dark/80">
+          <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-mint/40 text-sm text-navy" aria-hidden="true">
+            ✓
+          </span>
+          <span>{point}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Fordeler og ulemper</h2>
+  <div class="mt-6 grid gap-6 sm:grid-cols-2">
+    <div class="rounded-2xl bg-mint/10 p-6">
+      <h3 class="font-display font-bold text-navy">Fordeler</h3>
+      <ul class="mt-3 space-y-2">
+        {
+          pros.map((pro) => (
+            <li class="flex gap-2 text-sm text-navy-dark/80">
+              <span class="text-mint-dark" aria-hidden="true">+</span>
+              <span>{pro}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="rounded-2xl bg-navy/5 p-6">
+      <h3 class="font-display font-bold text-navy">Ulemper</h3>
+      <ul class="mt-3 space-y-2">
+        {
+          cons.map((con) => (
+            <li class="flex gap-2 text-sm text-navy-dark/80">
+              <span class="text-navy" aria-hidden="true">−</span>
+              <span>{con}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Utstyr og sikkerhet om bord</h2>
+  <div class="mt-6 rounded-3xl bg-white p-6 shadow-card sm:p-8">
+    <ul class="space-y-3">
+      {
+        equipment.map((item) => (
+          <li class="flex gap-3 text-navy-dark/80">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky/20 text-sm text-navy" aria-hidden="true">
+              🦺
+            </span>
+            <span>{item}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Vedlikehold</h2>
+  <div class="mt-6 rounded-3xl bg-white p-6 shadow-card sm:p-8">
+    <ul class="space-y-3">
+      {
+        maintenance.map((tip) => (
+          <li class="flex gap-3 text-navy-dark/80">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-mint/40 text-sm text-navy" aria-hidden="true">
+              ✓
+            </span>
+            <span>{tip}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Populære modeller</h2>
+  <div class="mt-6 overflow-x-auto rounded-3xl bg-white shadow-card">
+    <table class="w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-navy/10 text-xs font-semibold uppercase tracking-wide text-sky-dark">
+          <th class="px-6 py-4">Modell</th>
+          <th class="px-6 py-4">Typisk pris</th>
+          <th class="px-6 py-4">Passer for</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          models.map((model) => (
+            <tr class="border-b border-navy/5 text-navy-dark/80 last:border-0">
+              <td class="px-6 py-4 font-semibold text-navy">{model.name}</td>
+              <td class="px-6 py-4">{model.price}</td>
+              <td class="px-6 py-4">{model.note}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="mt-12 font-display text-2xl font-bold text-navy">Kjøpsguide-tips</h2>
+  <div class="mt-6 rounded-3xl bg-sky/10 p-6 sm:p-8">
+    <ul class="space-y-3">
+      {
+        buyingTips.map((tip) => (
+          <li class="flex gap-3 text-navy">
+            <span aria-hidden="true">💡</span>
+            <span>{tip}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <a
+      href="/artikler/slik-kjoper-du-brukt-seilbaat"
+      class="mt-5 inline-flex items-center gap-2 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white hover:bg-navy-dark"
+    >
+      Les hele kjøpsguiden →
+    </a>
+  </div>
+
+  <nav class="mt-12 grid gap-4 sm:grid-cols-2" aria-label="Andre båttyper">
+    <a href={prev.href} class="flex items-center gap-3 rounded-2xl bg-white p-5 shadow-card hover:shadow-soft">
+      <span class="text-2xl" aria-hidden="true">{prev.icon}</span>
+      <div>
+        <span class="block text-xs font-semibold uppercase tracking-wide text-sky-dark">← Forrige båttype</span>
+        <span class="font-display font-bold text-navy">{prev.title}</span>
+      </div>
+    </a>
+    <a href={next.href} class="flex items-center gap-3 rounded-2xl bg-white p-5 text-right shadow-card hover:shadow-soft sm:flex-row-reverse">
+      <span class="text-2xl" aria-hidden="true">{next.icon}</span>
+      <div>
+        <span class="block text-xs font-semibold uppercase tracking-wide text-sky-dark">Neste båttype →</span>
+        <span class="font-display font-bold text-navy">{next.title}</span>
+      </div>
+    </a>
+  </nav>
+</section>

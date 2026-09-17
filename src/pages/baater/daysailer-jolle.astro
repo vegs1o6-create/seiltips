@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BoatDetail from '../../components/BoatDetail.astro';
+---
+
+<Layout
+  title="Daysailer / jolle"
+  description="Alt du trenger å vite om daysailere og joller: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
+>
+  <BoatDetail
+    icon="🛶"
+    title="Daysailer / jolle"
+    tagline="Den enkleste veien inn i seilsporten – lett, billig og direkte."
+    intro={[
+      'Daysaileren og jollen er de minste og enkleste seilbåtene du finner, og for de fleste seilere er de også den aller første kontakten med sporten. Fellesnevneren er lav vekt, enkel rigg og direkte kontakt med vann og vind – responsen på ror og seiltrim kjennes umiddelbart, noe som gjør joller til et fantastisk læringsverktøy.',
+      'Kategorien spenner fra rene ettmanns-konkurransejoller som Laser/ILCA, via familievennlige joller med litt mer stabilitet, til åpne daysailere på 6–8 fot med enkel "day cuddy" for litt le fra vær og vind. Det de har til felles er at de ikke har fast kjøl med tung ballast – stabiliteten kommer i stedet fra skrogform, besetningens vektforflytning og eventuelt et sverd eller en senkekjøl.',
+      'Fordi jollen ikke har den samme selvopprettende ballasten som en kjølbåt, kan den kantre. Det høres skummelt ut, men er i praksis en innebygd del av opplæringen: å lære å kontrollere og eventuelt rette opp en jolle er grunnleggende sjømannskap som bygger forståelse for balanse, vind og vekt – kunnskap som er nyttig resten av seilerkarrieren.',
+    ]}
+    specs={[
+      { label: 'Lengde', value: '3–8 meter' },
+      { label: 'Skrog', value: 'GRP, tre eller oppblåsbar/foldbar' },
+      { label: 'Kjøltype', value: 'Sverd, senkekjøl eller ingen kjøl' },
+      { label: 'Rigg', value: 'Enkel bermuda-rigg, 1–2 seil' },
+      { label: 'Besetning', value: '1–4 personer' },
+      { label: 'Prisnivå brukt', value: '20 000 – 300 000 kr' },
+    ]}
+    sailingIntro="Joller er lette og reagerer momentant på både ror, seiltrim og vektforflytning. Det gjør dem morsomme og lærerike, men også mindre tilgivende enn en tung kjølbåt."
+    sailingPoints={[
+      'Krever aktiv vektforflytning – du sitter ofte på ripa (kanten) eller i trapes for å holde båten flat i frisk vind.',
+      'Kan kantre dersom vindkast eller feil manøver tar besetningen på senga – de fleste joller er konstruert for å rettes opp igjen manuelt.',
+      'Svært responsiv på rorgang og seiltrim, noe som gjør den ideell for å lære grunnleggende seilteknikk raskt.',
+      'Grunt dypgående (særlig med sverd hevet) gjør at du kan seile helt inn til svaberg og grunne viker.',
+      'Lav vekt betyr at vind og bølger kan kaste båten rundt mer enn i en tyngre båt – gir stor følelse av fart selv i moderat vind.',
+    ]}
+    useCaseIntro={'Daysaileren og jollen er førstevalget for opplæring, og en fin følgebåt eller "andrebåt" for erfarne seilere som vil ha rask, uformell seiling.'}
+    useCasePoints={[
+      'Seilskoler og klubbopplæring – de aller fleste norske seilklubber bruker joller som Optimist og Zoom8 i barne- og ungdomsopplæringen.',
+      'Korte dagsturer og lek i skjærgården for de som ikke trenger overnatting om bord.',
+      'Klubbregattaer og one-design-seiling der alle båtene er identiske og det er seilerens ferdigheter som avgjør.',
+      '"Prøv seiling"-arrangementer og seilcamp, fordi jollen er rask å rigge og lett å komme i gang med.',
+      'Voksne som vil tilbake til grunnleggende, fysisk seiling etter år med kjølbåt – mange kjøper en jolle som "leketøy" ved siden av familiebåten.',
+    ]}
+    pros={[
+      'Lav innkjøpspris og lave driftskostnader sammenlignet med alle andre båttyper.',
+      'Lett å trailere og lagre hjemme – krever ikke fast havneplass.',
+      'Rask å rigge og klargjøre – man kan være på vannet på under 20 minutter.',
+      'Uslåelig læringsplattform for grunnleggende seilteknikk og sjøvett.',
+      'Stor seilglede og umiddelbar respons, spesielt i frisk vind.',
+    ]}
+    cons={[
+      'Ingen eller minimal ly for vær, vind og sol.',
+      'Begrenset rekkevidde – lite egnet for lengre turer eller dårlig vær.',
+      'Kan kantre, noe som krever at besetningen kan svømme og håndtere en kantring trygt.',
+      'Lite eller ingen lagringsplass for utstyr og proviant.',
+      'Mindre komfortabel over tid – egner seg dårlig til hele dager i dårlig vær.',
+    ]}
+    equipment={[
+      'Godkjent flyteplagg eller redningsvest til alle om bord – bruk alltid, ikke bare ha tilgjengelig.',
+      'Øsekar eller lensepumpe for å bli kvitt vann etter kantring eller sjøsprøyt.',
+      'Årer eller en liten påhengsmotor som backup dersom vinden dør eller utstyr svikter.',
+      'Tørrdrakt eller våtdrakt ved seiling i kaldt vann – norsk sjøtemperatur er farlig lav store deler av året.',
+      'Mobiltelefon i vanntett pose eller -etui, og gjerne følgebåt ved seiling langt fra land.',
+      'Fløyte eller annet enkelt signalutstyr for å tilkalle oppmerksomhet ved behov.',
+    ]}
+    maintenance={[
+      'Skyll skrog, sverd og rigg med ferskvann etter seiling i saltvann for å unngå saltkrystaller i bevegelige deler.',
+      'Sjekk sverd- eller senkekjølsmekanismen jevnlig for slitasje og at den går fritt.',
+      'Tørk seilet før det rulles eller pakkes sammen, slik at det ikke utvikler mugg eller lukt.',
+      'Kontroller skjøter, blokker og fallliner for slitasje – disse er billige å skifte, men farlige å la ryke under seiling.',
+      'Sjekk skroget for sprekker, spesielt rundt senkekjølsboksen, der belastningen er størst.',
+      'Lagre båten tildekket eller innendørs om vinteren for å unngå UV- og frostskader.',
+    ]}
+    models={[
+      { name: 'Optimist', price: '5 000 – 30 000 kr', note: 'Barn og nybegynnere, standard i seilskoler' },
+      { name: 'Zoom8', price: '15 000 – 50 000 kr', note: 'Ungdom, overgang fra Optimist' },
+      { name: 'RS Feva / RS Quest', price: '40 000 – 120 000 kr', note: 'To-manns opplæring og klubbregatta' },
+      { name: 'Laser / ILCA', price: '20 000 – 90 000 kr', note: 'Ettmanns konkurranseseiling, alle aldre' },
+      { name: '505 / Yngling', price: '30 000 – 150 000 kr', note: 'Erfarne seilere, høyere fartspotensial' },
+      { name: 'Drascombe Lugger', price: '80 000 – 250 000 kr', note: 'Daysailer med litt mer komfort og ly' },
+    ]}
+    buyingTips={[
+      'Sjekk flyteevnen – skum i skroget kan mette med vann over år og gi ekstra vekt uten at det er synlig utenpå.',
+      'Se etter sprekker eller reparasjoner rundt senkekjølsboks og mastfot, der belastningen er størst.',
+      'Vurder seilets tilstand nøye – på eldre joller som Optimist og Laser er slitte seil en av de vanligste og billigste tingene å bytte ut.',
+      'Test at all rigg (fall, skjøter, blokker) fungerer smidig før kjøp – dette er rimelig å fikse, men bør reflekteres i prisen.',
+    ]}
+    prev={{ href: '/baater/racer-regattabaat', title: 'Racer / regattabåt', icon: '🏁' }}
+    next={{ href: '/baater/kjolbaat-turseiler', title: 'Kjølbåt / turseiler', icon: '⛵' }}
+  />
+</Layout>
