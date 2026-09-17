@@ -38,7 +38,11 @@ jobs:
       - name: Sjekk ut repoet
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.ref }}
+          # NB: workflow_run.head_sha er commit-en den utløsende workflowen *startet*
+          # fra, altså FØR den commitet/pushet den nye artikkelen. Vi må derfor sjekke
+          # ut selve branch-tippen (head_branch), som på dette tidspunktet allerede
+          # inneholder artikkel-commiten, ellers finner "Finn nye artikkelfiler" ingenting.
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
           fetch-depth: 0
 
       - name: Finn nye artikkelfiler
