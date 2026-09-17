@@ -182,23 +182,22 @@ async function callFoundryText(userPrompt) {
   return content;
 }
 
-// Genererer ett bilde med en Azure OpenAI-bildemodell i gpt-image-1-serien
-// (f.eks. gpt-image-1-mini) via Azures "neste generasjons v1 API"
-// ("/openai/v1/images/generations"). Denne API-flaten (lansert 2025) er
-// laget nettopp for å slippe å oppgi daterte api-version-verdier hver
-// måned – riktig verdi er den bokstavelige strengen "preview", med
-// "Authorization: Bearer" (ikke "api-key"). Se
-// https://learn.microsoft.com/azure/foundry/openai/api-version-lifecycle
+// Genererer ett bilde med en Azure OpenAI-bildemodell i gpt-image-1-serien,
+// deployet på SAMME Foundry-ressurs/prosjekt som tekstmodellen
+// (AZURE_FOUNDRY_ENDPOINT), via "/openai/v1/images/generations" – samme
+// mønster (ingen api-version, "Authorization: Bearer") som callFoundryText()
+// bruker mot /openai/v1/responses på den ressursen.
 //
-// Deployment-baserte, daterte api-version-verdier (f.eks.
-// 2025-04-01-preview, Microsofts eget dokumenterte eksempel) ga "API
-// version not supported" på denne ressursen – trolig fordi gpt-image-1-mini
-// (utgitt oktober 2025) ikke er kjent av en api-version fra april 2025.
+// Merk: En tidligere, separat Azure-ressurs ("seiltips-resource") avviste
+// api-version på /v1-stien uansett verdi (både "preview" og daterte
+// verdier), i strid med Microsofts dokumentasjon – trolig et
+// utrulling-/provisjoneringsavvik spesifikt for den ressursen. Ved å deploye
+// bildemodellen på den samme ressursen som allerede er bekreftet å håndtere
+// /openai/v1/ riktig (for tekstmodellen), unngår vi hele det problemet.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || 'preview';
   const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
   const outputFormat = process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT || 'png';
   const outputCompression = Number(process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION) || 100;
@@ -211,7 +210,7 @@ async function generateImage(prompt) {
     output_format: outputFormat,
     output_compression: outputCompression,
   };
-  const url = `${endpoint}/openai/v1/images/generations?api-version=${apiVersion}`;
+  const url = `${endpoint}/openai/v1/images/generations`;
 
   let res;
   for (let attempt = 0; ; attempt++) {

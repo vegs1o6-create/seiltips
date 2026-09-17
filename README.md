@@ -139,30 +139,33 @@ opp en artikkel du selv committer manuelt) og `workflow_dispatch` (for manuell t
 I tillegg til `AZURE_FOUNDRY_ENDPOINT`/`AZURE_FOUNDRY_API_KEY` (allerede satt for de andre
 workflowene), trengs:
 
-**Azure OpenAI – gpt-image-1-serien (egen ressurs/deployment, f.eks. gpt-image-1-mini):**
+**Azure OpenAI – gpt-image-1-serien (deployet på SAMME ressurs/prosjekt som tekstmodellen):**
 
-- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – ressurs-endepunktet med bildemodell-deploymentet
-  (f.eks. `https://<ressursnavn>.services.ai.azure.com` – kan være samme ressurs som
-  tekstmodellen, bare med en annen deployment).
-- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen (brukes som
-  `Authorization: Bearer`-token).
-- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en (f.eks. `gpt-image-1-mini`),
-  slik den heter under "Deployments" i Foundry-portalen.
+- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – **samme verdi som `AZURE_FOUNDRY_ENDPOINT`** (bildemodellen
+  må deployes på samme Foundry-ressurs/prosjekt som `gpt-5.6-luna`, ikke en separat
+  Azure OpenAI-ressurs – se forklaring under).
+- `AZURE_FOUNDRY_IMAGE_API_KEY` – kan være samme verdi som `AZURE_FOUNDRY_API_KEY` (samme
+  ressurs), brukes som `Authorization: Bearer`-token.
+- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av bildemodellen (f.eks.
+  `gpt-image-1-mini`), slik den heter under "Deployments" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
-(standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT` (standard `png`),
-`AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`), `AZURE_FOUNDRY_INSTAGRAM_MODEL`
-(overstyrer tekstmodellen, standard `gpt-5.6-luna`).
+Valgfrie: `AZURE_FOUNDRY_IMAGE_SIZE` (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT`
+(standard `png`), `AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`),
+`AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
 
 **Viktig – kvote:** gpt-image-1-serien har egne, ofte lave kvoter per deployment. Sjekk
 "Models + endpoints" → deploymentet → kvote i Foundry-portalen dersom kall avvises, og be
 om økt kvote (eller velg en annen gpt-image-1-variant med ledig kvote) om nødvendig.
 
-Merk: Skriptet bruker Azures "neste generasjons v1 API"
-(`/openai/v1/images/generations?api-version=preview`), laget nettopp for å slippe å
-oppgi daterte api-version-verdier som stadig blir utdatert – det klassiske,
-deployment-baserte endepunktet med en datert api-version (f.eks. `2025-04-01-preview`)
-ga "API version not supported" for `gpt-image-1-mini` (utgitt etter den api-versjonen).
+**Hvorfor samme ressurs som tekstmodellen:** Skriptet bruker Azures "neste generasjons v1
+API" (`/openai/v1/images/generations`, ingen `api-version`, `Authorization: Bearer`) – samme
+mønster som allerede er bekreftet å fungere for tekstmodellen mot `/openai/v1/responses`. En
+tidligere, separat Azure-ressurs avviste `api-version` på `/v1`-stien uansett verdi (i strid
+med Microsofts dokumentasjon), sannsynligvis pga. et utrulling-/provisjoneringsavvik
+spesifikt for den ressursen. Det klassiske, deployment-baserte endepunktet med en datert
+`api-version` (f.eks. `2025-04-01-preview`, siste daterte versjon som noensinne ble utgitt)
+fungerer heller ikke for nyere modeller som `gpt-image-1-mini` (utgitt oktober 2025, etter at
+Azure sluttet å utgi nye daterte versjoner).
 
 **Instagram (Meta Graph API):**
 
