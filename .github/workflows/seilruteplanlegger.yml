@@ -1,0 +1,204 @@
+name: Seilruteplanlegger
+
+# Kjører hver 3. dag rundt kl. 07:00 norsk tid og bruker
+# anthropics/claude-code-action til å analysere værvarselet for strekningen
+# Oslo–Kosterøyene og publisere en seilruteplan i src/content/seilvarsel/.
+#
+# Som i daglig-seilartikkel.yml kjører GitHub Actions cron alltid i UTC og
+# følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for
+# vintertid CET, ett for sommertid CEST) og lar et vaktbikkje-steg avgjøre
+# hvilken kjøring som faktisk skal gjøre jobben.
+#
+# "*/3" i dag-i-måneden-feltet gir ikke matematisk nøyaktig "hver 3. dag"
+# rundt månedsskifter (avstanden blir kortere der), men det er nøyaktig nok
+# for en værbasert ruteplan som uansett blir foreldet etter noen dager.
+on:
+  schedule:
+    - cron: '0 6 */3 * *' # 07:00 CET (vintertid, UTC+1)
+    - cron: '0 5 */3 * *' # 07:00 CEST (sommertid, UTC+2)
+  workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: seilruteplanlegger
+  cancel-in-progress: false
+
+jobs:
+  lag-ruteplan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Sjekk ut repoet
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sjekk at klokken er rundt 07:00 i Norge
+        id: tidssjekk
+        run: |
+          now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
+          echo "Klokken er $now_oslo i Norge akkurat nå."
+          if [[ "$now_oslo" > "06:45" && "$now_oslo" < "07:15" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Utenfor tidsvinduet (06:45–07:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+          fi
+
+      - name: Sett opp Git-bruker for commit
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git config user.name "seiltips-bot"
+          git config user.email "seiltips-bot@users.noreply.github.com"
+
+      - name: Analyser vær og lag seilruteplan med Claude
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          show_full_output: true
+          claude_args: |
+            --model claude-sonnet-5
+            --max-turns 80
+            --allowedTools "Bash(curl:*),Bash(jq:*),Bash(date:*),Bash(ls:*),Bash(cat:*),Read,Glob,Grep,Write,Edit,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git config:*)"
+            --append-system-prompt-file .github/prompts/seilruteplanlegger-persona.md
+          prompt: |
+            Du er en navigatør/værvarsler-agent (persona lastet via
+            --append-system-prompt-file) som hver 3. dag lager en seilruteplan for
+            strekningen Oslo–Kosterøyene til Seiltips.no (repo: ${{ github.repository }}).
+
+            Sjekk `git status` og `git log -1` først for å bekrefte at du står på riktig
+            gren med et rent arbeidstre.
+
+            ## 1. Finn dagens dato og periode
+            Kjør `date` (og evt. `TZ="Europe/Oslo" date`) for å finne dagens dato i Norge.
+            Perioden du skal analysere er de neste 5 dagene, fra og med i dag
+            (periodeFra = i dag, periodeTil = i dag + 4 dager).
+
+            ## 2. Hent værdata for de 5 faste målepunktene
+            Bruk disse punktene, nord til sør (navn, lat, lon):
+            1. Oslo havn – 59.90, 10.73
+            2. Drøbak – 59.66, 10.62
+            3. Færder fyr – 59.03, 10.53
+            4. Hvaler – 59.05, 11.00
+            5. Kosterøyene – 58.88, 11.15
+
+            For hvert punkt, hent rådata direkte fra MET Norways API-er med `curl`.
+            MET sine brukervilkår (https://api.met.no/doc/TermsOfService) krever en
+            identifiserbar User-Agent-header på alle kall – bruk alltid:
+            `-H "User-Agent: seiltips.no seilruteplanlegger/1.0 (+https://seiltips.no)"`
+
+            - Vind/kast/nedbør: `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=<LAT>&lon=<LON>`
+              (bruk "complete", ikke "compact" – kun "complete" har
+              `wind_speed_of_gust` for kastene).
+            - Bølgehøyde: `https://api.met.no/weatherapi/oceanforecast/2.0/complete?lat=<LAT>&lon=<LON>`
+              Dekningsgraden for havmodellen når ikke alltid inn i skjermede
+              innaskjærs punkter (typisk Oslo havn/Drøbak) – hvis kallet feiler eller
+              ikke gir bølgedata for et punkt/en dag, skriv "n/a" for bølgehøyde der.
+              Ikke gjett/diktet bølgehøyde.
+
+            Bruk `jq` til å hente ut feltene du trenger fremfor å lese rå JSON for hånd
+            (mer nøyaktig, og JSON-payloaden er stor). Se gjerne på
+            `worker/weather.js` (funksjonene `dateKeyOslo`, `hourOslo`, `aggregateByDay`,
+            og m/s→knop-konstanten `MS_TO_KNOTS`) for hvordan resten av siden allerede
+            bøtter tidsseriene per norsk kalenderdag og regner om enheter – hold deg til
+            samme konvensjon for konsistens, men du trenger ikke gjenbruke koden direkte.
+
+            For hver av de 5 dagene og hvert av de 5 punktene, finn:
+            - Vindstyrke (representativt midt på dagen, m/s, du kan også oppgi i knop)
+            - Vindretning (fra hvilken retning vinden kommer)
+            - Kast/kastestyrke (maks `wind_speed_of_gust` for dagen, m/s)
+            - Bølgehøyde (maks `sea_surface_wave_height` for dagen, m, eller "n/a")
+            - Nedbør (ja/nei, basert på om `precipitation_amount` > ca. 0.2 mm i løpet
+              av dagen)
+
+            Diktet ALDRI opp værtall. Alt som står i rapporten skal kunne spores
+            tilbake til faktiske verdier fra MET sine API-er.
+
+            ## 3. Analyser og skriv rapporten
+            Strukturer værdataene du har hentet inn i samme form som denne malen (dette
+            er kun et internt arbeidsgrunnlag, ikke noe som skal limes inn rått i den
+            ferdige artikkelen):
+
+            ```
+            ## Værdata – Oslofjorden og Skagerrakkysten
+            Hentet: <dato og tidspunkt>
+            Periode: <periodeFra> til <periodeTil>
+
+            **<Stedsnavn> (<lat>, <lon>):**
+            - Dag 1 (<dato>): Vind <styrke> m/s fra <retning>, kast <kastestyrke> m/s, bølgehøyde <h> m, nedbør <ja/nei>
+            - Dag 2 ...
+            - ...
+            ```
+
+            Bruk så persona og fagkunnskapen din (systemprompten) til å analysere dette
+            og skrive en rapport med nøyaktig disse seksjonene:
+
+            1. **Sammendrag** (3–5 linjer) – rask oversikt over perioden. Hva dominerer?
+               Er det et klart seilvindu?
+            2. **Seilføring per dag** – for hver dag: anbefalt seilføring (full rigg /
+               ett reff / dobbelt reff / stormseil / motorbåt-forhold). Marker dager som
+               er uegnet for seilas med ⚠️.
+            3. **Ruteanbefalinger – segmentvis** – vurder hvert segment separat
+               (Oslo → Drøbak, Drøbak → Færder, Færder → Hvaler, Hvaler → Kosterøyene).
+               For hvert segment: beste dag/tidspunkt å passere, vindvinkel på kursen,
+               eventuelle advarsler.
+            4. **Timing – sydover** – hvilket tidspunkt (dag + ca. klokkeslett) er
+               optimalt for avgang sydover fra Oslo? Begrunn med vindretning, styrke og
+               eventuelle fronter underveis.
+            5. **Timing – nordover** – hvilket tidspunkt er optimalt for avgang nordover
+               fra Kosterøyene/Hvaler mot Oslo?
+            6. **Konfidensvurdering** – marker tydelig hvilke deler av analysen som er
+               høy konfidens (dag 1–2) vs. usikre indikasjoner (dag 3–5).
+            7. **Anbefaling** (ett avsnitt) – én konkret anbefaling: bør man dra nå,
+               vente, eller er det en spesifikk dag som peker seg ut?
+
+            Skriv på norsk bokmål, konsist og tydelig, med norske nautiske termer der det
+            er naturlig (jf. persona). Bruk `##` for seksjonsoverskriftene over.
+
+            ## 4. Lagre som innhold på siden
+            Skjemaet for "seilvarsel"-samlingen står i `src/content.config.ts`. Lag en ny
+            Markdown-fil i `src/content/seilvarsel/` med et beskrivende, kebab-case
+            filnavn som starter med periodeFra-datoen, f.eks.
+            `2026-09-20-seilruteplan-oslo-kosteroeyene.md` (norske bokstaver æøå skrives
+            ut som ae/o/a i filnavnet).
+
+            Frontmatten MÅ se slik ut (fyll inn reelle verdier):
+            ```
+            ---
+            title: "Seilruteplan <periodeFra dag/måned>–<periodeTil dag/måned>: <kort stikkord, f.eks. 'fint seilvindu onsdag'>"
+            description: "..." (kort ingress, maks ca. 160 tegn, oppsummerer perioden)
+            pubDate: <dagens dato som YYYY-MM-DD>
+            periodeFra: <periodeFra som YYYY-MM-DD>
+            periodeTil: <periodeTil som YYYY-MM-DD>
+            tags: ["ruteplanlegging", "vaervarsel"]
+            ---
+            ```
+
+            Selve artikkelteksten (etter frontmatter) skal være de 7 seksjonene fra
+            punkt 3 over.
+
+            ## 5. Commit og push
+            Når rapporten er skrevet og du har verifisert at frontmatter er gyldig
+            (matcher skjemaet i `src/content.config.ts`):
+            1. `git add src/content/seilvarsel/<filnavn>.md`
+            2. `git commit -m "Legg til seilruteplan: <periodeFra>–<periodeTil>"`
+            3. `git push`
+
+            Commit og push DIREKTE til grenen som allerede er sjekket ut. Lag IKKE en ny
+            branch, og opprett IKKE en pull request – dette er en automatisert
+            publisering direkte til nettsiden, akkurat som i daglig-seilartikkel.yml.
+
+      - name: Verifiser at en ruteplan faktisk ble publisert
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git fetch origin "${{ github.ref_name }}"
+          if [ -z "$(git log "origin/${{ github.ref_name }}" --since='30 minutes ago' -- src/content/seilvarsel | head -1)" ]; then
+            echo "::error::Claude committet/pushet ingen ny ruteplan til src/content/seilvarsel/ denne kjøringen."
+            exit 1
+          fi
+          echo "Ny seilruteplan bekreftet pushet til src/content/seilvarsel/."

@@ -67,6 +67,32 @@ hovedgrenen (`contents: write`-rettigheten er satt i workflowen, men en eventuel
 branch protection-regel på hovedgrenen kan likevel blokkere direkte push fra Actions).
 Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub (`workflow_dispatch`).
 
+## Seilruteplan (automatisk ruteplanlegging basert på vær)
+
+En egen samling `seilvarsel` i `src/content/seilvarsel/` (skjema i `src/content.config.ts`,
+vises på `/seilvarsel`) inneholder seilruteplaner for strekningen Oslo–Drøbak–Færder–
+Hvaler–Kosterøyene.
+
+En GitHub Action (`.github/workflows/seilruteplanlegger.yml`) kjører hver 3. dag rundt
+kl. 07:00 norsk tid og bruker `anthropics/claude-code-action` – med en navigatør-/
+værvarsler-persona lastet fra `.github/prompts/seilruteplanlegger-persona.md` via
+`--append-system-prompt-file` – til å:
+
+1. Hente værdata (vind, kast, bølgehøyde, nedbør) direkte fra MET Norways
+   locationforecast- og oceanforecast-API-er for de 5 faste målepunktene, for de neste
+   5 dagene.
+2. Analysere dataene og skrive en rapport med seilføring per dag, segmentvise
+   ruteanbefalinger, optimal timing sydover/nordover, en konfidensvurdering (høy for
+   dag 1–2, usikker for dag 3–5) og én konkret anbefaling.
+3. Skrive en ny Markdown-fil i `src/content/seilvarsel/` med gyldig frontmatter, og
+   committe/pushe den direkte til hovedgrenen.
+
+Persona-filen inneholder også en standard båtprofil (lettere 35-fots sloop, 2 i
+besetning, unngår >15–18 m/s) som styrer hvor forsiktige rådene er – juster denne filen
+direkte dersom rådene skal tilpasses en annen båt. Samme forutsetninger som over gjelder
+for secret og push-rettigheter, og workflowen kan også trigges manuelt via
+`workflow_dispatch`.
+
 ## Værvarsel (yr.no / MET Norway)
 
 Værsiden (`/vaer`) henter data fra [MET Norways Locationforecast API](https://api.met.no)
@@ -158,13 +184,15 @@ akkurat som i produksjon.
 
 ```
 .github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
+                    seilruteplanlegger.yml – automatisk seilruteplan (vær)
+.github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
 src/
-  components/        Header, Footer, NewsCard, ArtikkelCard
-  content/news/       Nyhetsartikler (Markdown)
+  components/        Header, Footer, ArtikkelCard, SeilvarselCard
   content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)
+  content/seilvarsel/ Seilruteplaner (Markdown, auto-generert hver 3. dag)
   data/               Steder for værvarsel
   layouts/            Felles sidemal
-  pages/              Forside, nyhetsarkiv, artikler, vær, seiling-1-2-3, båter
+  pages/              Forside, artikler, seilvarsel, vær, seiling-1-2-3, båter
 worker/             Cloudflare Worker: index.js ruter forespørsler,
                     weather.js er værproxyen mot MET Norway
 wrangler.jsonc      Deploy-konfigurasjon (Worker-entry + assets-mappe)
