@@ -14,9 +14,11 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
   <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
     <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
       <span
-        class="flex h-9 w-9 items-center justify-center rounded-2xl bg-mint text-navy shadow-card"
-        aria-hidden="true">⛵</span
+        class="flex h-9 w-9 items-center justify-center rounded-2xl bg-mint p-1 shadow-card"
+        aria-hidden="true"
       >
+        <img src="/icons/logo.png" alt="" class="h-full w-full object-contain" />
+      </span>
       <span>Seiltips<span class="text-mint">.no</span></span>
     </a>
 
