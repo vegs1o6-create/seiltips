@@ -117,6 +117,10 @@ URL-ene du faktisk hentet informasjon fra – disse skal inn i sources-feltet.
 - Alt skal skrives med egne ord, ikke avskrift fra kildene.
 - Nevn eventuelle norske lov-/forskriftskrav (f.eks. fra Sjøfartsdirektoratet)
   korrekt og tydelig, uten å overdrive eller skremme unødig.
+- Sett IKKE inn kildehenvisninger, lenker eller parenteser som "(kilde.no)" eller
+  "([met.no](https://...))" løpende i selve artikkelteksten. Brødteksten skal
+  leses som ren løpende tekst uten avbrytelser – alle kildene skal kun ligge i
+  sources-feltet i frontmatter, ikke gjentas eller lenkes til inne i teksten.
 
 ## Svarformat (MÅ følges eksakt)
 Svar KUN med innholdet i en ferdig Markdown-fil, ingen annen tekst før eller etter,
