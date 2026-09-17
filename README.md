@@ -78,14 +78,18 @@ kl. 07:00 norsk tid og bruker `scripts/seilruteplanlegger.mjs` (ren Node.js, ing
 ekstra npm-avhengigheter) til å:
 
 1. Hente værdata (vind, kast, bølgehøyde, nedbør) direkte fra MET Norways
-   locationforecast- og oceanforecast-API-er for de 5 faste målepunktene, for de neste
-   5 dagene, og aggregere dette deterministisk til tallverdier per dag (ingen KI
-   involvert i selve tallknusingen).
+   locationforecast- og oceanforecast-API-er, og tidevannsdata (høyvann/lavvann,
+   klokkeslett og høyde relativt til sjøkartnull) fra Kartverkets tidevanns-API
+   (`vannstand.kartverket.no`), for de 5 faste målepunktene og de neste 5 dagene.
+   Alt aggregeres deterministisk til tallverdier per dag (ingen KI involvert i selve
+   tallknusingen) – høyvann/lavvann finnes ved å lete etter lokale topp-/bunnpunkter i
+   tidevannskurven fra Kartverket.
 2. Sende disse tallene, sammen med en navigatør-/værvarsler-persona fra
    `.github/prompts/seilruteplanlegger-persona.md`, til en GPT-modell som kjører i
    Microsoft (Azure) AI Foundry, og be den skrive en rapport med seilføring per dag,
-   segmentvise ruteanbefalinger, optimal timing sydover/nordover, en
-   konfidensvurdering (høy for dag 1–2, usikker for dag 3–5) og én konkret anbefaling.
+   segmentvise ruteanbefalinger (inkl. tidevann/strøm, særlig ved Drøbaksundet),
+   optimal timing sydover/nordover, en konfidensvurdering (høy for dag 1–2, usikker
+   for dag 3–5) og én konkret anbefaling.
 3. Skrive svaret som en ny Markdown-fil i `src/content/seilvarsel/` med gyldig
    frontmatter (skriptet validerer formatet før filen skrives), og
    committe/pushe den direkte til hovedgrenen.

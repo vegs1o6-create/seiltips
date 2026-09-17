@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// Henter værdata (vind, kast, bølgehøyde, nedbør) for 5 faste punkter langs
-// Oslo–Kosterøyene direkte fra MET Norways API-er, ber en GPT-modell hosted
-// i Microsoft (Azure) AI Foundry analysere seilingsforholdene, og skriver
-// resultatet som en ny fil i src/content/seilvarsel/.
+// Henter værdata (vind, kast, bølgehøyde, nedbør) fra MET Norway og
+// tidevannsdata (høyvann/lavvann) fra Kartverket for 5 faste punkter langs
+// Oslo–Kosterøyene, ber en GPT-modell hosted i Microsoft (Azure) AI Foundry
+// analysere seilingsforholdene, og skriver resultatet som en ny fil i
+// src/content/seilvarsel/.
 //
-// Selve værdata-aggregeringen (vind/kast/bølge/nedbør per dag) gjøres
-// deterministisk her i skriptet – modellen brukes kun til analyse/tekst, slik
-// at den aldri kan dikte opp tallverdier.
+// Selve værdata-/tidevannsaggregeringen (vind/kast/bølge/nedbør/høyvann-
+// lavvann per dag) gjøres deterministisk her i skriptet – modellen brukes
+// kun til analyse/tekst, slik at den aldri kan dikte opp tallverdier.
 //
 // Krever miljøvariablene AZURE_FOUNDRY_ENDPOINT, AZURE_FOUNDRY_API_KEY og
 // AZURE_FOUNDRY_MODEL (se README.md).
@@ -15,6 +16,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const MET_USER_AGENT = 'seiltips.no seilruteplanlegger/1.0 (+https://seiltips.no)';
+const TIDE_API_BASE = 'https://vannstand.kartverket.no/tideapi.php';
 const DAYS_AHEAD = 5;
 const OUTPUT_DIR = 'src/content/seilvarsel';
 
@@ -110,6 +112,95 @@ function aggregateWaves(timeseries, dayKeys) {
   return byDay;
 }
 
+// Kartverkets tidevanns-API (vannstand.kartverket.no) svarer med XML. Vi
+// bruker ingen XML-parser-avhengighet, men plukker ut <waterlevel time="…"
+// value="…"/>-elementene direkte med regex – det er alt vi trenger fra
+// svaret, uavhengig av hvilken <data type="…">-blokk de ligger i.
+function parseWaterlevels(xmlText) {
+  const points = [];
+  const re = /<waterlevel\b([^>]*)\/?>/g;
+  let match;
+  while ((match = re.exec(xmlText ?? ''))) {
+    const attrs = match[1];
+    const time = attrs.match(/\btime="([^"]+)"/)?.[1];
+    const value = attrs.match(/\bvalue="([^"]+)"/)?.[1];
+    if (time && value !== undefined && !Number.isNaN(Number(value))) {
+      points.push({ time, value: Number(value) });
+    }
+  }
+  // Samme punkt kan forekomme i flere <data>-blokker i "ALL"-svaret
+  // (f.eks. både en sammenhengende kurve og en tabell med topp-/bunnpunkter)
+  // – dedupliser på tidspunkt.
+  const seen = new Set();
+  return points
+    .filter((p) => (seen.has(p.time) ? false : (seen.add(p.time), true)))
+    .sort((a, b) => new Date(a.time) - new Date(b.time));
+}
+
+// Finner høyvann/lavvann som lokale topp-/bunnpunkter i den sammenhengende
+// tidevannskurven, fremfor å stole på en antatt "flag"-attributt i XML-en
+// (som vi ikke har kunnet verifisere eksakt format på).
+function findTideExtrema(points) {
+  const extrema = [];
+  for (let i = 1; i < points.length - 1; i++) {
+    const { value } = points[i];
+    if (value > points[i - 1].value && value > points[i + 1].value) {
+      extrema.push({ ...points[i], kind: 'høyvann' });
+    } else if (value < points[i - 1].value && value < points[i + 1].value) {
+      extrema.push({ ...points[i], kind: 'lavvann' });
+    }
+  }
+  return extrema;
+}
+
+async function fetchTideExtrema(point, periodeFra, periodeTilEksklusiv) {
+  const url = new URL(TIDE_API_BASE);
+  url.searchParams.set('tide_request', 'locationdata');
+  url.searchParams.set('lat', point.lat);
+  url.searchParams.set('lon', point.lon);
+  url.searchParams.set('fromtime', `${periodeFra}T00:00`);
+  url.searchParams.set('totime', `${periodeTilEksklusiv}T00:00`);
+  url.searchParams.set('datatype', 'ALL');
+  url.searchParams.set('refcode', 'CD'); // sjøkartnull, samme referanse som nautiske kart
+  url.searchParams.set('lang', 'nb');
+  url.searchParams.set('interval', '10');
+  url.searchParams.set('dst', '1');
+
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': MET_USER_AGENT } });
+    if (!res.ok) return [];
+    const xml = await res.text();
+    return findTideExtrema(parseWaterlevels(xml));
+  } catch {
+    return [];
+  }
+}
+
+function groupTideExtremaByDay(extrema, dayKeys) {
+  const byDay = new Map(dayKeys.map((k) => [k, []]));
+  for (const e of extrema) {
+    const day = byDay.get(dateKeyOslo(e.time));
+    if (day) day.push(e);
+  }
+  return byDay;
+}
+
+function formatTideLine(dayExtrema) {
+  if (!dayExtrema || dayExtrema.length === 0) return 'tidevannsdata mangler';
+  return dayExtrema
+    .map((e) => `${e.kind} kl ${hourMinuteOslo(e.time)} (${Math.round(e.value)} cm over sjøkartnull)`)
+    .join(', ');
+}
+
+function hourMinuteOslo(isoTime) {
+  return new Intl.DateTimeFormat('nb-NO', {
+    timeZone: 'Europe/Oslo',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(isoTime));
+}
+
 async function buildVaerdataBlock() {
   const today = dateKeyOslo(new Date().toISOString());
   const dayKeys = Array.from({ length: DAYS_AHEAD }, (_, i) => addDaysToKey(today, i));
@@ -123,10 +214,13 @@ async function buildVaerdataBlock() {
     '',
   ];
 
+  const periodeTilEksklusiv = addDaysToKey(periodeTil, 1);
+
   for (const point of POINTS) {
-    const [lf, of] = await Promise.all([
+    const [lf, of, tideExtrema] = await Promise.all([
       fetchJson(`https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${point.lat}&lon=${point.lon}`),
       fetchJson(`https://api.met.no/weatherapi/oceanforecast/2.0/complete?lat=${point.lat}&lon=${point.lon}`),
+      fetchTideExtrema(point, periodeFra, periodeTilEksklusiv),
     ]);
 
     const lfSeries = lf?.properties?.timeseries;
@@ -137,6 +231,7 @@ async function buildVaerdataBlock() {
 
     const wind = aggregateWind(lfSeries, dayKeys);
     const waves = aggregateWaves(of?.properties?.timeseries, dayKeys);
+    const tideByDay = groupTideExtremaByDay(tideExtrema, dayKeys);
 
     lines.push(`**${point.name} (${point.lat}, ${point.lon}):**`);
     dayKeys.forEach((key, i) => {
@@ -154,7 +249,8 @@ async function buildVaerdataBlock() {
       lines.push(
         `- Dag ${i + 1} (${key}): Vind ${maxWind !== null ? maxWind.toFixed(1) : 'n/a'} m/s fra ${dir ?? 'n/a'}, ` +
           `kast ${maxGust !== null ? maxGust.toFixed(1) : 'n/a'} m/s, ` +
-          `bølgehøyde ${maxWave !== null ? maxWave.toFixed(1) : 'n/a'} m, nedbør ${precipYesNo}`
+          `bølgehøyde ${maxWave !== null ? maxWave.toFixed(1) : 'n/a'} m, nedbør ${precipYesNo}, ` +
+          `tidevann: ${formatTideLine(tideByDay.get(key))}`
       );
     });
     lines.push('');
@@ -173,6 +269,18 @@ akkurat som de står. "n/a" betyr at data mangler for det punktet/den dagen
 (typisk bølgehøyde for skjermede innaskjærs punkter som Oslo/Drøbak) – skriv
 da at data mangler i stedet for å gjette et tall. "ukjent" for nedbør betyr at
 nedbørsdata ikke var tilgjengelig for den dagen.
+
+Tidevannsverdiene ("tidevann: …") er hentet fra Kartverkets tidevanns-API og
+viser klokkeslett og høyde (i cm relativt til sjøkartnull) for hvert
+høyvann/lavvann den dagen. Du SKAL ta hensyn til tidevannet i vurderingen
+din – både i seksjonen om ruteanbefalinger og i timing-seksjonene. Vær
+spesielt oppmerksom på Drøbaksundet, som er smalt og grunt, hvor
+tidevannsstrøm kan påvirke passering mer enn ellers i fjorden/langs kysten.
+Tidevannsforskjellene i dette området er normalt beskjedne (typisk noen få
+titalls cm), så vurder dette som en finjustering av
+timing/strøm-forhold – ikke la det overstyre vind- og bølgevurderingene.
+"tidevannsdata mangler" betyr at Kartverkets API ikke ga data for det
+punktet/den dagen – skriv da at tidevannsdata mangler i stedet for å gjette.
 
 ## Svarformat (MÅ følges eksakt)
 Svar KUN med innholdet i en ferdig Markdown-fil, ingen annen tekst før eller
@@ -199,15 +307,17 @@ med ⚠️.>
 ## Ruteanbefalinger – segmentvis
 <Vurder hvert segment separat: Oslo → Drøbak, Drøbak → Færder, Færder →
 Hvaler, Hvaler → Kosterøyene. For hvert segment: beste dag/tidspunkt å
-passere, vindvinkel på kursen, eventuelle advarsler.>
+passere, vindvinkel på kursen, eventuelle advarsler. Nevn tidevann/strøm der
+det er relevant, særlig gjennom Drøbaksundet.>
 
 ## Timing – sydover
 <Hvilket tidspunkt (dag + ca. klokkeslett) er optimalt for avgang sydover fra
-Oslo? Begrunn med vindretning, styrke og eventuelle fronter underveis.>
+Oslo? Begrunn med vindretning, styrke, eventuelle fronter underveis, og
+tidevann/strømforhold (særlig ved Drøbak) der det påvirker timingen.>
 
 ## Timing – nordover
 <Hvilket tidspunkt er optimalt for avgang nordover fra Kosterøyene/Hvaler mot
-Oslo?>
+Oslo? Ta med tidevann/strømforhold der det er relevant.>
 
 ## Konfidensvurdering
 <Marker tydelig hvilke deler av analysen som er høy konfidens (dag 1–2) vs.
