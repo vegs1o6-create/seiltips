@@ -1,10 +1,13 @@
 name: Seilruteplanlegger
 
 # Kjører hver 3. dag rundt kl. 07:00 norsk tid. Henter værdata (vind, kast,
-# bølgehøyde, nedbør) for 5 faste punkter langs Oslo–Kosterøyene direkte fra
-# MET Norways API-er (scripts/seilruteplanlegger.mjs), sender dette til en
-# GPT-modell hosted i Microsoft (Azure) AI Foundry for analyse, og publiserer
-# resultatet i src/content/seilvarsel/.
+# bølgehøyde, nedbør) og tidevannsdata for 5 faste punkter langs
+# Oslo–Kosterøyene direkte fra MET Norway og Kartverket
+# (scripts/seilruteplanlegger.mjs), sender dette til en GPT-modell hosted i
+# Microsoft (Azure) AI Foundry for analyse, og skriver resultatet til den
+# ene, faste filen i src/content/seilvarsel/ – siden /seilvarsel viser kun
+# denne ene, gjeldende ruteplanen (erstattes hver kjøring, ikke en liste med
+# separate artikler).
 #
 # Som i daglig-seilartikkel.yml kjører GitHub Actions cron alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for
@@ -73,16 +76,23 @@ jobs:
       - name: Commit og push ruteplanen
         if: steps.tidssjekk.outputs.proceed == 'true'
         run: |
-          git add "${{ steps.generer.outputs.file }}"
-          git commit -m "Legg til seilruteplan: $(basename "${{ steps.generer.outputs.file }}" .md)"
+          # git add -A (ikke bare den nye filen) slik at ev. slettede,
+          # utdaterte filer fra tidligere kjøringer også blir committet bort.
+          git add -A src/content/seilvarsel
+          if git diff --cached --quiet; then
+            echo "Ingen endring i seilruteplanen denne kjøringen – hopper over commit."
+            exit 0
+          fi
+          periode_fra=$(grep -m1 '^periodeFra:' "${{ steps.generer.outputs.file }}" | cut -d' ' -f2)
+          periode_til=$(grep -m1 '^periodeTil:' "${{ steps.generer.outputs.file }}" | cut -d' ' -f2)
+          git commit -m "Oppdater seilruteplan: ${periode_fra} – ${periode_til}"
           git push
 
-      - name: Verifiser at en ruteplan faktisk ble publisert
+      - name: Verifiser at seilruteplanen faktisk finnes
         if: steps.tidssjekk.outputs.proceed == 'true'
         run: |
-          git fetch origin "${{ github.ref_name }}"
-          if [ -z "$(git log "origin/${{ github.ref_name }}" --since='30 minutes ago' -- src/content/seilvarsel | head -1)" ]; then
-            echo "::error::Ingen ny ruteplan ble committet/pushet til src/content/seilvarsel/ denne kjøringen."
+          if [ ! -s "${{ steps.generer.outputs.file }}" ]; then
+            echo "::error::${{ steps.generer.outputs.file }} finnes ikke eller er tom."
             exit 1
           fi
-          echo "Ny seilruteplan bekreftet pushet til src/content/seilvarsel/."
+          echo "Seilruteplan bekreftet oppdatert: ${{ steps.generer.outputs.file }}"

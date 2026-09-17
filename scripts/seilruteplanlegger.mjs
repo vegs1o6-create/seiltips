@@ -2,8 +2,10 @@
 // Henter værdata (vind, kast, bølgehøyde, nedbør) fra MET Norway og
 // tidevannsdata (høyvann/lavvann) fra Kartverket for 5 faste punkter langs
 // Oslo–Kosterøyene, ber en GPT-modell hosted i Microsoft (Azure) AI Foundry
-// analysere seilingsforholdene, og skriver resultatet som en ny fil i
-// src/content/seilvarsel/.
+// analysere seilingsforholdene, og skriver resultatet til én fast fil i
+// src/content/seilvarsel/ – som dermed alltid inneholder kun den nyeste
+// ruteplanen (erstattes hver gang skriptet kjører), ikke en historikk av
+// separate artikler.
 //
 // Selve værdata-/tidevannsaggregeringen (vind/kast/bølge/nedbør/høyvann-
 // lavvann per dag) gjøres deterministisk her i skriptet – modellen brukes
@@ -12,13 +14,14 @@
 // Krever miljøvariablene AZURE_FOUNDRY_ENDPOINT, AZURE_FOUNDRY_API_KEY og
 // AZURE_FOUNDRY_MODEL (se README.md).
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const MET_USER_AGENT = 'seiltips.no seilruteplanlegger/1.0 (+https://seiltips.no)';
 const TIDE_API_BASE = 'https://vannstand.kartverket.no/tideapi.php';
 const DAYS_AHEAD = 5;
 const OUTPUT_DIR = 'src/content/seilvarsel';
+const OUTPUT_FILENAME = 'naavarende-seilruteplan.md';
 
 const POINTS = [
   { name: 'Oslo havn', lat: 59.9, lon: 10.73 },
@@ -411,9 +414,18 @@ async function main() {
   const content = stripCodeFence(raw);
   validateContent(content);
 
-  const filename = `${periodeFra}-seilruteplan-oslo-kosteroeyene.md`;
-  const outPath = path.join(OUTPUT_DIR, filename);
-  await mkdir(path.dirname(outPath), { recursive: true });
+  const outPath = path.join(OUTPUT_DIR, OUTPUT_FILENAME);
+  await mkdir(OUTPUT_DIR, { recursive: true });
+
+  // Rydd bort ev. eldre filer (f.eks. fra tidligere versjoner av skriptet som
+  // skrev én fil per dato) – vi skal alltid ha nøyaktig én, gjeldende ruteplan.
+  const existing = await readdir(OUTPUT_DIR).catch(() => []);
+  await Promise.all(
+    existing
+      .filter((name) => name !== '.gitkeep' && name !== OUTPUT_FILENAME)
+      .map((name) => rm(path.join(OUTPUT_DIR, name)))
+  );
+
   await writeFile(outPath, content.endsWith('\n') ? content : `${content}\n`, 'utf8');
   console.log(`Skrev ${outPath}`);
 
