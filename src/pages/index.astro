@@ -16,6 +16,13 @@ const latestFormatted = latest?.data.pubDate.toLocaleDateString('nb-NO', {
 
 const ctaButtons = [
   {
+    href: '/artikler/slik-kjoper-du-brukt-seilbaat',
+    icon: '🧭',
+    title: 'Kjøpshjelp',
+    description: 'Kjøpsguide: Slik kjøper du brukt seilbåt',
+    style: 'bg-mint-dark text-navy hover:bg-mint',
+  },
+  {
     href: '/vaer',
     icon: '🌤️',
     title: 'Seiltips de neste 7 dagene',
@@ -50,7 +57,7 @@ const ctaButtons = [
         ned til Kosterøyene – enten du er nybegynner eller erfaren skipper.
       </p>
 
-      <div class="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+      <div class="mx-auto mt-8 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {
           ctaButtons.map((cta) => (
             <a
