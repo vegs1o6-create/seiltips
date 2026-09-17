@@ -107,6 +107,76 @@ ellers: `contents: write`-rettigheten er satt i workflowen, men en eventuell bra
 protection-regel kan likevel blokkere direkte push fra Actions, og kjøringen kan trigges
 manuelt via `workflow_dispatch`.
 
+## Instagram-innlegg for nye artikler (automatisk)
+
+En egen GitHub Action (`.github/workflows/instagram-post.yml`) lager og publiserer et
+Instagram-innlegg hver gang en ny artikkel legges til i `src/content/artikler/` – enten
+av `daglig-seilartikkel.yml`/`ukentlig-bruktbaat-tips.yml`, eller ved en manuell commit.
+Workflowen bruker `scripts/post-instagram.mjs` til å:
+
+1. Be tekstmodellen i Azure AI Foundry (samme `gpt-5.6-luna`-deployment som artiklene
+   skrives med) om å lage en norsk Instagram-bildetekst (inkl. hashtags) og en engelsk
+   bildegenereringsprompt, basert kun på den ferdigskrevne artikkelen.
+2. Generere et fotorealistisk bilde ut fra den promptet med en **egen**
+   Azure AI Foundry-bilde-deployment (`gpt-image-1`-serien – DALL-E 3 ble pensjonert av
+   Azure i mars 2026 og kan ikke brukes i nye deployments), lagre det i
+   `public/instagram/<slug>.png`, og committe/pushe det med én gang. Det gjøres for at
+   bildet skal få en offentlig URL (`raw.githubusercontent.com`) Instagram kan hente det
+   fra, uten å måtte vente på at Cloudflare bygger og deployer nettsiden.
+3. Publisere et bilde-innlegg på Instagram via **Metas offisielle Graph API**
+   (Content Publishing API) – dette er den reelt gratis, "offisielle" veien til å
+   publisere programmatisk (ikke et tredjepartsverktøy), og krever ingen abonnementer.
+
+**Trigger:** Både `daglig-seilartikkel.yml` og `ukentlig-bruktbaat-tips.yml` committer med
+standard `GITHUB_TOKEN`, og slike pushes trigger *ikke* andre workflowers `on: push`
+(GitHubs innebygde løkke-beskyttelse). `instagram-post.yml` bruker derfor `workflow_run`
+for å kjede seg pålitelig etter dem, i tillegg til en vanlig `push`-trigger (som fanger
+opp en artikkel du selv committer manuelt) og `workflow_dispatch` (for manuell testing av
+én bestemt fil).
+
+### Nødvendige secrets (Settings → Secrets and variables → Actions)
+
+I tillegg til `AZURE_FOUNDRY_ENDPOINT`/`AZURE_FOUNDRY_API_KEY` (allerede satt for de andre
+workflowene), trengs:
+
+**Azure AI Foundry – bildemodell (egen ressurs/deployment):**
+
+- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – endepunktet til Azure OpenAI-ressursen med
+  bildemodellen (f.eks. `https://<ressursnavn>.openai.azure.com`).
+- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen.
+- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av bildemodellen (en
+  `gpt-image-1`-modell), slik den heter under "Models + endpoints" i Foundry-portalen.
+
+Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
+(standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_QUALITY` (standard `high`),
+`AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
+
+**Instagram (Meta Graph API):**
+
+- `IG_ACCESS_TOKEN` – en *long-lived* access token med tilgang til
+  `instagram_basic`, `instagram_content_publish`, `pages_show_list` og
+  `pages_read_engagement` for Facebook-siden som er koblet til Instagram-kontoen.
+- `IG_USER_ID` – Instagram Business-/Creator-kontoens numeriske "Instagram Business
+  Account ID" (finnes f.eks. via `GET /{page-id}?fields=instagram_business_account`).
+
+Valgfri: `IG_GRAPH_API_VERSION` (standard `v21.0`).
+
+Kort oppsett av Instagram-siden av dette (gjøres i [Meta for Developers](https://developers.facebook.com/)):
+
+1. Konverter Instagram-kontoen til en Business- eller Creator-konto, og koble den til en
+   Facebook-side du administrerer (kreves av Graph API – en vanlig privat konto virker ikke).
+2. Opprett en Meta-utviklerapp, legg til produktet **Instagram** (Content Publishing), og
+   generer en access token med rettighetene nevnt over.
+3. Bytt token til en *long-lived* token (varer ~60 dager) via Metas
+   `/oauth/access_token`-endepunkt med `grant_type=fb_exchange_token`.
+4. **Viktig:** long-lived tokens utløper etter ca. 60 dager og må fornyes manuelt (eller med
+   et eget script som kaller forlengelses-endepunktet før utløp) – det er ikke satt opp noen
+   automatisk fornyelse i dette repoet ennå.
+
+Kjøringen kan trigges manuelt via **Actions → Instagram-innlegg for ny artikkel →
+Run workflow**, med filstien til en artikkel i feltet `artikkel_fil`, for å teste hele
+kjeden (bildegenerering + publisering) uten å vente på neste automatiske artikkel.
+
 ## Seilruteplan (automatisk ruteplanlegging basert på vær)
 
 En egen samling `seilvarsel` i `src/content/seilvarsel/` (skjema i `src/content.config.ts`,
@@ -257,10 +327,12 @@ akkurat som i produksjon.
 ```
 .github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
                     ukentlig-bruktbaat-tips.yml – ukentlig bruktbåt-tips (søndager)
+                    instagram-post.yml – Instagram-innlegg for nye artikler
                     seilruteplanlegger.yml – automatisk seilruteplan (vær)
 .github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
 scripts/             seilruteplanlegger.mjs – henter værdata + kaller Azure AI Foundry
                     ukentlig-bruktbaat-tips.mjs – søker Finn.no + kaller Azure AI Foundry
+                    post-instagram.mjs – bildetekst + AI-bilde + publisering til Instagram
 src/
   components/        Header, Footer, ArtikkelCard, SeilvarselCard
   content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)
