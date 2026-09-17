@@ -1,14 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import NewsCard from '../components/NewsCard.astro';
 import { getCollection } from 'astro:content';
 
-const allPosts = (await getCollection('news', ({ data }) => !data.draft)).sort(
+const allArticles = (await getCollection('artikler', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const [latest, ...rest] = allPosts;
-const otherPosts = rest.slice(0, 3);
+const [latest] = allArticles;
 
 const latestFormatted = latest?.data.pubDate.toLocaleDateString('nb-NO', {
   day: 'numeric',
@@ -20,8 +18,8 @@ const ctaButtons = [
   {
     href: '/vaer',
     icon: '🌤️',
-    title: 'Vær 7 dager',
-    description: 'Værvarsel og seiltips for uka som kommer',
+    title: 'Seiltips de neste 7 dagene',
+    description: 'Værvarsel og seiltips for Oslofjorden til Kosterøyene',
     style: 'bg-sky hover:bg-sky-dark',
   },
   {
@@ -41,32 +39,32 @@ const ctaButtons = [
 ];
 ---
 
-<Layout title="Forside" description="Værvarsel, seiltips og nyheter for norske seilere – samlet på ett sted.">
+<Layout title="Forside" description="Værvarsel og seiltips for Oslofjorden til Kosterøyene – samlet på ett sted.">
   <section class="bg-gradient-to-b from-navy to-navy-light text-white">
     <div class="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-20">
       <h1 class="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">
         Klar for en ny dag på sjøen?
       </h1>
       <p class="mx-auto mt-4 max-w-2xl text-base text-white/80 sm:text-lg">
-        Seiltips.no samler værvarsel, praktiske seiltips og nyheter for deg som ferdes langs
-        norskekysten – enten du er nybegynner eller erfaren skipper.
+        Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden og
+        ned til Kosterøyene – enten du er nybegynner eller erfaren skipper.
       </p>
 
-      <div class="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
+      <div class="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
         {
           ctaButtons.map((cta) => (
             <a
               href={cta.href}
               class:list={[
-                'flex flex-col items-center gap-2 rounded-3xl px-6 py-6 font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
+                'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
                 cta.style,
               ]}
             >
-              <span class="text-3xl" aria-hidden="true">
+              <span class="text-2xl" aria-hidden="true">
                 {cta.icon}
               </span>
-              <span class="font-display text-lg">{cta.title}</span>
-              <span class="text-sm font-normal opacity-90">{cta.description}</span>
+              <span class="font-display text-sm">{cta.title}</span>
+              <span class="text-xs font-normal opacity-90">{cta.description}</span>
             </a>
           ))
         }
@@ -75,26 +73,21 @@ const ctaButtons = [
   </section>
 
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-    <div class="mb-8 flex items-center justify-between">
-      <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Siste nytt</h2>
-      <a href="/nyheter" class="text-sm font-semibold text-sky hover:text-sky-dark">Se hele arkivet →</a>
-    </div>
-
     {
       latest && (
         <a
-          href={`/nyheter/${latest.id}`}
+          href={`/artikler/${latest.id}`}
           class="group mx-auto flex max-w-3xl flex-col rounded-3xl bg-white p-8 text-center shadow-soft transition-transform hover:-translate-y-1 sm:p-10"
         >
           <span class="mx-auto rounded-full bg-mint/30 px-4 py-1 text-xs font-bold uppercase tracking-wide text-navy">
-            Siste nyhet
+            Siste artikkel
           </span>
           <time datetime={latest.data.pubDate.toISOString()} class="mt-4 text-sm font-semibold text-sky">
             {latestFormatted}
           </time>
-          <h3 class="mt-2 font-display text-2xl font-extrabold text-navy group-hover:text-sky sm:text-3xl">
+          <h2 class="mt-2 font-display text-2xl font-extrabold text-navy group-hover:text-sky sm:text-3xl">
             {latest.data.title}
-          </h3>
+          </h2>
           <p class="mx-auto mt-3 max-w-xl text-navy-dark/80">{latest.data.description}</p>
           <span class="mx-auto mt-6 inline-flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white">
             Les hele saken
@@ -103,16 +96,6 @@ const ctaButtons = [
             </svg>
           </span>
         </a>
-      )
-    }
-
-    {
-      otherPosts.length > 0 && (
-        <div class="mt-10 grid gap-6 sm:grid-cols-3">
-          {otherPosts.map((post) => (
-            <NewsCard post={post} size="small" />
-          ))}
-        </div>
       )
     }
   </section>
