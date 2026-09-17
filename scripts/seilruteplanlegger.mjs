@@ -248,7 +248,12 @@ async function callFoundry(systemPrompt, userPrompt) {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt },
     ],
-    max_completion_tokens: 3000,
+    // Reasoning-modeller (bl.a. gpt-5-familien) bruker en ukjent mengde av
+    // dette budsjettet på skjulte resonnement-tokens FØR selve svarteksten,
+    // så vi gir god margin. Kan overstyres med AZURE_FOUNDRY_MAX_TOKENS.
+    max_completion_tokens: process.env.AZURE_FOUNDRY_MAX_TOKENS
+      ? Number(process.env.AZURE_FOUNDRY_MAX_TOKENS)
+      : 16000,
   };
   // Nyere "reasoning"-modeller (bl.a. gpt-5-familien) avviser temperature-
   // parameteren helt, så vi sender den kun hvis den er eksplisitt satt.
@@ -268,8 +273,17 @@ async function callFoundry(systemPrompt, userPrompt) {
   }
 
   const data = await res.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error(`Fikk ikke noe svarinnhold fra modellen. Rått svar: ${JSON.stringify(data).slice(0, 500)}`);
+  const choice = data.choices?.[0];
+  const content = choice?.message?.content;
+  if (!content) {
+    if (choice?.finish_reason === 'length') {
+      throw new Error(
+        'Modellen brukte opp hele tokenbudsjettet (trolig på skjulte resonnement-tokens) uten å ' +
+          'skrive noe svar. Sett AZURE_FOUNDRY_MAX_TOKENS til en høyere verdi enn dagens 16000.'
+      );
+    }
+    throw new Error(`Fikk ikke noe svarinnhold fra modellen. Rått svar: ${JSON.stringify(data).slice(0, 500)}`);
+  }
   return content;
 }
 
