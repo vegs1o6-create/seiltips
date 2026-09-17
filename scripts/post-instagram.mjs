@@ -183,41 +183,41 @@ async function callFoundryText(userPrompt) {
 }
 
 // Genererer ett bilde med en Azure OpenAI-bildemodell i gpt-image-1-serien
-// (f.eks. gpt-image-1-mini) via det klassiske, deployment-baserte
-// endepunktet ("/openai/deployments/<deployment>/images/generations"), med
-// "api-key"-header (ikke "Authorization: Bearer") og en eksplisitt
-// api-version. Svaret er alltid base64 (b64_json), aldri en url, for
-// gpt-image-1-serien.
+// (f.eks. gpt-image-1-mini) via Azures "neste generasjons v1 API"
+// ("/openai/v1/images/generations"). Denne API-flaten (lansert 2025) er
+// laget nettopp for å slippe å oppgi daterte api-version-verdier hver
+// måned – riktig verdi er den bokstavelige strengen "preview", med
+// "Authorization: Bearer" (ikke "api-key"). Se
+// https://learn.microsoft.com/azure/foundry/openai/api-version-lifecycle
 //
-// Merk: Det samlede "/openai/v1/images/generations"-endepunktet (uten
-// deployment i stien) ga en tom 404 på denne ressursen for både
-// gpt-image-1.5 og gpt-image-1-mini, uavhengig av modellnavn i body – den
-// nyere v1-API-flaten ser ut til ikke å være tilgjengelig her ennå. Det
-// deployment-baserte endepunktet er derimot universelt støttet og
-// dokumentert av Microsoft for hele gpt-image-1-serien.
+// Deployment-baserte, daterte api-version-verdier (f.eks.
+// 2025-04-01-preview, Microsofts eget dokumenterte eksempel) ga "API
+// version not supported" på denne ressursen – trolig fordi gpt-image-1-mini
+// (utgitt oktober 2025) ikke er kjent av en api-version fra april 2025.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '2025-04-01-preview';
+  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || 'preview';
   const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
   const outputFormat = process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT || 'png';
   const outputCompression = Number(process.env.AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION) || 100;
 
   const body = {
+    model,
     prompt,
     size,
     n: 1,
     output_format: outputFormat,
     output_compression: outputCompression,
   };
-  const url = `${endpoint}/openai/deployments/${encodeURIComponent(model)}/images/generations?api-version=${apiVersion}`;
+  const url = `${endpoint}/openai/v1/images/generations?api-version=${apiVersion}`;
 
   let res;
   for (let attempt = 0; ; attempt++) {
     res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(body),
     });
 
