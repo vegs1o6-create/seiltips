@@ -42,7 +42,7 @@ jobs:
         run: |
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" > "06:45" && "$now_oslo" < "07:15" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || ("$now_oslo" > "06:45" && "$now_oslo" < "07:15") ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           else
             echo "proceed=false" >> "$GITHUB_OUTPUT"
