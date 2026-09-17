@@ -139,21 +139,27 @@ opp en artikkel du selv committer manuelt) og `workflow_dispatch` (for manuell t
 I tillegg til `AZURE_FOUNDRY_ENDPOINT`/`AZURE_FOUNDRY_API_KEY` (allerede satt for de andre
 workflowene), trengs:
 
-**Azure OpenAI – gpt-image-1.5 (egen ressurs/deployment):**
+**Azure OpenAI – gpt-image-1-serien (egen ressurs/deployment, f.eks. gpt-image-1-mini):**
 
-- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – ressurs-endepunktet med `gpt-image-1.5`-deploymentet
+- `AZURE_FOUNDRY_IMAGE_ENDPOINT` – ressurs-endepunktet med bildemodell-deploymentet
   (f.eks. `https://<ressursnavn>.services.ai.azure.com` – kan være samme ressurs som
   tekstmodellen, bare med en annen deployment).
-- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen (brukes som
-  `Authorization: Bearer`-token, ikke `api-key`-header, siden `/openai/v1/`-endepunktet
-  krever det).
-- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av `gpt-image-1.5`, slik den
-  heter under "Deployments" i Foundry-portalen (ofte `gpt-image-1.5` som standard).
+- `AZURE_FOUNDRY_IMAGE_API_KEY` – API-nøkkelen til den ressursen.
+- `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en (f.eks. `gpt-image-1-mini`),
+  slik den heter under "Deployments" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_SIZE` (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT`
+Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2025-04-01-preview`),
+`AZURE_FOUNDRY_IMAGE_SIZE` (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_OUTPUT_FORMAT`
 (standard `png`), `AZURE_FOUNDRY_IMAGE_OUTPUT_COMPRESSION` (standard `100`),
-`AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`). Ingen
-`api-version` sendes – `/openai/v1/`-endepunktet avviser den parameteren helt.
+`AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
+
+**Viktig – kvote:** gpt-image-1-serien har egne, ofte lave kvoter per deployment. Sjekk
+"Models + endpoints" → deploymentet → kvote i Foundry-portalen dersom kall avvises, og be
+om økt kvote (eller velg en annen gpt-image-1-variant med ledig kvote) om nødvendig.
+
+Merk: Det samlede `/openai/v1/images/generations`-endepunktet (uten deployment i URL-en)
+finnes ikke (ennå) på alle ressurser – skriptet bruker derfor det klassiske,
+deployment-baserte endepunktet, som er universelt støttet for hele gpt-image-1-serien.
 
 **Instagram (Meta Graph API):**
 
