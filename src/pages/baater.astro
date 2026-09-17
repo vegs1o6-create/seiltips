@@ -1,5 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const bruktbaatTips = (
+  await getCollection('artikler', ({ id, data }) => !data.draft && id.startsWith('ukens-bruktbaat-tips-'))
+).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const latestTips = bruktbaatTips[0];
+const latestTipsFormatted = latestTips?.data.pubDate.toLocaleDateString('nb-NO', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
 
 const boatTypes = [
   {
@@ -47,6 +58,33 @@ const maintenanceTips = [
       En kjapp oversikt over vanlige båttyper, pluss vedlikeholdstips som holder båten i god
       stand år etter år.
     </p>
+
+    <div class="mt-8 rounded-3xl bg-mint/20 p-6 sm:p-8">
+      <span class="inline-flex items-center rounded-full bg-navy px-4 py-1 text-xs font-bold uppercase tracking-wide text-white">
+        Ukens bruktbåttips
+      </span>
+      {
+        latestTips ? (
+          <a href={`/artikler/${latestTips.id}`} class="group mt-4 block">
+            <time datetime={latestTips.data.pubDate.toISOString()} class="text-sm font-semibold text-sky">
+              {latestTipsFormatted}
+            </time>
+            <h2 class="mt-1 font-display text-xl font-bold text-navy group-hover:text-sky-dark sm:text-2xl">
+              {latestTips.data.title}
+            </h2>
+            <p class="mt-2 text-navy-dark/80">{latestTips.data.description}</p>
+            <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky group-hover:text-sky-dark">
+              Les ukens tips →
+            </span>
+          </a>
+        ) : (
+          <p class="mt-4 text-navy-dark/80">
+            Hver mandag og torsdag plukker vi ut de 3 bruktbåt-annonsene på Finn.no som ser ut
+            som best verdi for pengene. Kom tilbake snart for ukens utvalg!
+          </p>
+        )
+      }
+    </div>
 
     <h2 class="mt-10 font-display text-2xl font-bold text-navy">Vanlige båttyper</h2>
     <p class="mt-2 text-sm text-navy-dark/60">Trykk på en båttype for å lese mer om kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller.</p>

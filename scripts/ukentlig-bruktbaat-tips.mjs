@@ -105,6 +105,13 @@ function extractResponseText(data) {
   return null;
 }
 
+const RATE_LIMIT_RETRIES = 3;
+const RATE_LIMIT_DEFAULT_WAIT_SECONDS = 30;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function callFoundry(userPrompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_API_KEY');
@@ -121,11 +128,21 @@ async function callFoundry(userPrompt) {
       : 16000,
   };
 
-  const res = await fetch(`${endpoint}/openai/v1/responses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify(body),
-  });
+  let res;
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(`${endpoint}/openai/v1/responses`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(body),
+    });
+
+    if (res.status !== 429 || attempt >= RATE_LIMIT_RETRIES) break;
+
+    const retryAfter = Number(res.headers.get('retry-after'));
+    const waitSeconds = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : RATE_LIMIT_DEFAULT_WAIT_SECONDS;
+    console.log(`Fikk 429 (rate limit) fra Azure AI Foundry, venter ${waitSeconds}s før nytt forsøk …`);
+    await sleep(waitSeconds * 1000);
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
