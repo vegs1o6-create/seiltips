@@ -8,9 +8,10 @@
 const MET_USER_AGENT = 'seiltips.no weather-proxy/1.0 (+https://seiltips.no)';
 const UPSTREAM_URL = 'https://api.met.no/weatherapi/locationforecast/2.0/compact';
 
-// Rough bounding box covering Norway and its coastal waters, so this proxy
-// can't be used as a general-purpose weather relay for arbitrary locations.
-const BOUNDS = { minLat: 55, maxLat: 72, minLon: 0, maxLon: 35 };
+// Rough bounding box covering Oslofjorden south to Kosterøyene in Sweden, so
+// this proxy can't be used as a general-purpose weather relay for arbitrary
+// locations.
+const BOUNDS = { minLat: 58.7, maxLat: 60.0, minLon: 10.0, maxLon: 11.6 };
 
 const MS_TO_KNOTS = 1.943_844;
 
@@ -170,7 +171,7 @@ export async function handleWeatherRequest(request, waitUntil) {
     return jsonResponse({ error: 'Mangler eller ugyldig lat/lon.' }, 400);
   }
   if (lat < BOUNDS.minLat || lat > BOUNDS.maxLat || lon < BOUNDS.minLon || lon > BOUNDS.maxLon) {
-    return jsonResponse({ error: 'Posisjonen er utenfor støttet område (Norge og norske farvann).' }, 400);
+    return jsonResponse({ error: 'Posisjonen er utenfor støttet område (Oslofjorden til Kosterøyene).' }, 400);
   }
 
   // Round to 4 decimals as recommended by MET Norway, both for cache-friendliness
