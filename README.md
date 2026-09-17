@@ -147,7 +147,7 @@ workflowene), trengs:
 - `AZURE_FOUNDRY_IMAGE_MODEL` – navnet på **deployment**en av bildemodellen (en
   `gpt-image-1`-modell), slik den heter under "Models + endpoints" i Foundry-portalen.
 
-Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
+Valgfrie: `AZURE_FOUNDRY_IMAGE_API_VERSION` (standard `2025-04-01-preview`), `AZURE_FOUNDRY_IMAGE_SIZE`
 (standard `1024x1024`), `AZURE_FOUNDRY_IMAGE_QUALITY` (standard `high`),
 `AZURE_FOUNDRY_INSTAGRAM_MODEL` (overstyrer tekstmodellen, standard `gpt-5.6-luna`).
 

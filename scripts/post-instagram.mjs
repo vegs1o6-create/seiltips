@@ -32,6 +32,7 @@ import path from 'node:path';
 
 const IMAGE_DIR = 'public/instagram';
 const DEFAULT_TEXT_MODEL = 'gpt-5.6-luna';
+const DEFAULT_IMAGE_API_VERSION = '2025-04-01-preview';
 const DEFAULT_GRAPH_API_VERSION = 'v21.0';
 
 function requireEnv(name) {
@@ -184,26 +185,28 @@ async function callFoundryText(userPrompt) {
 }
 
 // Genererer ett bilde med en Azure AI Foundry-bildemodell (gpt-image-1-serien
-// – DALL-E 3 ble pensjonert av Azure i mars 2026). Bruker det samlede
-// "/openai/v1/images/generations"-endepunktet, som krever en "api-key"-header
-// (ikke "Authorization: Bearer" slik tekstmodellene over bruker).
+// – DALL-E 3 ble pensjonert av Azure i mars 2026). Bruker det klassiske,
+// deployment-baserte endepunktet ("/openai/deployments/<deployment>/images/
+// generations"), som krever en "api-key"-header (ikke "Authorization: Bearer"
+// slik tekstmodellene over bruker).
 //
-// Merk: Azure AI Foundry-prosjektendepunkter avviser "api-version" på
-// /v1-stien med en 400 ("api-version query parameter is not allowed when
-// using /v1 path") – i motsetning til rene Azure OpenAI-ressurs-endepunkter,
-// der /v1-dokumentasjonen viser api-version=preview i eksemplene. Vi sender
-// derfor kun med api-version dersom AZURE_FOUNDRY_IMAGE_API_VERSION er
-// eksplisitt satt.
+// Merk: Det samlede "/openai/v1/images/generations"-endepunktet (uten
+// deployment i stien) ga først en 400 ("api-version query parameter is not
+// allowed when using /v1 path"), og deretter – uten api-version – en tom 404,
+// dvs. selve ruten finnes ikke på denne ressursen. Sannsynlig årsak: denne
+// bilde-ressursen er en vanlig Azure OpenAI-ressurs (ikke et AI Foundry
+// "prosjekt" slik AZURE_FOUNDRY_ENDPOINT er), der kun det
+// deployment-baserte endepunktet er tilgjengelig.
 async function generateImage(prompt) {
   const endpoint = requireEnv('AZURE_FOUNDRY_IMAGE_ENDPOINT').replace(/\/+$/, '');
   const apiKey = requireEnv('AZURE_FOUNDRY_IMAGE_API_KEY');
   const model = requireEnv('AZURE_FOUNDRY_IMAGE_MODEL');
-  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || '';
+  const apiVersion = process.env.AZURE_FOUNDRY_IMAGE_API_VERSION || DEFAULT_IMAGE_API_VERSION;
   const size = process.env.AZURE_FOUNDRY_IMAGE_SIZE || '1024x1024';
   const quality = process.env.AZURE_FOUNDRY_IMAGE_QUALITY || 'high';
 
   const body = { model, prompt, size, quality, n: 1 };
-  const url = `${endpoint}/openai/v1/images/generations${apiVersion ? `?api-version=${apiVersion}` : ''}`;
+  const url = `${endpoint}/openai/deployments/${encodeURIComponent(model)}/images/generations?api-version=${apiVersion}`;
 
   let res;
   for (let attempt = 0; ; attempt++) {
