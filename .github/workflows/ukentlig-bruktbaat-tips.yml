@@ -1,0 +1,82 @@
+name: Ukens bruktbåt-tips
+
+# Kjører hver mandag og torsdag rundt kl. 07:00 norsk tid. GitHub Actions cron
+# kjører alltid i UTC og følger ikke sommertid, så vi legger inn to
+# cron-tidspunkter (ett for vintertid CET, ett for sommertid CEST) og lar et
+# vaktbikkje-steg avgjøre hvilken kjøring som faktisk skal gjøre jobben.
+on:
+  schedule:
+    - cron: '0 6 * * 1,4' # 07:00 CET (vintertid, UTC+1)
+    - cron: '0 5 * * 1,4' # 07:00 CEST (sommertid, UTC+2)
+  workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ukentlig-bruktbaat-tips
+  cancel-in-progress: false
+
+jobs:
+  skriv-artikkel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Sjekk ut repoet
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sjekk at klokken er rundt 07:00 i Norge
+        id: tidssjekk
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett klokkeslett."
+            exit 0
+          fi
+          now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
+          echo "Klokken er $now_oslo i Norge akkurat nå."
+          if [[ "$now_oslo" > "06:45" && "$now_oslo" < "07:15" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Utenfor tidsvinduet (06:45–07:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+          fi
+
+      - name: Sett opp Node.js
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sett opp Git-bruker for commit
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git config user.name "seiltips-bot"
+          git config user.email "seiltips-bot@users.noreply.github.com"
+
+      - name: Søk opp bruktbåter og skriv ukens tips med Azure AI Foundry
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        id: generer
+        env:
+          AZURE_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+        run: node scripts/ukentlig-bruktbaat-tips.mjs
+
+      - name: Commit og push artikkelen
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git add "${{ steps.generer.outputs.file }}"
+          git commit -m "Ukens bruktbåt-tips ${{ steps.generer.outputs.dato }}"
+          git push
+
+      - name: Verifiser at en artikkel faktisk ble publisert
+        if: steps.tidssjekk.outputs.proceed == 'true'
+        run: |
+          git fetch origin "${{ github.ref_name }}"
+          if [ -z "$(git log "origin/${{ github.ref_name }}" --since='30 minutes ago' -- src/content/artikler | head -1)" ]; then
+            echo "::error::Ingen ny artikkel ble committet/pushet til src/content/artikler/ denne kjøringen."
+            exit 1
+          fi
+          echo "Ukens bruktbåt-tips bekreftet pushet til src/content/artikler/."

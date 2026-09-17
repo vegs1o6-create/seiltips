@@ -71,6 +71,29 @@ men en eventuell branch protection-regel på hovedgrenen kan likevel blokkere di
 fra Actions). Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub
 (`workflow_dispatch`), noe som hopper over tidsvindu-sjekken.
 
+## Ukens bruktbåt-tips (automatisk generert)
+
+En egen GitHub Action (`.github/workflows/ukentlig-bruktbaat-tips.yml`) kjører hver
+mandag og torsdag rundt kl. 07:00 norsk tid og bruker
+`scripts/ukentlig-bruktbaat-tips.mjs` (samme mønster som `daglig-seilartikkel.mjs`) til å:
+
+1. Be en modell (`gpt-5.6-luna`, kan overstyres med `AZURE_FOUNDRY_BRUKTBAAT_MODEL`) som
+   kjører i Microsoft (Azure) AI Foundry – med websøk aktivert – søke på Google (bl.a.
+   med `site:finn.no seilbåt til salgs`) etter bruktbåt-annonser, og sammenligne dem på
+   pris, størrelse, alder og utstyr.
+2. Velge ut de 3 annonsene som fremstår som best verdi for pengene, og skrive en artikkel
+   (400–600 ord) om dem med lenke til hver annonse og en tydelig merknad om at
+   Finn.no-annonser kan bli solgt eller fjernet når som helst.
+3. Skrive svaret som en ny Markdown-fil i `src/content/artikler/`
+   (`ukens-bruktbaat-tips-ÅÅÅÅ-MM-DD.md`) med gyldig frontmatter, og committe/pushe den
+   direkte til hovedgrenen med commit-meldingen `Ukens bruktbåt-tips ÅÅÅÅ-MM-DD`.
+
+Workflowen bruker de samme `AZURE_FOUNDRY_ENDPOINT`- og `AZURE_FOUNDRY_API_KEY`-secretene
+som de andre workflowene. Samme forutsetninger som for `daglig-seilartikkel.yml` gjelder
+ellers: `contents: write`-rettigheten er satt i workflowen, men en eventuell branch
+protection-regel kan likevel blokkere direkte push fra Actions, og kjøringen kan trigges
+manuelt via `workflow_dispatch`.
+
 ## Seilruteplan (automatisk ruteplanlegging basert på vær)
 
 En egen samling `seilvarsel` i `src/content/seilvarsel/` (skjema i `src/content.config.ts`,
@@ -220,9 +243,11 @@ akkurat som i produksjon.
 
 ```
 .github/workflows/  daglig-seilartikkel.yml – automatisk artikkelpublisering
+                    ukentlig-bruktbaat-tips.yml – ukentlig bruktbåt-tips (man/tor)
                     seilruteplanlegger.yml – automatisk seilruteplan (vær)
 .github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
 scripts/             seilruteplanlegger.mjs – henter værdata + kaller Azure AI Foundry
+                    ukentlig-bruktbaat-tips.mjs – søker Finn.no + kaller Azure AI Foundry
 src/
   components/        Header, Footer, ArtikkelCard, SeilvarselCard
   content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)
