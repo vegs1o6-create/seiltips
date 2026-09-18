@@ -1,0 +1,256 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+interface Harbor {
+  name: string;
+  area: string;
+  innseiling: string;
+  fasiliteter: string;
+  ly: string;
+  tips: string;
+}
+
+const harborGroups: { area: string; harbors: Harbor[] }[] = [
+  {
+    area: 'Indre Oslofjord',
+    harbors: [
+      {
+        name: 'Oslo (Frognerkilen / Kongen Marina)',
+        area: 'Oslo',
+        innseiling:
+          'Tydelig og enkel innseiling til Frognerkilen. Hold av for rutebåter og annen trafikk ved Aker Brygge og Bygdøy.',
+        fasiliteter:
+          'Landstrøm, vann, dusj, toalett, vaskemaskin og kloakktømming. Gangavstand til sentrum og Aker Brygge.',
+        ly: 'Godt beskyttet innerst i kilen, mot Bygdøy-siden. Kan bli noe urolig lenger ute mot åpnere vann.',
+        tips: 'Populært startpunkt for tur sørover mot Drøbak og Håøya. Ofte fullt i høysesong – bestill plass i god tid.',
+      },
+      {
+        name: 'Drøbak',
+        area: 'Oslo',
+        innseiling:
+          'Gjennom Drøbaksundet forbi Oscarsborg festning. Smalt farvann med mye trafikk – hold god avstand til ferjer og større fartøy.',
+        fasiliteter: 'Landstrøm, vann, dusj, toalett, vaskemaskin, kloakktømming og drivstoff.',
+        ly: 'Noe eksponert for bølger fra båttrafikk i sundet, særlig ved sørlig vind.',
+        tips: 'Koselig trehusby med butikker og restauranter. Fint å ta med turen innom Oscarsborg.',
+      },
+      {
+        name: 'Håøya (naturhavn)',
+        area: 'Oslo',
+        innseiling:
+          'Flere viker rundt øya. Dragsundet på vestsiden og Sætrepollen er lette å finne – sjekk dybder på oppdatert sjøkart eller plotter.',
+        fasiliteter:
+          'Ingen servicefasiliteter – dette er en naturhavn. Enkel brygge/ankringsplass, ta med det du trenger selv.',
+        ly: 'Dragsundet gir god le for sør-, øst- og nordlig vind. Sætrepollen er også godt skjermet midt i indre Oslofjord.',
+        tips: 'Fine turstier og badeviker på øya. Populært mål for dagstur eller natt på svai i rolig vær.',
+      },
+      {
+        name: 'Oslo-øyene (Gressholmen, Hovedøya, Lindøya m.fl.)',
+        area: 'Oslo',
+        innseiling:
+          'Kort seilas rett utenfor Oslo sentrum. Trangt farvann med mye fritidsbåt- og fergetrafikk (bl.a. B1/B2-båtene) mellom øyene – hold god fart og avstand.',
+        fasiliteter:
+          'Gressholmen har gjestebrygge med plass til rundt 14 båter, strøm og toalett (nøkkel fås ved behov) – men ikke vann på selve øya. Nakholmen, Lindøya og Bleikøya har i hovedsak private hytteforeninger og lite eller ingen gjesteplass.',
+        ly: 'Grei le mellom øyene i godt vær, men kan bli urolig ved sterk vind siden farvannet er åpent mot indre fjord i flere retninger.',
+        tips: 'Fin "øyhopping" med badeplasser og korte spaserturer på flere av øyene. Populært i helger og på sommerkvelder – kom tidlig for gjesteplass.',
+      },
+      {
+        name: 'Steilene',
+        area: 'Nesodden',
+        innseiling:
+          'Ligger rett utenfor Nesoddens østside. Gjestebryggene ligger beskyttet av molo/flytebølgedemper i sør – ikke ankre i selve havnebassenget, moringene ligger på bunnen og kan hekte seg i ankeret. Det ligger også en sjøkabel i sundet mot vest.',
+        fasiliteter: 'Strøm, vann, søppel og septiktømming, badeplass, dusj og toalett, samt kiosk/kafé i sommersesongen.',
+        ly: 'Godt skjermet av øyene og Nesoddlandet fra de fleste retninger, men eksponert for nordlig vind og noe trafikksjø.',
+        tips: 'Populær dagsutfart og badeplass rett ved Oslo – ofte fullt i godvær, ha en alternativ havn i bakhånd.',
+      },
+      {
+        name: 'Sandspollen',
+        area: 'Nesodden/Hurum',
+        innseiling:
+          'Trygg og grei innseiling i alt vær – Kinnartangen skjermer bukta godt mot nordøst. Grunnest på det dypeste er bare 10–12 meter, så bunnen varmes raskt opp om våren.',
+        fasiliteter: 'Ferskvann, toalett, teltplass, grillplass og parkering på land. Ingen dusj eller strøm på brygge.',
+        ly: 'Regnes som en av de aller beste naturhavnene i indre Oslofjord, men nordlig vind gjør ankring i den østre delen av bukta mindre gunstig.',
+        tips: 'Svært populært utfartssted – kom i god tid for å sikre plass på fine sommerdager. Fin turmulighet langs kyststien.',
+      },
+      {
+        name: 'Middagsbukta (Langårsundet)',
+        area: 'Asker',
+        innseiling:
+          'Smalt sund mellom øyene Brønnøya og Langåra i Vestfjorden. Naviger rolig – det ligger fortøyningsbolter langs land og mye båt i sundet på fine dager.',
+        fasiliteter:
+          'Ingen offentlig strøm eller vann. "Butikken", det røde huset midt i bukta, er en kystledhytte. Fine turstier rundt Brønnøya og Langåra.',
+        ly: 'Regnes som en av Oslofjordens best skjermede naturhavner, med svært høy vindbeskyttelse fra de fleste retninger.',
+        tips: 'Trolig indre Oslofjords mest besøkte naturhavn – bruk bolt langs land eller anker opp. Svært populært 17. mai og sankthansaften, da blir det trangt.',
+      },
+      {
+        name: 'Ildjernet / Bunnefjorden',
+        area: 'Nesoddtangen',
+        innseiling:
+          'Ligger på vestsiden av Nesodden, et par kilometer sør for Nesoddtangen. Navnet kommer av gammelnorsk for "farlig farvann" – hold god avstand til grunner og skjær ved innseiling.',
+        fasiliteter: 'Ingen servicefasiliteter – enkel naturhavn/ankringsplass.',
+        ly: 'Kjent og velbrukt ankringsplass med god le, historisk også brukt til vinteropplag av større båter.',
+        tips: 'Roligere alternativ til de mest populære naturhavnene lenger ute, fin base for tur i Bunnefjorden.',
+      },
+    ],
+  },
+  {
+    area: 'Ytre Oslofjord (Østfold-siden)',
+    harbors: [
+      {
+        name: 'Son',
+        area: 'Vestby',
+        innseiling: 'Rolig innseiling i Vestfjorden/Sonskilen. Hold deg til merket led – det er grunt utenfor.',
+        fasiliteter:
+          'Fullservice gjestehavn: strøm, vann, dusj, toalett, vaskemaskin, kloakktømming, drivstoff og lekeplass.',
+        ly: 'Generelt god le, men liggeplass på sørsiden av enkelte bryggearmer kan gi noe sjø ved sørlig vind.',
+        tips: 'Kåret til en av Norges beste gjestehavner. Hyggelig sted med restauranter – bestill plass via nett i høysesong, det blir fort fullt.',
+      },
+      {
+        name: 'Moss',
+        area: 'Moss',
+        innseiling:
+          'Enkel innseiling fra sør, men hold av for Bastø-fergene ved kanalåpningen. Fra nord er innseilingen fra Mossesundet problemfri. Fri seilhøyde under kanalbrua er 4,5 meter.',
+        fasiliteter: 'Full gjestehavnstandard med vann, strøm, servicerom (toalett, dusj, vaskemaskin, tørketrommel) og billettautomat.',
+        ly: 'Kan bli urolig sjø i kanalmunningen når strøm og vind står mot hverandre, forsterket av fergenes thrustere.',
+        tips: 'Gangavstand til butikker, bakeri og fiskehandler. Grei base midtveis mellom Oslo og Hvaler.',
+      },
+      {
+        name: 'Hankø / Hankøsundet',
+        area: 'Fredrikstad',
+        innseiling:
+          'Godt merket fra begge retninger, men vær obs på grunn ca. 1,4 meter dyp nær innseilingen. Hankøsundet regnes som en god nødhavn i all slags vær.',
+        fasiliteter: 'Strøm, vann, dusj, toalett, drivstoff, badeplass og lekeplass. Hotell med spa, kafé og restaurant like ved.',
+        ly: 'Svært godt skjermet i sundet – et trygt valg når det blåser opp.',
+        tips: 'Kjent seilersted (Hankø Yacht Club). Fint stoppested mellom Hvaler/Fredrikstad og indre Oslofjord.',
+      },
+      {
+        name: 'Fredrikstad (Gamlebyen / Isegran)',
+        area: 'Fredrikstad',
+        innseiling: 'Trygg havn, men noe forstyrrende bølger fra passasjerferjer i elveløpet. Fortøy ved kai eller flytebrygge.',
+        fasiliteter: 'Landstrøm, vann, toalett, drivstoff og lekeplass ved Odden. Kort vei til sentrum og kollektivtransport.',
+        ly: 'Beskyttet beliggenhet inne i elveløpet mellom Gamlebyen og Kråkerøy.',
+        tips: 'Isegran har koselig maritimt miljø med tradisjonsbåter og museumshavn – fin avstikker med båt eller lokal byferge.',
+      },
+    ],
+  },
+  {
+    area: 'Hvaler',
+    harbors: [
+      {
+        name: 'Skjærhalden',
+        area: 'Hvaler',
+        innseiling:
+          'God plass med lyssignal for ledige plasser. Grei innseiling utenfra, litt mer å følge med på fra Singlefjorden.',
+        fasiliteter: 'Strøm, vann, dusj, toalett og vaskemuligheter. En av distriktets største gjestehavner, ca. 100 plasser, dybde 3–18 meter.',
+        ly: 'Noe bølger fra båttrafikk inn og ut av havnen, ellers grei le.',
+        tips: 'Sentralt for videre tur i Hvaler-skjærgården. Et av de mest populære målene i regionen – bestill plass i høysesong.',
+      },
+    ],
+  },
+  {
+    area: 'Grensetraktene',
+    harbors: [
+      {
+        name: 'Halden (og Sponvika)',
+        area: 'Halden',
+        innseiling: 'Nås via Svinesund, Sponvika eller fra Hvaler. Pass grensesnittet ved Svinesundbroene.',
+        fasiliteter: 'Strøm, vann, dusj, toalett, vaskemaskin, septiktømming, drivstoff og badeplass, midt i byen ved Fredriksten festning.',
+        ly: 'Rolig og skjermet havn inne i Iddefjorden.',
+        tips: 'Kort vei til butikker, bakeri og restauranter. Sponvika er et fint mellomstopp lenger ute i fjorden med roligere forhold.',
+      },
+      {
+        name: 'Strömstad',
+        area: 'Sverige',
+        innseiling:
+          'Ytre del av gjestehavnen ligger til høyre i innseilingen. Godt merket skjærgård utenfor byen – bruk oppdatert svensk sjøkart.',
+        fasiliteter: 'Rundt 300 gjesteplasser, toalett, dusj, vaskeri, mindre matbutikk og wifi.',
+        ly: 'Sentrumsnær havn med brukbar le, men kan være trafikkert i høysesong.',
+        tips: 'Husk pass/legitimasjon ved grensekryssing til Sverige. Populær handleby med kort vei til sentrum.',
+      },
+      {
+        name: 'Kosterøyene (Nordkoster og Sydkoster)',
+        area: 'Sverige',
+        innseiling:
+          'Vättnet på Nordkoster har enkel innseiling. Ekenäs på Sydkoster og Bopallen/Västra bryggan på Nordkoster er lette å finne med moderne sjøkart – gå aktsomt i skjærgården, det er mye grunt og skjær.',
+        fasiliteter:
+          'Nordkoster (Vättnet): strøm, dusj, toalett, badeplass og lekeplass. Bopallen har ca. 120 gjesteplasser (dybde 1–7 m). Ekenäs på Sydkoster har strøm (ikke vann på brygga), hotell, restauranter og kiosk.',
+        ly: 'Varierer med hvilken brygge du velger – sjekk værmelding og velg siden av øyene som gir best le for dagens vindretning.',
+        tips: 'Flott turmål med sykkelutleie og fine naturopplevelser i Kosterhavets nasjonalpark. Siste stopp før åpnere farvann mot Skagerrak – planlegg returen etter værvindu.',
+      },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Havnetips"
+  description="Kortfattet havneguide for Oslofjorden fra Oslo til Kosterøyene: innseiling, fasiliteter og ly for vind for populære gjeste- og naturhavner."
+>
+  <section class="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <a href="/seiling-1-2-3" class="text-sm font-semibold text-sky hover:text-sky-dark">← Tilbake til Seiling 1-2-3</a>
+
+    <h1 class="mt-6 font-display text-3xl font-extrabold text-navy sm:text-4xl">Havnetips</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      En kortfattet oversikt over aktuelle havner i vårt seilområde, fra Oslo i nord til
+      Kosterøyene i sør. For hver havn finner du korte stikkord om innseiling, fasiliteter og hvor
+      god le du kan forvente. Sjekk alltid oppdatert sjøkart og værmelding før du legger til – dybder,
+      merking og fasiliteter kan endre seg.
+    </p>
+
+    {
+      harborGroups.map((group) => (
+        <>
+          <h2 class="mt-12 font-display text-2xl font-bold text-navy">{group.area}</h2>
+          <div class="mt-6 grid gap-6 md:grid-cols-2">
+            {group.harbors.map((harbor) => (
+              <div class="flex flex-col rounded-3xl bg-white p-6 shadow-card">
+                <h3 class="font-display text-lg font-bold text-navy">{harbor.name}</h3>
+                <dl class="mt-4 space-y-3 text-sm text-navy-dark/80">
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Innseiling</dt>
+                    <dd class="mt-1">{harbor.innseiling}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Fasiliteter</dt>
+                    <dd class="mt-1">{harbor.fasiliteter}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Ly for vind</dt>
+                    <dd class="mt-1">{harbor.ly}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Tips</dt>
+                    <dd class="mt-1">{harbor.tips}</dd>
+                  </div>
+                </dl>
+              </div>
+            ))}
+          </div>
+        </>
+      ))
+    }
+
+    <div class="mt-10 rounded-3xl bg-sky/10 p-6 text-navy sm:p-8">
+      <h2 class="font-display text-xl font-bold">Kilder og forbehold</h2>
+      <p class="mt-2 text-navy-dark/80">
+        Informasjonen er ment som en kortfattet oversikt til turplanlegging, sammenstilt blant
+        annet med havneguider som havneweb.no som referanse, og er ikke en erstatning for
+        offisielle sjøkart, gjeldende NtM-varsler eller den enkelte havns egne nettsider. Forhold
+        som dybder, fasiliteter og priser kan endres – sjekk alltid oppdatert informasjon før
+        avgang.
+      </p>
+    </div>
+
+    <div class="mt-10 rounded-3xl bg-navy p-6 text-white shadow-soft sm:p-8">
+      <h2 class="font-display text-xl font-bold text-mint">Husk: sjekk været før du drar</h2>
+      <p class="mt-2 text-white/80">
+        Se dagens og ukens forhold, med tips tilpasset vind, nedbør og temperatur.
+      </p>
+      <a
+        href="/vaer"
+        class="mt-4 inline-flex items-center gap-2 rounded-full bg-mint px-5 py-2 text-sm font-semibold text-navy hover:bg-mint-dark"
+      >
+        Se værvarsel for 7 dager →
+      </a>
+    </div>
+  </section>
+</Layout>
