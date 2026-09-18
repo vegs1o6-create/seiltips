@@ -2,12 +2,15 @@ name: Daglig seilartikkel
 
 # Kjører hver dag rundt kl. 08:00 norsk tid. GitHub Actions cron kjører alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for vintertid CET,
-# ett for sommertid CEST) og lar en vaktbikkje-steg avgjøre hvilken kjøring som faktisk
-# skal gjøre jobben.
+# ett for sommertid CEST). GitHub sin schedule-trigger kan komme flere timer for sent
+# (observert opptil 9–15 timer), så i stedet for å kreve at kjøringen treffer et smalt
+# klokkeslett-vindu, sjekker et vaktbikkje-steg heller om dagens artikkel allerede er
+# publisert – da kan cron-kjøringen komme når den vil og likevel gjøre jobben, uten å
+# risikere duplikater når begge cron-tidspunktene til slutt trigger samme dag.
 on:
   schedule:
-    - cron: '0 7 * * *' # 08:00 CET (vintertid, UTC+1)
-    - cron: '0 6 * * *' # 08:00 CEST (sommertid, UTC+2)
+    - cron: '0 7 * * *' # ca. 08:00 CET (vintertid, UTC+1)
+    - cron: '0 6 * * *' # ca. 08:00 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
@@ -27,21 +30,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk at klokken er rundt 08:00 i Norge
+      - name: Sjekk om dagens artikkel allerede er publisert
         id: tidssjekk
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Manuelt trigget (workflow_dispatch) – kjører uansett klokkeslett."
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett."
             exit 0
           fi
-          now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
-          echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" > "07:45" && "$now_oslo" < "08:15" ]]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-          else
+          oslo_i_dag=$(TZ="Europe/Oslo" date +%F)
+          siden=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
+          til=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 23:59:59" -u +"%Y-%m-%dT%H:%M:%SZ")
+          allerede=$(git log --since="$siden" --until="$til" --grep='^Legg til artikkel:' --oneline -- src/content/artikler)
+          if [[ -n "$allerede" ]]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (07:45–08:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            echo "En artikkel er allerede publisert i dag (norsk dato ${oslo_i_dag}) – hopper over."
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Ingen artikkel publisert i dag (norsk dato ${oslo_i_dag}) ennå – kjører uansett klokkeslett."
           fi
 
       - name: Sett opp Node.js
