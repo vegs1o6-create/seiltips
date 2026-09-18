@@ -1,0 +1,217 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const sailSideSections = [
+  {
+    title: 'Hvilken side skal seilet være på?',
+    icon: '⛵',
+    points: [
+      'Seilet skal alltid stå på le side – motsatt side av der vinden kommer fra. Kommer vinden fra styrbord, skal bommen og seilet stå ut mot babord, og motsatt.',
+      'Sitt selv på lo side (siden vinden kommer fra) så langt det er praktisk – da ser du seilet, kjenner vinden i ansiktet og har best oversikt over hva som skjer rundt båten.',
+      'Når du skal skifte side (baut eller gibb), bytter seilet automatisk side ettersom du krysser vindretningen. Vær forberedt på at bommen svinger over – varsle alle om bord før du gjennomfører manøveren.',
+      'En ufrivillig gibb i frisk vind er en av de vanligste årsakene til uhell om bord. Hold godt tak i storskjøtet ved lensing i bris, og vurder å legge på en gibbepreventer på lengre turer.',
+    ],
+  },
+];
+
+const steeringPoints = [
+  'Se fremover og rundt deg – ikke bare på seilet eller instrumentene. Følg med på annen trafikk, skjær, bøyer og endringer i vindbildet på vannflaten (mørkere, kruset vann varsler ofte mer vind).',
+  'Styr etter et fast punkt langt fremme (et landemerke, en sky eller kompasskurs) i stedet for å se rett ned i baugen. Det gir en roligere og mer presis kurs.',
+  'Kjenn etter i roret og i krengningen – båten forteller deg mye om den seiler balansert. For mye ror betyr som regel at seilføringen bør justeres eller at det er på tide å reve.',
+  'Planlegg svingen eller manøveren i god tid. Se etter ledig plass, sjekk hvor andre båter er på vei, og gi tydelig beskjed til resten av mannskapet før du endrer kurs.',
+];
+
+const instrumentPoints = [
+  'Windexen på mastetoppen viser den tilsynelatende vinden (apparent wind) – altså vinden slik den faktisk kjennes om bord, som er en kombinasjon av den ekte vinden og farten til båten selv. Sjekk den aktivt og ofte, ikke bare når seilene begynner å blafre.',
+  'Bruk vindinstrumenter i cockpit (om båten har det) til å finne beste vinkel opp mot vinden ved kryssing, og til å oppdage vindskifter tidlig.',
+  'Loggen/farten forteller deg om trimmen fungerer – en liten justering av skjøter eller fall kan ofte gi mer fart uten mer krengning.',
+  'Dybdemåleren er spesielt viktig i norsk skjærgård. Hold et øye med den nær land, i innseilinger og på retur til havn.',
+  'Kompass og kartplotter/sjøkart brukes sammen til å holde styr på posisjon og kurs, særlig ved nedsatt sikt, i mørket eller i ukjent farvann.',
+  'Sjekk værradar eller værmelding-app underveis på lengre turer – byger kan komme raskt i norsk sommervær.',
+]
+
+const planningPoints = [
+  'Legg opp ruten før du legger fra kai: sjekk sjøkart for grunner, skjær og trange sund, og noter alternative havner underveis dersom været snur.',
+  'Sjekk værmelding for hele turen – ikke bare avreisetidspunktet. Se særlig etter vindstyrke, vindretning og eventuelle kastevindsvarsler.',
+  'Ta hensyn til strøm og eventuelt tidevann i farvannet du skal seile i, spesielt i trange sund og ved brosteder – strømmen kan gi vesentlig avdrift.',
+  'Tenk gjennom hvordan du må seile de ulike delene av turen: Får du medvind, motvind eller tvers vind på de forskjellige strekkene? Dette avgjør hvor mange baut du må regne med og hvor lang tid turen faktisk tar.',
+  'Fortell noen på land om ruteplanen din og forventet ankomsttid, og ha alltid en plan B-havn i bakhoden dersom vinden endrer seg mer enn ventet.',
+];
+
+const windAngles = [
+  {
+    title: 'Medvind (lens)',
+    icon: '💨',
+    color: 'bg-mint/10',
+    tips: [
+      'Vinden kommer bakfra – seilene fires godt ut, gjerne så langt at storseilet nesten står vinkelrett på båten.',
+      'Størst fare for ufrivillig gibb: hold godt i skjøtet, og bruk gjerne en gibbepreventer i frisk vind.',
+      'Rullen (sideveis vugging) kan bli ubehagelig i sjø akterfra – litt fart og riktig trim demper bevegelsen.',
+      'Følg nøye med på windexen, siden vindvinkelen bak deg er vanskeligere å kjenne på kroppen enn når vinden kommer forfra.',
+    ],
+  },
+  {
+    title: 'Tvers / slør',
+    icon: '🧭',
+    color: 'bg-sky/10',
+    tips: [
+      'Vinden kommer fra siden – ofte den raskeste og mest behagelige seilingen, med god fart og moderat krengning.',
+      'Trim seilene etter windex og seilets forkant: dra inn til seilet såvidt slutter å flagre langs forliket.',
+      'Denne vinkelen gir mest fleksibilitet – du kan justere kursen en del uten å måtte skifte seilstilling drastisk.',
+    ],
+  },
+  {
+    title: 'Motvind (kryssing/bidevind)',
+    icon: '⛵',
+    color: 'bg-navy/5',
+    tips: [
+      'Du kan ikke seile rett mot vinden – de fleste båter krysser i en vinkel på 35–45 grader fra vindretningen.',
+      'Trim seilene stramt og finn beste vinkel ved å "lufte" forsiktig opp mot vinden til forliket akkurat begynner å flagre, og fall så litt av igjen.',
+      'For å komme til et mål rett mot vinden må du seile i en sikksakk-mønster (baute) – bruk kart og kompass til å planlegge hvor mange og hvor lange baut du trenger.',
+      'Krengning og sjøsprøyt er størst ved kryssing – tilpass seilføring og fart etter forholdene, og reduser seilareal i tide.',
+    ],
+  },
+];
+---
+
+<Layout
+  title="Hvordan seile"
+  description="Praktisk guide til grunnleggende seilteknikk: hvilken side seilet skal stå på, styring, aktiv bruk av windex og instrumenter, ruteplanlegging og seiling i medvind, tvers og motvind."
+>
+  <section class="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+    <a href="/seiling-1-2-3" class="text-sm font-semibold text-sky hover:text-sky-dark">← Tilbake til Seiling 1-2-3</a>
+
+    <h1 class="mt-6 font-display text-3xl font-extrabold text-navy sm:text-4xl">Hvordan seile</h1>
+    <p class="mt-2 max-w-2xl text-navy-dark/80">
+      Grunnleggende teknikk for deg som vil forstå mer av det som skjer om bord: hvor seilet skal
+      stå, hvor du skal se og styre, hvordan du bruker windex og instrumenter aktivt, hvordan du
+      planlegger turen – og hvordan du må tilpasse seilingen etter om du har med-, tvers- eller
+      motvind.
+    </p>
+
+    {
+      sailSideSections.map((section) => (
+        <>
+          <h2 class="mt-12 flex items-center gap-3 font-display text-2xl font-bold text-navy">
+            <span aria-hidden="true">{section.icon}</span>
+            {section.title}
+          </h2>
+          <div class="mt-6 rounded-3xl bg-white p-6 shadow-card sm:p-8">
+            <ul class="space-y-3">
+              {section.points.map((point) => (
+                <li class="flex gap-3 text-navy-dark/80">
+                  <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky/20 text-sm text-navy" aria-hidden="true">
+                    ✓
+                  </span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      ))
+    }
+
+    <h2 class="mt-12 flex items-center gap-3 font-display text-2xl font-bold text-navy">
+      <span aria-hidden="true">🧭</span>
+      Styring og fokus
+    </h2>
+    <p class="mt-4 text-navy-dark/80">
+      Hvor du ser og hva du styrer etter betyr mer for hvor godt og trygt du seiler enn de fleste
+      tror. Godt sjømannskap starter med å alltid ha oversikt.
+    </p>
+    <ul class="mt-4 space-y-3">
+      {
+        steeringPoints.map((point) => (
+          <li class="flex gap-3 text-navy-dark/80">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-mint/40 text-sm text-navy" aria-hidden="true">
+              ✓
+            </span>
+            <span>{point}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2 class="mt-12 flex items-center gap-3 font-display text-2xl font-bold text-navy">
+      <span aria-hidden="true">📡</span>
+      Aktiv bruk av windex og andre instrumenter
+    </h2>
+    <p class="mt-4 text-navy-dark/80">
+      Windexen på mastetoppen er det viktigste hjelpemiddelet du har for å trimme seilene riktig –
+      men den er bare nyttig hvis du faktisk ser på den jevnlig.
+    </p>
+    <div class="mt-6 rounded-3xl bg-white p-6 shadow-card sm:p-8">
+      <ul class="space-y-3">
+        {
+          instrumentPoints.map((point) => (
+            <li class="flex gap-3 text-navy-dark/80">
+              <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky/20 text-sm text-navy" aria-hidden="true">
+                📍
+              </span>
+              <span>{point}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <h2 class="mt-12 flex items-center gap-3 font-display text-2xl font-bold text-navy">
+      <span aria-hidden="true">🗺️</span>
+      Planlegg hvor du skal
+    </h2>
+    <p class="mt-4 text-navy-dark/80">
+      En god seiltur starter på land, med kart og værmelding foran deg – ikke ute på vannet når
+      forholdene allerede har endret seg.
+    </p>
+    <ul class="mt-4 space-y-3">
+      {
+        planningPoints.map((point) => (
+          <li class="flex gap-3 text-navy-dark/80">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-mint/40 text-sm text-navy" aria-hidden="true">
+              ✓
+            </span>
+            <span>{point}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2 class="mt-12 font-display text-2xl font-bold text-navy">Slik må du seile: medvind, tvers og motvind</h2>
+    <p class="mt-2 text-sm text-navy-dark/60">
+      Vindretningen i forhold til båten avgjør hvordan du må trimme seilene og hva du må passe
+      spesielt godt på.
+    </p>
+    <div class="mt-6 grid gap-6 sm:grid-cols-3">
+      {
+        windAngles.map((angle) => (
+          <div class={`rounded-2xl ${angle.color} p-6`}>
+            <span class="text-2xl" aria-hidden="true">{angle.icon}</span>
+            <h3 class="mt-2 font-display font-bold text-navy">{angle.title}</h3>
+            <ul class="mt-3 space-y-2">
+              {angle.tips.map((tip) => (
+                <li class="flex gap-2 text-sm text-navy-dark/80">
+                  <span class="text-sky-dark" aria-hidden="true">•</span>
+                  <span>{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-10 rounded-3xl bg-navy p-6 text-white shadow-soft sm:p-8">
+      <h2 class="font-display text-xl font-bold text-mint">Neste steg: finn havn til turen</h2>
+      <p class="mt-2 text-white/80">
+        Se våre havnetips for Oslofjorden, Hvaler, grensetraktene og Kosterøyene før du legger ut.
+      </p>
+      <a
+        href="/seiling-1-2-3/havnetips"
+        class="mt-4 inline-flex items-center gap-2 rounded-full bg-mint px-5 py-2 text-sm font-semibold text-navy hover:bg-mint-dark"
+      >
+        Se havnetips →
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -36,6 +36,23 @@ const steps = [
     ],
   },
 ];
+
+const infoPages = [
+  {
+    title: 'Hvordan seile',
+    icon: '🧭',
+    description:
+      'Hvilken side skal seilet være på, hvor du skal styre og se, aktiv bruk av windex og andre instrumenter, ruteplanlegging og hvordan du må seile i medvind, tvers og motvind.',
+    href: '/seiling-1-2-3/hvordan-seile',
+  },
+  {
+    title: 'Havnetips',
+    icon: '⚓',
+    description:
+      'Kortfattet guide til aktuelle havner fra Oslo til Kosterøyene, med innseiling, fasiliteter og ly for vind.',
+    href: '/seiling-1-2-3/havnetips',
+  },
+];
 ---
 
 <Layout
@@ -66,6 +83,31 @@ const steps = [
               ))}
             </ul>
           </div>
+        ))
+      }
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl font-bold text-navy">Lær mer</h2>
+    <p class="mt-2 text-sm text-navy-dark/60">
+      Vil du gå litt dypere? Her er to infosider med praktisk seilteknikk og havner å legge til i
+      Oslofjorden og skjærgården sørover.
+    </p>
+    <div class="mt-6 grid gap-6 sm:grid-cols-2">
+      {
+        infoPages.map((page) => (
+          <a
+            href={page.href}
+            class="group flex gap-4 rounded-2xl bg-white p-6 shadow-card transition hover:shadow-soft"
+          >
+            <span class="text-3xl" aria-hidden="true">{page.icon}</span>
+            <div>
+              <h3 class="font-display font-bold text-navy group-hover:text-sky-dark">{page.title}</h3>
+              <p class="mt-1 text-sm text-navy-dark/80">{page.description}</p>
+              <span class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-sky group-hover:text-sky-dark">
+                Les mer →
+              </span>
+            </div>
+          </a>
         ))
       }
     </div>
