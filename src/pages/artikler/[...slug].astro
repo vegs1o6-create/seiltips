@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { findArticleImage } from '../../utils/images';
 
 export async function getStaticPaths() {
   const posts = await getCollection('artikler', ({ data }) => !data.draft);
@@ -22,6 +23,7 @@ const formattedDate = post.data.pubDate.toLocaleDateString('nb-NO', {
   month: 'long',
   year: 'numeric',
 });
+const heroImage = findArticleImage(post.id);
 ---
 
 <Layout title={post.data.title} description={post.data.description}>
@@ -33,6 +35,16 @@ const formattedDate = post.data.pubDate.toLocaleDateString('nb-NO', {
     </time>
     <h1 class="mt-2 font-display text-3xl font-extrabold text-navy sm:text-4xl">{post.data.title}</h1>
     <p class="mt-4 text-lg text-navy-dark/80">{post.data.description}</p>
+
+    {
+      heroImage && (
+        <img
+          src={heroImage}
+          alt=""
+          class="mt-6 h-64 w-full rounded-3xl object-cover shadow-card sm:h-80"
+        />
+      )
+    }
 
     {
       post.data.tags && post.data.tags.length > 0 && (

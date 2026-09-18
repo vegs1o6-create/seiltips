@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { findImage } from '../../utils/images';
 
 interface Harbor {
   name: string;
+  slug: string;
   area: string;
   innseiling: string;
   fasiliteter: string;
@@ -16,6 +18,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
     harbors: [
       {
         name: 'Oslo (Frognerkilen / Kongen Marina)',
+        slug: 'oslo-frognerkilen',
         area: 'Oslo',
         innseiling:
           'Tydelig og enkel innseiling til Frognerkilen. Hold av for rutebåter og annen trafikk ved Aker Brygge og Bygdøy.',
@@ -26,6 +29,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Drøbak',
+        slug: 'drobak',
         area: 'Oslo',
         innseiling:
           'Gjennom Drøbaksundet forbi Oscarsborg festning. Smalt farvann med mye trafikk – hold god avstand til ferjer og større fartøy.',
@@ -35,6 +39,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Håøya (naturhavn)',
+        slug: 'haoya',
         area: 'Oslo',
         innseiling:
           'Flere viker rundt øya. Dragsundet på vestsiden og Sætrepollen er lette å finne – sjekk dybder på oppdatert sjøkart eller plotter.',
@@ -45,6 +50,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Oslo-øyene (Gressholmen, Hovedøya, Lindøya m.fl.)',
+        slug: 'oslo-oyene',
         area: 'Oslo',
         innseiling:
           'Kort seilas rett utenfor Oslo sentrum. Trangt farvann med mye fritidsbåt- og fergetrafikk (bl.a. B1/B2-båtene) mellom øyene – hold god fart og avstand.',
@@ -55,6 +61,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Steilene',
+        slug: 'steilene',
         area: 'Nesodden',
         innseiling:
           'Ligger rett utenfor Nesoddens østside. Gjestebryggene ligger beskyttet av molo/flytebølgedemper i sør – ikke ankre i selve havnebassenget, moringene ligger på bunnen og kan hekte seg i ankeret. Det ligger også en sjøkabel i sundet mot vest.',
@@ -64,6 +71,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Sandspollen',
+        slug: 'sandspollen',
         area: 'Nesodden/Hurum',
         innseiling:
           'Trygg og grei innseiling i alt vær – Kinnartangen skjermer bukta godt mot nordøst. Grunnest på det dypeste er bare 10–12 meter, så bunnen varmes raskt opp om våren.',
@@ -73,6 +81,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Middagsbukta (Langårsundet)',
+        slug: 'middagsbukta',
         area: 'Asker',
         innseiling:
           'Smalt sund mellom øyene Brønnøya og Langåra i Vestfjorden. Naviger rolig – det ligger fortøyningsbolter langs land og mye båt i sundet på fine dager.',
@@ -83,6 +92,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Ildjernet / Bunnefjorden',
+        slug: 'ildjernet',
         area: 'Nesoddtangen',
         innseiling:
           'Ligger på vestsiden av Nesodden, et par kilometer sør for Nesoddtangen. Navnet kommer av gammelnorsk for "farlig farvann" – hold god avstand til grunner og skjær ved innseiling.',
@@ -97,6 +107,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
     harbors: [
       {
         name: 'Son',
+        slug: 'son',
         area: 'Vestby',
         innseiling: 'Rolig innseiling i Vestfjorden/Sonskilen. Hold deg til merket led – det er grunt utenfor.',
         fasiliteter:
@@ -106,6 +117,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Moss',
+        slug: 'moss',
         area: 'Moss',
         innseiling:
           'Enkel innseiling fra sør, men hold av for Bastø-fergene ved kanalåpningen. Fra nord er innseilingen fra Mossesundet problemfri. Fri seilhøyde under kanalbrua er 4,5 meter.',
@@ -115,6 +127,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Hankø / Hankøsundet',
+        slug: 'hanko',
         area: 'Fredrikstad',
         innseiling:
           'Godt merket fra begge retninger, men vær obs på grunn ca. 1,4 meter dyp nær innseilingen. Hankøsundet regnes som en god nødhavn i all slags vær.',
@@ -124,6 +137,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Fredrikstad (Gamlebyen / Isegran)',
+        slug: 'fredrikstad',
         area: 'Fredrikstad',
         innseiling: 'Trygg havn, men noe forstyrrende bølger fra passasjerferjer i elveløpet. Fortøy ved kai eller flytebrygge.',
         fasiliteter: 'Landstrøm, vann, toalett, drivstoff og lekeplass ved Odden. Kort vei til sentrum og kollektivtransport.',
@@ -137,6 +151,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
     harbors: [
       {
         name: 'Skjærhalden',
+        slug: 'skjaerhalden',
         area: 'Hvaler',
         innseiling:
           'God plass med lyssignal for ledige plasser. Grei innseiling utenfra, litt mer å følge med på fra Singlefjorden.',
@@ -151,6 +166,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
     harbors: [
       {
         name: 'Halden (og Sponvika)',
+        slug: 'halden',
         area: 'Halden',
         innseiling: 'Nås via Svinesund, Sponvika eller fra Hvaler. Pass grensesnittet ved Svinesundbroene.',
         fasiliteter: 'Strøm, vann, dusj, toalett, vaskemaskin, septiktømming, drivstoff og badeplass, midt i byen ved Fredriksten festning.',
@@ -159,6 +175,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Strömstad',
+        slug: 'stromstad',
         area: 'Sverige',
         innseiling:
           'Ytre del av gjestehavnen ligger til høyre i innseilingen. Godt merket skjærgård utenfor byen – bruk oppdatert svensk sjøkart.',
@@ -168,6 +185,7 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
       },
       {
         name: 'Kosterøyene (Nordkoster og Sydkoster)',
+        slug: 'kosteroyene',
         area: 'Sverige',
         innseiling:
           'Vättnet på Nordkoster har enkel innseiling. Ekenäs på Sydkoster og Bopallen/Västra bryggan på Nordkoster er lette å finne med moderne sjøkart – gå aktsomt i skjærgården, det er mye grunt og skjær.',
@@ -201,29 +219,39 @@ const harborGroups: { area: string; harbors: Harbor[] }[] = [
         <>
           <h2 class="mt-12 font-display text-2xl font-bold text-navy">{group.area}</h2>
           <div class="mt-6 grid gap-6 md:grid-cols-2">
-            {group.harbors.map((harbor) => (
-              <div class="flex flex-col rounded-3xl bg-white p-6 shadow-card">
-                <h3 class="font-display text-lg font-bold text-navy">{harbor.name}</h3>
-                <dl class="mt-4 space-y-3 text-sm text-navy-dark/80">
-                  <div>
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Innseiling</dt>
-                    <dd class="mt-1">{harbor.innseiling}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Fasiliteter</dt>
-                    <dd class="mt-1">{harbor.fasiliteter}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Ly for vind</dt>
-                    <dd class="mt-1">{harbor.ly}</dd>
-                  </div>
-                  <div>
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Tips</dt>
-                    <dd class="mt-1">{harbor.tips}</dd>
-                  </div>
-                </dl>
+            {group.harbors.map((harbor) => {
+              const image = findImage('havner', harbor.slug);
+              return (
+              <div class="flex flex-col overflow-hidden rounded-3xl bg-white shadow-card">
+                {
+                  image && (
+                    <img src={image} alt="" class="h-40 w-full object-cover" loading="lazy" />
+                  )
+                }
+                <div class="flex flex-1 flex-col p-6">
+                  <h3 class="font-display text-lg font-bold text-navy">{harbor.name}</h3>
+                  <dl class="mt-4 space-y-3 text-sm text-navy-dark/80">
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Innseiling</dt>
+                      <dd class="mt-1">{harbor.innseiling}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Fasiliteter</dt>
+                      <dd class="mt-1">{harbor.fasiliteter}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Ly for vind</dt>
+                      <dd class="mt-1">{harbor.ly}</dd>
+                    </div>
+                    <div>
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-sky-dark">Tips</dt>
+                      <dd class="mt-1">{harbor.tips}</dd>
+                    </div>
+                  </dl>
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       ))

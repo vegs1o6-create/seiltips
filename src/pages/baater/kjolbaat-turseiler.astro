@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BoatDetail from '../../components/BoatDetail.astro';
+import { findImage } from '../../utils/images';
+
+const image = findImage('baater', 'kjolbaat-turseiler');
 ---
 
 <Layout
@@ -8,6 +11,7 @@ import BoatDetail from '../../components/BoatDetail.astro';
   description="Alt du trenger å vite om kjølbåter og turseilere: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
 >
   <BoatDetail
+    image={image}
     icon="⛵"
     title="Kjølbåt / turseiler"
     tagline="Den klassiske familiebåten – stabil, trygg og laget for overnatting om bord."

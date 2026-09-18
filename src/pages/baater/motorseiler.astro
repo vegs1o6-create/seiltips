@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BoatDetail from '../../components/BoatDetail.astro';
+import { findImage } from '../../utils/images';
+
+const image = findImage('baater', 'motorseiler');
 ---
 
 <Layout
@@ -8,6 +11,7 @@ import BoatDetail from '../../components/BoatDetail.astro';
   description="Alt du trenger å vite om motorseilere: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
 >
   <BoatDetail
+    image={image}
     icon="🚤"
     title="Motorseiler"
     tagline="Kompromissbåten som gir deg full fleksibilitet mellom seil og motor."

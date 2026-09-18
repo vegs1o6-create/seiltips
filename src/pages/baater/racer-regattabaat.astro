@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BoatDetail from '../../components/BoatDetail.astro';
+import { findImage } from '../../utils/images';
+
+const image = findImage('baater', 'racer-regattabaat');
 ---
 
 <Layout
@@ -8,6 +11,7 @@ import BoatDetail from '../../components/BoatDetail.astro';
   description="Alt du trenger å vite om racere og regattabåter: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
 >
   <BoatDetail
+    image={image}
     icon="🏁"
     title="Racer / regattabåt"
     tagline="Bygget for fart – lett, slank og krevende å seile godt."

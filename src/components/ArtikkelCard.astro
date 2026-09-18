@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { findArticleImage } from '../utils/images';
 
 export interface Props {
   post: CollectionEntry<'artikler'>;
@@ -12,28 +13,38 @@ const formattedDate = post.data.pubDate.toLocaleDateString('nb-NO', {
   month: 'long',
   year: 'numeric',
 });
+const image = findArticleImage(post.id);
 ---
 
 <a
   href={`/artikler/${post.id}`}
-  class:list={[
-    'group flex flex-col rounded-2xl bg-white shadow-card transition-transform hover:-translate-y-1 hover:shadow-soft',
-    size === 'small' ? 'p-5' : 'p-6',
-  ]}
+  class="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-card transition-transform hover:-translate-y-1 hover:shadow-soft"
 >
-  <time datetime={post.data.pubDate.toISOString()} class="text-xs font-semibold uppercase tracking-wide text-sky">
-    {formattedDate}
-  </time>
-  <h3 class:list={['mt-2 font-display font-bold text-navy group-hover:text-sky', size === 'small' ? 'text-base' : 'text-xl']}>
-    {post.data.title}
-  </h3>
-  <p class:list={['mt-2 text-navy-dark/80', size === 'small' ? 'text-sm line-clamp-2' : 'line-clamp-3']}>
-    {post.data.description}
-  </p>
-  <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky">
-    Les mer
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-    </svg>
-  </span>
+  {
+    image && (
+      <img
+        src={image}
+        alt=""
+        class:list={['w-full object-cover', size === 'small' ? 'h-32' : 'h-40']}
+        loading="lazy"
+      />
+    )
+  }
+  <div class:list={['flex flex-1 flex-col', size === 'small' ? 'p-5' : 'p-6']}>
+    <time datetime={post.data.pubDate.toISOString()} class="text-xs font-semibold uppercase tracking-wide text-sky">
+      {formattedDate}
+    </time>
+    <h3 class:list={['mt-2 font-display font-bold text-navy group-hover:text-sky', size === 'small' ? 'text-base' : 'text-xl']}>
+      {post.data.title}
+    </h3>
+    <p class:list={['mt-2 text-navy-dark/80', size === 'small' ? 'text-sm line-clamp-2' : 'line-clamp-3']}>
+      {post.data.description}
+    </p>
+    <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky">
+      Les mer
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </span>
+  </div>
 </a>

@@ -20,6 +20,7 @@ export interface Props {
   icon: string;
   title: string;
   tagline: string;
+  image?: string | null;
   intro: string[];
   specs: Spec[];
   sailingIntro: string;
@@ -40,6 +41,7 @@ const {
   icon,
   title,
   tagline,
+  image,
   intro,
   specs,
   sailingIntro,
@@ -69,6 +71,12 @@ const {
       <p class="mt-1 text-lg text-navy-dark/80">{tagline}</p>
     </div>
   </div>
+
+  {
+    image && (
+      <img src={image} alt="" class="mt-8 h-64 w-full rounded-3xl object-cover shadow-card sm:h-80" loading="lazy" />
+    )
+  }
 
   <div class="mt-8 space-y-4 text-navy-dark/80">
     {intro.map((paragraph) => <p>{paragraph}</p>)}

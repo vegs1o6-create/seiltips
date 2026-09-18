@@ -1,6 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BoatDetail from '../../components/BoatDetail.astro';
+import { findImage } from '../../utils/images';
+
+const image = findImage('baater', 'daysailer-jolle');
 ---
 
 <Layout
@@ -8,6 +11,7 @@ import BoatDetail from '../../components/BoatDetail.astro';
   description="Alt du trenger å vite om daysailere og joller: kjennetegn, seilegenskaper, sikkerhetsutstyr, vedlikehold og populære modeller."
 >
   <BoatDetail
+    image={image}
     icon="🛶"
     title="Daysailer / jolle"
     tagline="Den enkleste veien inn i seilsporten – lett, billig og direkte."

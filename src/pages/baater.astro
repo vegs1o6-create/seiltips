@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { findImage } from '../utils/images';
 
 const bruktbaatTips = (
   await getCollection('artikler', ({ id, data }) => !data.draft && id.startsWith('ukens-bruktbaat-tips-'))
@@ -40,7 +41,7 @@ const boatTypes = [
     icon: '🏁',
     href: '/baater/racer-regattabaat',
   },
-];
+].map((boat) => ({ ...boat, image: findImage('baater', boat.href.split('/').pop()!) }));
 
 const maintenanceTips = [
   'Skyll av salt med ferskvann etter hver tur for å skåne rigg og beslag.',
@@ -95,7 +96,13 @@ const maintenanceTips = [
             href={boat.href}
             class="group flex gap-4 rounded-2xl bg-white p-6 shadow-card transition hover:shadow-soft"
           >
-            <span class="text-3xl" aria-hidden="true">{boat.icon}</span>
+            {
+              boat.image ? (
+                <img src={boat.image} alt="" class="h-16 w-16 flex-shrink-0 rounded-xl object-cover" loading="lazy" />
+              ) : (
+                <span class="text-3xl" aria-hidden="true">{boat.icon}</span>
+              )
+            }
             <div>
               <h3 class="font-display font-bold text-navy group-hover:text-sky-dark">{boat.title}</h3>
               <p class="mt-1 text-sm text-navy-dark/80">{boat.description}</p>
