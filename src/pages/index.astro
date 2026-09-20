@@ -7,13 +7,11 @@ const allArticles = (await getCollection('artikler', ({ data }) => !data.draft))
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const [latest] = allArticles;
+const [latest, ...rest] = allArticles;
+const recentArticles = rest.slice(0, 5);
 
-const latestFormatted = latest?.data.pubDate.toLocaleDateString('nb-NO', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const ctaButtons = [
   {
@@ -48,69 +46,116 @@ const ctaButtons = [
 ---
 
 <Layout title="Forside" description="Værvarsel og seiltips for Oslofjorden til Kosterøyene – samlet på ett sted.">
-  <section class="bg-gradient-to-b from-navy to-navy-light text-white">
-    <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
-        <div>
-          <h1 class="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Klar for en ny dag på sjøen?
-          </h1>
-          <p class="mt-4 max-w-xl text-base text-white/80 sm:text-lg">
-            Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden
-            og ned til Kosterøyene – enten du er nybegynner eller erfaren skipper.
-          </p>
-
-          <div class="mt-6 grid gap-3 sm:grid-cols-2">
-            {
-              ctaButtons.map((cta) => (
-                <a
-                  href={cta.href}
-                  class:list={[
-                    'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
-                    cta.style,
-                  ]}
-                >
-                  <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain sm:h-14 sm:w-14 lg:h-16 lg:w-16" aria-hidden="true" />
-                  <span class="font-display text-sm">{cta.title}</span>
-                  <span class="text-xs font-normal opacity-90">{cta.description}</span>
-                </a>
-              ))
-            }
-          </div>
+  {
+    latest && (
+      <section class="bg-gradient-to-br from-navy to-navy-light text-white">
+        <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+          <a
+            href={`/artikler/${latest.id}`}
+            class="group flex flex-col gap-4 rounded-3xl bg-white/5 p-6 shadow-soft ring-1 ring-white/10 transition-colors hover:bg-white/10 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:p-10"
+          >
+            <div class="lg:max-w-2xl">
+              <span class="inline-flex items-center rounded-full bg-mint/20 px-4 py-1 text-xs font-bold uppercase tracking-wide text-mint">
+                Siste artikkel
+              </span>
+              <time datetime={latest.data.pubDate.toISOString()} class="mt-4 block text-sm font-semibold text-sky-light">
+                {formatDate(latest.data.pubDate)}
+              </time>
+              <h1 class="mt-2 font-display text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
+                {latest.data.title}
+              </h1>
+              <p class="mt-3 max-w-xl text-white/80">{latest.data.description}</p>
+            </div>
+            <span class="inline-flex shrink-0 items-center gap-1 self-start rounded-full bg-white px-5 py-2 text-sm font-semibold text-navy transition-transform group-hover:translate-x-1">
+              Les hele saken
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </span>
+          </a>
         </div>
+      </section>
+    )
+  }
 
-        <div>
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+    <div class="grid gap-10 lg:grid-cols-2">
+      <div>
+        <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Klar for en ny dag på sjøen?</h2>
+        <p class="mt-3 max-w-xl text-navy-dark/80">
+          Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden og ned til
+          Kosterøyene – enten du er nybegynner eller erfaren skipper.
+        </p>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
           {
-            latest && (
+            ctaButtons.map((cta) => (
               <a
-                href={`/artikler/${latest.id}`}
-                class="group flex flex-col rounded-3xl bg-white p-6 text-center shadow-soft transition-transform hover:-translate-y-1 sm:p-8"
+                href={cta.href}
+                class:list={[
+                  'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
+                  cta.style,
+                ]}
               >
-                <span class="mx-auto rounded-full bg-mint/30 px-4 py-1 text-xs font-bold uppercase tracking-wide text-navy">
-                  Siste artikkel
-                </span>
-                <time datetime={latest.data.pubDate.toISOString()} class="mt-4 text-sm font-semibold text-sky">
-                  {latestFormatted}
-                </time>
-                <h2 class="mt-2 font-display text-xl font-extrabold text-navy group-hover:text-sky sm:text-2xl">
-                  {latest.data.title}
-                </h2>
-                <p class="mx-auto mt-3 max-w-xl text-navy-dark/80">{latest.data.description}</p>
-                <span class="mx-auto mt-6 inline-flex items-center gap-1 rounded-full bg-navy px-5 py-2 text-sm font-semibold text-white">
-                  Les hele saken
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
+                <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain sm:h-14 sm:w-14" aria-hidden="true" />
+                <span class="font-display text-sm">{cta.title}</span>
+                <span class="text-xs font-normal opacity-90">{cta.description}</span>
               </a>
-            )
+            ))
           }
         </div>
+      </div>
+
+      <div>
+        <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Siste artikler</h2>
+
+        {
+          recentArticles.length > 0 ? (
+            <ul class="mt-6 divide-y divide-navy/10 overflow-hidden rounded-2xl bg-white shadow-card">
+              {recentArticles.map((post) => (
+                <li>
+                  <a
+                    href={`/artikler/${post.id}`}
+                    class="group flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-cloud"
+                  >
+                    <div class="min-w-0">
+                      <time datetime={post.data.pubDate.toISOString()} class="text-xs font-semibold uppercase tracking-wide text-sky">
+                        {formatDate(post.data.pubDate)}
+                      </time>
+                      <h3 class="mt-1 truncate font-display font-bold text-navy group-hover:text-sky">
+                        {post.data.title}
+                      </h3>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 shrink-0 text-sky transition-transform group-hover:translate-x-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="mt-6 text-navy-dark/70">Flere artikler kommer snart!</p>
+          )
+        }
+
+        <a href="/artikler" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sky hover:text-sky-dark">
+          Se alle artikler
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
       </div>
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-2">
       <div>
         <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Værkart</h2>
