@@ -79,21 +79,21 @@ const ctaButtons = [
   }
 
   <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-    <div class="grid gap-10 lg:grid-cols-2">
-      <div>
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-2">
+      <div class="min-w-0">
         <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Klar for en ny dag på sjøen?</h2>
         <p class="mt-3 max-w-xl text-navy-dark/80">
           Seiltips.no samler værvarsel og praktiske seiltips for deg som ferdes fra Oslofjorden og ned til
           Kosterøyene – enten du er nybegynner eller erfaren skipper.
         </p>
 
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+        <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {
             ctaButtons.map((cta) => (
               <a
                 href={cta.href}
                 class:list={[
-                  'flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
+                  'flex min-w-0 flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
                   cta.style,
                 ]}
               >
@@ -106,7 +106,7 @@ const ctaButtons = [
         </div>
       </div>
 
-      <div>
+      <div class="min-w-0">
         <h2 class="font-display text-2xl font-bold text-navy sm:text-3xl">Siste artikler</h2>
 
         {
