@@ -2,6 +2,7 @@
 title: "Før vinterlagring: Slik tar du vare på seilene"
 description: "Salt, fukt og UV-stråling sliter på seilene. Med en enkel høstsjekk kan du oppdage skader og lagre dem riktig gjennom vinteren."
 pubDate: 2026-09-20T06:09:13.105Z
+image: "/instagram/for-vinterlagring-slik-tar-du-vare-pa-seilene.png"
 tags: ["vedlikehold", "seil", "vinteropplag"]
 sources: ["https://www.quantumsails.com/en/resources-and-expertise/articles/how-to-store-your-sails-for-winter", "https://www.quantumsails.com/en/resources-and-expertise/articles/off-season-sail-care"]
 ---

@@ -2,6 +2,7 @@
 title: "Før høstturen: Slik får du kontroll på strømmen om bord"
 description: "Kortere dager og kaldere vær gir mer bruk av lys, varme og elektronikk. Slik sjekker du batteriene før høstseilasen."
 pubDate: 2026-09-19T06:09:25.793Z
+image: "/instagram/for-hostturen-slik-far-du-kontroll-pa-strommen-om-bord.png"
 tags: ["båtvedlikehold", "høstseilas"]
 sources: ["https://rs.no/sikker-til-sjos/12-volt-for-dummies/", "https://rs.no/sikker-til-sjos/slik-stopper-du-stromtyvene/", "https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/", "https://www.batmagasinet.no/pass-p-batteriene-i-vinter/564739"]
 ---

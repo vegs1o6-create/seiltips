@@ -2,6 +2,7 @@
 title: "Valg av redningsvest – hva bør du velge?"
 description: "Fra tradisjonelle til oppblåsbare vester: en guide til å finne den rette redningsvesten for dine seilingturer."
 pubDate: 2026-09-16T09:00:00+02:00
+image: "/instagram/valg-av-redningsvest-for-seilere.png"
 tags: ["sikkerhet", "utstyr", "grunnleggende"]
 sources: ["https://rs.no/sikker-til-sjos/hvilken-vest-skal-jeg-velge/", "https://www.sdir.no/fritidsbat/vis-sjovett/husk-vest-i-bat/", "https://standard.no/nyheter/redningsvest--lovpalagt-og-livsviktig/"]
 ---

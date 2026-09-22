@@ -2,6 +2,7 @@
 title: "Tre gode bruktbåtkjøp på Finn.no akkurat nå"
 description: "Vi har sammenlignet tre seilbåter på Finn.no og funnet gode kjøp i ulike prisklasser – fra 195 000 til 580 000 kroner."
 pubDate: 2026-09-20T16:13:58.369Z
+image: "/instagram/ukens-bruktbaat-tips-2026-09-20.png"
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
 sources: ["https://www.finn.no/mobility/item/476682650", "https://www.finn.no/mobility/item/466715627?ci=1", "https://www.finn.no/mobility/item/474870740"]
 ---

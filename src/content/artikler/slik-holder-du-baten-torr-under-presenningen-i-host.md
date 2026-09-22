@@ -2,6 +2,7 @@
 title: "Slik holder du båten tørr under presenningen i høst"
 description: "Kondens og dårlig lufting kan gi mugg, rust og vond lukt. Slik gjør du båten klar for en tørrere vinter."
 pubDate: 2026-09-21T06:10:43.807Z
+image: "/instagram/slik-holder-du-baten-torr-under-presenningen-i-host.png"
 tags: ["vinteropplag", "båtvedlikehold"]
 sources: ["https://rs.no/sikker-til-sjos/holder-baten-torr/", "https://www.seilmagasinet.no/fukt-hostklargjoring-luftavfukter/luftfuktighet-og-gode-avfuktere-i-bat/", "https://www.gjensidige.no/godtforberedt/bat/ikke-spar-pa-strommen-i-baten"]
 ---

@@ -2,6 +2,7 @@
 title: "Før opptak: Sjekk båten for havnespy og annen begroing"
 description: "Høstklargjøringen handler også om miljøet. Slik inspiserer og rengjør du båten uten å spre havnespy langs norskekysten."
 pubDate: 2026-09-18T06:09:35.088Z
+image: "/instagram/for-opptak-sjekk-baten-for-havnespy-og-annen-begroing.png"
 tags: ["båtvedlikehold", "miljø", "høst"]
 sources: ["https://www.miljodirektoratet.no/ansvarsomrader/arter-naturtyper/fremmede-arter/havnespy-japansk-sjopung/havnespy-rad-til-eiere-av-fritidsbater/", "https://www.miljodirektoratet.no/ansvarsomrader/arter-naturtyper/fremmede-arter/havnespy-japansk-sjopung/", "https://www.hi.no/hi/temasider/arter/havnespy", "https://artsdatabanken.no/Pages/332526/Havnespy?Key=0"]
 ---
