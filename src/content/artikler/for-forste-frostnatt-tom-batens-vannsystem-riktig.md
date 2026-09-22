@@ -2,6 +2,7 @@
 title: "Før første frostnatt: Tøm båtens vannsystem riktig"
 description: "Ferskvann, toalett og sluk kan få kostbare frostskader. Slik klargjør du vannsystemet før kulda kommer."
 pubDate: 2026-09-22T06:09:38.030Z
+image: "/instagram/for-forste-frostnatt-tom-batens-vannsystem-riktig.png"
 tags: ["vedlikehold", "frostsikring"]
 sources: ["https://rs.no/sikker-til-sjos/slik-gjor-du-baten-klar-for-vinterlagring/", "https://www.seilmagasinet.no/sm202106-vinteropplag/slik-frostsikrer-du/", "https://www.miljodirektoratet.no/globalassets/publikasjoner/M1048/M1048.pdf"]
 ---
