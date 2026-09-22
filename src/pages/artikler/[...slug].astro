@@ -35,6 +35,16 @@ const formattedDate = post.data.pubDate.toLocaleDateString('nb-NO', {
     <p class="mt-4 text-lg text-navy-dark/80">{post.data.description}</p>
 
     {
+      post.data.image && (
+        <img
+          src={post.data.image}
+          alt=""
+          class="mt-6 aspect-video w-full rounded-3xl object-cover shadow-card"
+        />
+      )
+    }
+
+    {
       post.data.tags && post.data.tags.length > 0 && (
         <div class="mt-4 flex flex-wrap gap-2">
           {post.data.tags.map((tag) => (

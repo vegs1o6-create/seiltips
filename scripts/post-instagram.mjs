@@ -11,11 +11,13 @@
 //    den ferdigskrevne artikkelen (ingen nytt websøk).
 // 2. Genererer et fotorealistisk bilde med en Azure OpenAI-bildemodell i
 //    gpt-image-serien (deployet på samme ressurs som tekstmodellen, f.eks.
-//    gpt-image-2.5-sunburst), skriver det til public/instagram/<slug>.png, og
-//    committer/pusher det, slik at det får en offentlig URL
-//    (raw.githubusercontent.com) Instagram kan hente bildet fra – uten å
-//    vente på at Cloudflare skal bygge/deploye nettsiden først. Krever at
-//    repoet er offentlig.
+//    gpt-image-2.5-sunburst), skriver det til public/instagram/<slug>.png,
+//    setter "image"-feltet i artikkelens frontmatter til denne stien (slik at
+//    samme bilde vises som artikkelbilde på nettsiden, se ArtikkelCard.astro
+//    og [...slug].astro), og committer/pusher begge filene, slik at bildet
+//    får en offentlig URL (raw.githubusercontent.com) Instagram kan hente
+//    det fra – uten å vente på at Cloudflare skal bygge/deploye nettsiden
+//    først. Krever at repoet er offentlig.
 // 3. Publiserer et bilde-innlegg på Instagram via Instagram API with
 //    Instagram Login: opprett media-container -> vent til den er ferdig
 //    prosessert -> publiser.
@@ -249,23 +251,47 @@ function git(args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim();
 }
 
-function hasChanges(filePath) {
-  return git(['status', '--porcelain', '--', filePath]).length > 0;
+function hasChanges(paths) {
+  return git(['status', '--porcelain', '--', ...paths]).length > 0;
 }
 
-// Committer og pusher bildet slik at det får en offentlig URL
-// (raw.githubusercontent.com) med én gang – uten å vente på at Cloudflare
-// skal bygge og deploye nettsiden, som Instagram sitt Graph API ellers ville
-// måttet vente på for å kunne hente bildet.
-function commitAndPushImage(imagePath, title) {
-  git(['add', imagePath]);
-  if (!hasChanges(imagePath)) {
-    console.log(`${imagePath} var uendret, committer ikke på nytt.`);
+// Committer og pusher bildet (og evt. artikkelfilen, se setFrontmatterImage())
+// slik at bildet får en offentlig URL (raw.githubusercontent.com) med én
+// gang – uten å vente på at Cloudflare skal bygge og deploye nettsiden, som
+// Instagram sitt Graph API ellers ville måttet vente på for å kunne hente
+// bildet.
+function commitAndPushChanges(paths, title) {
+  for (const p of paths) git(['add', p]);
+  if (!hasChanges(paths)) {
+    console.log(`${paths.join(', ')} var uendret, committer ikke på nytt.`);
     return git(['rev-parse', 'HEAD']);
   }
   git(['commit', '-m', `Legg til Instagram-bilde for: ${title}`]);
   git(['push']);
   return git(['rev-parse', 'HEAD']);
+}
+
+// Setter (eller oppdaterer) "image"-feltet i artikkelens frontmatter til den
+// offentlige URL-stien til Instagram-bildet (f.eks. "/instagram/<slug>.png"),
+// slik at det samme AI-genererte bildet kan gjenbrukes som artikkelbilde på
+// nettsiden (se ArtikkelCard.astro og [...slug].astro). Feltet er allerede
+// definert som valgfritt i src/content.config.ts.
+function setFrontmatterImage(raw, imageUrlPath) {
+  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) throw new Error('Fant ikke gyldig frontmatter for å sette "image"-feltet.');
+  const [, frontmatter, body] = match;
+  const imageLine = `image: "${imageUrlPath}"`;
+
+  let newFrontmatter;
+  if (/^image:\s*.*$/m.test(frontmatter)) {
+    newFrontmatter = frontmatter.replace(/^image:\s*.*$/m, imageLine);
+  } else if (/^pubDate:\s*.*$/m.test(frontmatter)) {
+    newFrontmatter = frontmatter.replace(/^(pubDate:\s*.*)$/m, `$1\n${imageLine}`);
+  } else {
+    newFrontmatter = `${frontmatter}\n${imageLine}`;
+  }
+
+  return `---\n${newFrontmatter}\n---\n${body}`;
 }
 
 // Bruker "Instagram API with Instagram Login" (graph.instagram.com), ikke den
@@ -334,7 +360,18 @@ async function processArticle(filePath) {
   await writeFile(imagePath, imageBytes);
   console.log(`Skrev ${imagePath} (${imageBytes.length} bytes)`);
 
-  const sha = commitAndPushImage(imagePath, article.title);
+  // Gjenbruk samme bilde som artikkelbilde på nettsiden ved å sette
+  // "image"-feltet i artikkelens frontmatter.
+  const imageUrlPath = `/instagram/${slug}.png`;
+  const updatedRaw = setFrontmatterImage(raw, imageUrlPath);
+  const filesToCommit = [imagePath];
+  if (updatedRaw !== raw) {
+    await writeFile(filePath, updatedRaw);
+    console.log(`Satte "image: ${imageUrlPath}" i frontmatten til ${filePath}`);
+    filesToCommit.push(filePath);
+  }
+
+  const sha = commitAndPushChanges(filesToCommit, article.title);
   const repo = requireEnv('GITHUB_REPOSITORY');
   const imageUrl = `https://raw.githubusercontent.com/${repo}/${sha}/${imagePath}`;
   console.log(`Bilde tilgjengelig på: ${imageUrl}`);
