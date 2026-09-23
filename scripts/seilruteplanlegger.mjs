@@ -339,7 +339,7 @@ skriv ALDRI "reff", som er en fornorsking av engelske "reef".`;
 // Sikkerhetsnett i tillegg til instruksen i prompten: modellen har en tendens
 // til å skrive «reff» (fra engelske «reef») i stedet for det norske «rev».
 function fixReefTerm(text) {
-  return text.replace(/(?<!\p{L})([Rr])eff(?=\p{L}*)/gu, '$1ev');
+  return text.replace(/(?<!\p{L})([Rr])eff/gu, '$1ev');
 }
 
 function stripCodeFence(text) {
