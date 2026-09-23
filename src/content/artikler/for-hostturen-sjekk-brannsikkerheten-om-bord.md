@@ -2,6 +2,7 @@
 title: "Før høstturen: Sjekk brannsikkerheten om bord"
 description: "En rask brannsjekk før høstseilasen kan gi deg bedre nattesøvn. Se hva du bør kontrollere før du legger fra kai."
 pubDate: 2026-09-23T06:09:34.630Z
+image: "/instagram/for-hostturen-sjekk-brannsikkerheten-om-bord.png"
 tags: ["sikkerhet", "brann", "høstseilas"]
 sources: ["https://www.sdir.no/fritidsbat/vis-sjovett/forebygging-av-batbrann/", "https://www.dsb.no/sikkerhverdag/brann/slik-forebygger-du-brann-i-baten/", "https://www.dsb.no/sikkerhverdag/gass-og-brannfarlig-vaske/bruk-og-oppbevaring-av-sma-gassbeholdere/", "https://www.sdir.no/fritidsbat/regelverk-for-fritidsbat/lover-og-forskrifter-som-berorer-fritidsbater/"]
 ---
