@@ -14,9 +14,9 @@ Dag 4–5 er vinden svak, men bølgene øker ved Færder, Hvaler og Kosterøyene
 For en lett 35-foter med to personer bør etappen deles opp med fleksible havner underveis.
 
 ## Seilføring per dag
-- **22. september:** Full rigg, eventuelt ett reff ved passering av Færder dersom vinden øker. Sørlig vind 3.2–5.7 m/s og lave bølger gir gode forhold.
-- **23. september:** Ett reff på de mest utsatte strekkene. Ved Færder er vinden 8.5 m/s fra V, med kast 10.5 m/s og bølgehøyde 0.5 m. Regn og skiftende vind krever oppmerksomhet.
-- **24. september:** Ett reff, eventuelt dobbelt reff ved lokale vindøkninger. Nordlig til nordøstlig vind gir motvind eller kryss på kurs sydover. ⚠️ Mindre egnet for en lang, sammenhengende etappe.
+- **22. september:** Full rigg, eventuelt ett rev ved passering av Færder dersom vinden øker. Sørlig vind 3.2–5.7 m/s og lave bølger gir gode forhold.
+- **23. september:** Ett rev på de mest utsatte strekkene. Ved Færder er vinden 8.5 m/s fra V, med kast 10.5 m/s og bølgehøyde 0.5 m. Regn og skiftende vind krever oppmerksomhet.
+- **24. september:** Ett rev, eventuelt dobbelt rev ved lokale vindøkninger. Nordlig til nordøstlig vind gir motvind eller kryss på kurs sydover. ⚠️ Mindre egnet for en lang, sammenhengende etappe.
 - **25. september:** Full rigg i de letteste periodene, men beregn motorseiling. Vind 2.2–5.7 m/s og bølgehøyde 0.6–0.7 m gjør dette mer til en transportdag enn en effektiv seildag.
 - **26. september:** Motorbåt-forhold eller full rigg med motorstøtte. Vinden er bare 2.1–3.6 m/s, mens bølgehøyden ved Kosterøyene er 0.9 m. ⚠️ Lite gunstig dersom målet er ren seiling.
 

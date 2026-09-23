@@ -303,8 +303,8 @@ tags: ["ruteplanlegging", "vaervarsel"]
 <3–5 linjer: rask oversikt over perioden. Hva dominerer? Er det et klart seilvindu?>
 
 ## Seilføring per dag
-<For hver av de 5 dagene: anbefalt seilføring (full rigg / ett reff / dobbelt
-reff / stormseil / motorbåt-forhold). Marker dager som er uegnet for seilas
+<For hver av de 5 dagene: anbefalt seilføring (full rigg / ett rev / dobbelt
+rev / stormseil / motorbåt-forhold). Marker dager som er uegnet for seilas
 med ⚠️.>
 
 ## Ruteanbefalinger – segmentvis
@@ -331,7 +331,15 @@ usikre indikasjoner (dag 3–5).>
 spesifikk dag som peker seg ut?>
 
 Skriv på norsk bokmål, konsist og tydelig, med norske nautiske termer der det
-er naturlig (jf. persona og båtprofil i systemprompten).`;
+er naturlig (jf. persona og båtprofil i systemprompten). Det norske ordet for
+å minske seilarealet er "rev" (ett rev, dobbelt rev, ta rev, revet storseil) –
+skriv ALDRI "reff", som er en fornorsking av engelske "reef".`;
+}
+
+// Sikkerhetsnett i tillegg til instruksen i prompten: modellen har en tendens
+// til å skrive «reff» (fra engelske «reef») i stedet for det norske «rev».
+function fixReefTerm(text) {
+  return text.replace(/(?<!\p{L})([Rr])eff/gu, '$1ev');
 }
 
 function stripCodeFence(text) {
@@ -411,7 +419,7 @@ async function main() {
 
   console.log('Ber Azure AI Foundry-modellen analysere seilingsforholdene …');
   const raw = await callFoundry(persona, userPrompt);
-  const content = stripCodeFence(raw);
+  const content = fixReefTerm(stripCodeFence(raw));
   validateContent(content);
 
   const outPath = path.join(OUTPUT_DIR, OUTPUT_FILENAME);
