@@ -50,7 +50,7 @@ lengre, mer tidløse artikler om seiling, vær, sikkerhet og båtliv. Skjemaet
 artikkelen er researchet fra).
 
 En GitHub Action (`.github/workflows/daglig-seilartikkel.yml`) kjører hver dag rundt
-kl. 16:25 norsk tid og bruker `scripts/daglig-seilartikkel.mjs` (ren Node.js, samme
+kl. 08:00 norsk tid og bruker `scripts/daglig-seilartikkel.mjs` (ren Node.js, samme
 mønster som `seilruteplanlegger.mjs`) til å:
 
 1. Se på hva som allerede er publisert i `src/content/news/` og `src/content/artikler/`
