@@ -71,6 +71,102 @@ men en eventuell branch protection-regel på hovedgrenen kan likevel blokkere di
 fra Actions). Du kan også trigge kjøringen manuelt fra fanen **Actions** i GitHub
 (`workflow_dispatch`), noe som hopper over tidsvindu-sjekken.
 
+### Tema fra søkeordanalysen
+
+Hvis `keyword-suggestions.json` (fra [keyword-analysis-agent](#keyword-analysis-agent-ukentlige-nøkkelordforslag))
+finnes og har forslag med `"brukt": false`, velger artikkelagenten ikke tema fritt. Den
+skriver om forslaget med høyest prioritet (`høy` → `middels` → `lav`, eldste først ved
+lik prioritet) og bruker søkeordene fra forslaget i tittel og tekst. Når artikkelen er
+skrevet, settes `"brukt": true` (og `"artikkel": "<sti>"`) på forslaget, og
+`keyword-suggestions.json` committes i samme commit som artikkelen. Uten ubrukte
+forslag velger modellen tema fritt, som før.
+
+## Keyword analysis agent (ukentlige nøkkelordforslag)
+
+`.github/workflows/keyword-analysis.yml` kjører hver søndag kl. 19:00 UTC (og manuelt via
+`workflow_dispatch`). Den finner søkeord seiltips.no *nesten* rangerer godt på i Google,
+og foreslår nye artikkeltemaer for dem:
+
+1. `scripts/fetch_search_console.py` henter `query`, `impressions`, `clicks`, `ctr` og
+   `position` for de siste 90 dagene fra Google Search Console API og skriver dem til
+   `data/gsc-queries.json`. Filen er et mellomsteg og ligger i `.gitignore`.
+2. `scripts/generate_keyword_suggestions.py` plukker ut søkeord med over 50 impressions og
+   posisjon 8–20. Den fyller inn promptmalen `.github/prompts/keyword-analysis.md` med disse
+   søkeordene, titlene på alle artikler i `src/content/artikler/` og tidligere forslag.
+   Deretter ber den en modell i **Microsoft (Azure) AI Foundry** gruppere søkeordene i
+   3–5 klynger, fjerne det som allerede er dekket, og svare med forslag som ren JSON.
+3. Nye forslag legges til i `keyword-suggestions.json` i roten av repoet, og filen
+   committes med meldingen `Ukentlige nøkkelordforslag <dato>`, men bare hvis noe
+   faktisk endret seg. Eksisterende forslag slettes aldri, heller ikke de med
+   `"brukt": true`.
+
+Artikkelagenten ([over](#tema-fra-søkeordanalysen)) bruker forslagene. Hele løkken
+kjører i GitHub Actions, og all AI-generering (både her og i de andre agentene) går via
+Foundry. Denne agenten bruker det vanlige chat-completions-endepunktet
+(`/openai/v1/chat/completions`, samme som seilruteplanleggeren), uten websøk.
+
+Om svarene fra modellen:
+
+- Kallet prøves opptil 3 ganger hvis Foundry feiler eller svaret ikke er gyldig JSON.
+  Eventuelle ```json-fences strippes før parsing.
+- Tallene i `source_queries` hentes alltid fra de faktiske Search Console-dataene, ikke
+  fra modellen. Søkeord som ikke finnes i dataene forkastes.
+- Finnes ingen søkeord som oppfyller kriteriene (vanlig for en ny side med lite
+  trafikk), kalles ikke modellen, og ingenting committes.
+
+Formatet i `keyword-suggestions.json`:
+
+```json
+{
+  "generated_at": "2026-09-27T19:03:12+00:00",
+  "suggestions": [
+    {
+      "title": "Slik velger du riktig ankerkjetting",
+      "keywords": ["ankerkjetting", "anker seilbåt"],
+      "reasoning": "410 visninger totalt, snittposisjon 11 …",
+      "priority": "høy",
+      "brukt": false,
+      "source_queries": [{ "query": "ankerkjetting", "impressions": 320, "position": 11.2 }]
+    }
+  ]
+}
+```
+
+### Oppsett: Google Search Console
+
+1. Opprett (eller gjenbruk) et prosjekt i Google Cloud Console, og aktiver
+   **Google Search Console API**.
+2. Opprett en **service account** i prosjektet og lag en JSON-nøkkel for den.
+3. Gå til Search Console → eiendommen for seiltips.no → **Innstillinger → Brukere og
+   tillatelser**, og legg til service accountens e-postadresse
+   (`…@….iam.gserviceaccount.com`). Tillatelsen «Begrenset» er nok.
+4. Legg hele innholdet i JSON-nøkkelfilen inn som secret **`GSC_SA_KEY`**.
+5. Eiendommen antas å være domene-eiendommen `sc-domain:seiltips.no`. Er den en
+   URL-prefiks-eiendom, sett repo-**variabelen** (ikke secret) `GSC_SITE_URL` til
+   eiendomsnavnet slik det står i Search Console, f.eks. `https://seiltips.no/`. Ved
+   tilgangsfeil lister scriptet hvilke eiendommer service accounten faktisk har tilgang til.
+
+### Oppsett: Microsoft Foundry
+
+Agenten bruker de samme secretene som de andre Foundry-agentene:
+
+- `AZURE_FOUNDRY_ENDPOINT` – ressurs-/prosjekt-endepunktet (se seilruteplanleggeren).
+- `AZURE_FOUNDRY_API_KEY` – API-nøkkelen.
+- `AZURE_FOUNDRY_MODEL` – deployment-navnet til chat-modellen (samme secret som
+  seilruteplanleggeren).
+
+Valgfritt: secret `AZURE_FOUNDRY_KEYWORD_MODEL` gir søkeordanalysen et eget deployment,
+og `AZURE_FOUNDRY_KEYWORD_MAX_TOKENS` overstyrer `max_completion_tokens` (standard 16000).
+
+Lokal kjøring:
+
+```sh
+pip install -r requirements.txt
+GSC_SA_KEY="$(cat nøkkel.json)" python scripts/fetch_search_console.py --site-url sc-domain:seiltips.no
+AZURE_FOUNDRY_ENDPOINT=... AZURE_FOUNDRY_API_KEY=... AZURE_FOUNDRY_MODEL=... \
+  python scripts/generate_keyword_suggestions.py
+```
+
 ## Ukens bruktbåt-tips (automatisk generert)
 
 En egen GitHub Action (`.github/workflows/ukentlig-bruktbaat-tips.yml`) kjører hver
@@ -337,10 +433,16 @@ akkurat som i produksjon.
                     ukentlig-bruktbaat-tips.yml – ukentlig bruktbåt-tips (søndager)
                     instagram-post.yml – Instagram-innlegg for nye artikler
                     seilruteplanlegger.yml – automatisk seilruteplan (vær)
+                    keyword-analysis.yml – ukentlige nøkkelordforslag (Search Console)
 .github/prompts/     seilruteplanlegger-persona.md – navigatør-persona/båtprofil
+                    keyword-analysis.md – promptmal for søkeordanalysen
 scripts/             seilruteplanlegger.mjs – henter værdata + kaller Azure AI Foundry
                     ukentlig-bruktbaat-tips.mjs – søker Finn.no + kaller Azure AI Foundry
                     post-instagram.mjs – bildetekst + AI-bilde + publisering til Instagram
+                    fetch_search_console.py – henter søkeord-data fra Search Console
+                    generate_keyword_suggestions.py – nøkkelordforslag via Azure AI Foundry
+keyword-suggestions.json  Artikkelforslag fra søkeordanalysen (brukes av artikkelagenten)
+requirements.txt    Python-avhengigheter for keyword-analysis-agent
 src/
   components/        Header, Footer, ArtikkelCard, SeilvarselCard
   content/artikler/   Utdypende artikler (Markdown, ofte auto-generert)

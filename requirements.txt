@@ -1,0 +1,5 @@
+# Python-avhengigheter for keyword-analysis-agent
+# (scripts/fetch_search_console.py og scripts/generate_keyword_suggestions.py).
+google-api-python-client>=2.100,<3
+google-auth>=2.23,<3
+requests>=2.31,<3

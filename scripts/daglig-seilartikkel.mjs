@@ -7,6 +7,12 @@
 // Krever miljøvariablene AZURE_FOUNDRY_ENDPOINT og AZURE_FOUNDRY_API_KEY
 // (samme som scripts/seilruteplanlegger.mjs bruker). Modell-deploymentet kan
 // overstyres med AZURE_FOUNDRY_ARTIKKEL_MODEL (standard: gpt-5.6-luna).
+//
+// Hvis keyword-suggestions.json (fra keyword-analysis-agent, se
+// scripts/generate_keyword_suggestions.py) har forslag med "brukt": false,
+// skrives dagens artikkel om forslaget med høyest prioritet i stedet for et
+// fritt valgt tema, og forslaget markeres med "brukt": true. Workflowen
+// committer den oppdaterte filen sammen med artikkelen.
 
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -15,6 +21,8 @@ const NEWS_DIR = 'src/content/news';
 const ARTIKLER_DIR = 'src/content/artikler';
 const DEFAULT_MODEL = 'gpt-5.6-luna';
 const RECENT_DAYS = 30;
+const SUGGESTIONS_FILE = 'keyword-suggestions.json';
+const PRIORITY_ORDER = { høy: 0, middels: 1, lav: 2 };
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -70,6 +78,35 @@ function slugify(title) {
     .slice(0, 80);
 }
 
+async function loadSuggestions() {
+  let raw;
+  try {
+    raw = await readFile(SUGGESTIONS_FILE, 'utf8');
+  } catch {
+    return null; // keyword-analysis-agent har ikke kjørt ennå
+  }
+  try {
+    const data = JSON.parse(raw);
+    return Array.isArray(data?.suggestions) ? data : null;
+  } catch (err) {
+    // En ødelagt forslagsfil skal ikke stoppe den daglige artikkelen.
+    console.warn(`Kunne ikke lese ${SUGGESTIONS_FILE} (${err.message}) – velger tema fritt.`);
+    return null;
+  }
+}
+
+// Forslaget med høyest prioritet vinner; ved lik prioritet det eldste
+// (først i listen), slik at ingen forslag blir liggende for alltid.
+function pickSuggestion(data) {
+  const unused = (data?.suggestions ?? [])
+    .map((s, index) => ({ s, index }))
+    .filter(({ s }) => s && s.brukt === false && s.title);
+  unused.sort(
+    (a, b) => (PRIORITY_ORDER[a.s.priority] ?? 1) - (PRIORITY_ORDER[b.s.priority] ?? 1) || a.index - b.index
+  );
+  return unused[0] ?? null;
+}
+
 function stripCodeFence(text) {
   const trimmed = text.trim();
   const match = trimmed.match(/^```[a-zA-Z]*\n([\s\S]*)\n```$/);
@@ -87,7 +124,23 @@ function validateContent(content) {
   return frontmatter;
 }
 
-function buildPrompt(recentEntries, today, pubDate) {
+function suggestionSection(suggestion) {
+  const keywords = (suggestion.keywords ?? []).map((k) => `"${k}"`).join(', ');
+  return `## 2. Tema (bestemt av søkeordanalysen) – research med websøk
+Dagens tema er valgt ut fra søkeord Seiltips.no nesten rangerer godt på i Google.
+Skriv artikkelen om DETTE temaet (du kan justere vinklingen og tittelen, men ikke
+bytte tema):
+
+- Arbeidstittel: ${suggestion.title}
+- Viktigste søkeord: ${keywords}
+- Hvorfor: ${suggestion.reasoning ?? ''}
+
+Bruk det viktigste søkeordet naturlig i tittelen og description, og de andre
+søkeordene naturlig i teksten og mellomtitlene – uten å overdrive (ingen
+søkeord-stapping). Dagens dato er`;
+}
+
+function buildPrompt(recentEntries, today, pubDate, suggestion) {
   const recentList = recentEntries.length
     ? recentEntries.map((e) => `- ${e.title}${e.pubDate ? ` (${e.pubDate})` : ''}`).join('\n')
     : '(ingen tidligere artikler funnet)';
@@ -101,7 +154,11 @@ samme tema, og velg et klart vinklet undertema hvis hovedtemaet er brukt nylig:
 
 ${recentList}
 
-## 2. Velg tema og research med websøk
+${
+    suggestion
+      ? `${suggestionSection(suggestion)} ${today}.
+`
+      : `## 2. Velg tema og research med websøk
 Bruk websøket ditt til å research aktuell, sesongrelevant informasjon om seiling
 langs norskekysten. Dagens dato er ${today}. Velg ett konkret tema innenfor en av
 disse kategoriene (velg det som er mest aktuelt akkurat nå OG minst dekket fra før):
@@ -112,7 +169,8 @@ disse kategoriene (velg det som er mest aktuelt akkurat nå OG minst dekket fra 
 - Båtvedlikehold og utstyr: sesongklargjøring, vinteropplag, sjøsetting, motor
 - Bærekraft og miljø til sjøs
 - Norske seilingsdestinasjoner: skjærgårder, gjestehavner, seilingsleder
-
+`
+  }
 Gjør minst 3–5 websøk. Prioriter norske/skandinaviske kilder der det finnes, og
 kryssjekk faktapåstander i minst 2 kilder før du bruker dem. Noter ned de fulle
 URL-ene du faktisk hentet informasjon fra – disse skal inn i sources-feltet.
@@ -216,8 +274,15 @@ async function main() {
   });
 
   console.log(`Fant ${recentEntries.length} nylig publiserte sak(er) å unngå duplikat av.`);
+  const suggestionsData = await loadSuggestions();
+  const picked = pickSuggestion(suggestionsData);
+  if (picked) {
+    console.log(`Bruker forslag fra søkeordanalysen [${picked.s.priority}]: ${picked.s.title}`);
+  } else {
+    console.log('Ingen ubrukte forslag i keyword-suggestions.json – modellen velger tema fritt.');
+  }
   console.log('Ber Azure AI Foundry-modellen research og skrive dagens artikkel …');
-  const raw = await callFoundry(buildPrompt(recentEntries, today, nowIso()));
+  const raw = await callFoundry(buildPrompt(recentEntries, today, nowIso(), picked?.s));
   const content = stripCodeFence(raw);
   const frontmatter = validateContent(content);
 
@@ -229,6 +294,14 @@ async function main() {
   const outPath = path.join(ARTIKLER_DIR, `${slug}.md`);
   await writeFile(outPath, content.endsWith('\n') ? content : `${content}\n`, 'utf8');
   console.log(`Skrev ${outPath}`);
+
+  if (picked) {
+    // Markeres først etter at artikkelen er skrevet, slik at en feilet kjøring
+    // ikke "bruker opp" forslaget. Committes sammen med artikkelen.
+    suggestionsData.suggestions[picked.index] = { ...picked.s, brukt: true, artikkel: outPath };
+    await writeFile(SUGGESTIONS_FILE, `${JSON.stringify(suggestionsData, null, 2)}\n`, 'utf8');
+    console.log(`Markerte forslaget "${picked.s.title}" som brukt i ${SUGGESTIONS_FILE}.`);
+  }
 
   if (process.env.GITHUB_OUTPUT) {
     await writeFile(process.env.GITHUB_OUTPUT, `file=${outPath}\n`, { flag: 'a' });
