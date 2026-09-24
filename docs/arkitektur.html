@@ -1,0 +1,371 @@
+<meta charset="utf-8">
+<title>Seiltips.no arkitektur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f6f8f9;
+    --surface: #ffffff;
+    --ink: #13202b;
+    --muted: #5d6d79;
+    --line: #cbd5dc;
+    --accent: #1d6b87;
+    --accent-soft: #e3eff4;
+    --shadow: 0 10px 30px -12px rgba(19, 32, 43, .25);
+    --sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1419; --surface: #151d24; --ink: #e3eaef; --muted: #8e9fab;
+      --line: #2d3a44; --accent: #62b4d1; --accent-soft: #17303b;
+      --shadow: 0 10px 30px -12px rgba(0, 0, 0, .7);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1419; --surface: #151d24; --ink: #e3eaef; --muted: #8e9fab;
+    --line: #2d3a44; --accent: #62b4d1; --accent-soft: #17303b;
+    --shadow: 0 10px 30px -12px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 var(--sans);
+    padding: 0 20px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-block: 56px 64px; display: grid; gap: 40px; }
+
+  header { display: grid; gap: 10px; max-width: 62ch; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; font-weight: 700; letter-spacing: -.02em; text-wrap: balance; }
+  header p { margin: 0; color: var(--muted); }
+
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .diagram {
+    position: relative;
+    min-width: 980px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.25fr 1.15fr;
+    column-gap: 72px;
+    padding-block: 8px;
+  }
+  svg.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+
+  .col { display: flex; flex-direction: column; gap: 14px; }
+  .col-head {
+    font: 500 10.5px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px;
+  }
+  .stack { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: 14px; }
+  .stack.spread { justify-content: space-between; }
+
+  .node {
+    position: relative; z-index: 1;
+    display: grid; gap: 3px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: default;
+    transition: border-color .2s, box-shadow .2s, opacity .2s, transform .2s;
+    outline: none;
+  }
+  .node strong { font-weight: 600; font-size: 15px; line-height: 1.25; }
+  .node span { font: 400 11.5px/1.4 var(--mono); color: var(--muted); }
+  .node.hub { border-color: var(--ink); }
+  .node.hub strong { font-size: 17px; }
+  .node:hover, .node:focus-visible, .node.active {
+    border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px);
+  }
+  .node:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow); }
+  .diagram.focus .node:not(.lit) { opacity: .35; }
+
+  .edge { fill: none; stroke: var(--line); stroke-width: 1.25; transition: stroke .2s, opacity .2s; }
+  .flow { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 7; opacity: 0; transition: opacity .2s; }
+  .flow.always { opacity: .9; }
+  .dot { fill: var(--surface); stroke: var(--line); stroke-width: 1.25; transition: stroke .2s; }
+  .diagram.focus .edge:not(.lit) { opacity: .3; }
+  .edge.lit { stroke: var(--accent); }
+  .flow.lit { opacity: 1; }
+  .dot.lit { stroke: var(--accent); }
+  .edge-label { font: 400 10px var(--mono); fill: var(--muted); letter-spacing: .04em; }
+
+  @keyframes run { to { stroke-dashoffset: -20; } }
+  @keyframes runBack { to { stroke-dashoffset: 20; } }
+  .flow { animation: run 1.1s linear infinite; }
+  .flow.back { animation-name: runBack; }
+  @media (prefers-reduced-motion: reduce) { .flow { animation: none; } .node { transition: none; } }
+
+  .tip {
+    position: fixed; z-index: 10; max-width: 340px;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 14px 16px; font-size: 13.5px; line-height: 1.55;
+    pointer-events: none; opacity: 0; transform: translateY(4px);
+    transition: opacity .15s, transform .15s;
+  }
+  .tip.show { opacity: 1; transform: none; }
+  .tip h3 { margin: 0 0 2px; font-size: 15px; font-weight: 600; }
+  .tip .meta { font: 400 11px/1.4 var(--mono); color: var(--accent); margin-bottom: 8px; }
+  .tip p { margin: 0 0 8px; }
+  .tip ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
+  .tip code { font: 11.5px var(--mono); background: var(--accent-soft); padding: 1px 4px; border-radius: 3px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 13px; color: var(--muted); }
+  .legend div { display: flex; align-items: center; gap: 10px; }
+  .legend svg { flex: none; }
+  .hint-touch { display: none; }
+  @media (hover: none) { .hint-touch { display: inline; } .hint-mouse { display: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Systemkart · september 2026</div>
+    <h1>Slik henger Seiltips.no sammen</h1>
+    <p>GitHub er midtpunktet. Claude Code utvikler siden mot repoet, fem agenter i GitHub Actions skriver innhold ved hjelp av modeller i Azure AI Foundry, og alt som havner på hovedgrenen publiseres automatisk. <span class="hint-mouse">Hold musen over en boks for detaljer.</span><span class="hint-touch">Trykk på en boks for detaljer.</span></p>
+  </header>
+
+  <div class="scroll">
+    <div class="diagram" id="diagram">
+      <svg class="edges" id="edges" aria-hidden="true"></svg>
+
+      <div class="col">
+        <div class="col-head">Nettsted og utvikling</div>
+        <div class="stack spread">
+          <div class="node hub" tabindex="0" data-id="site"><strong>Seiltips.no</strong><span>Astro · Cloudflare Workers</span></div>
+          <div class="node" tabindex="0" data-id="claude"><strong>Claude Code</strong><span>claude/*-grener · PR</span></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head">Kildekode</div>
+        <div class="stack">
+          <div class="node hub" tabindex="0" data-id="github"><strong>GitHub</strong><span>vegs1o6-create/seiltips</span></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head">Agenter · GitHub Actions</div>
+        <div class="stack">
+          <div class="node" tabindex="0" data-id="keyword"><strong>Søkeordanalyse</strong><span>søndag kveld</span></div>
+          <div class="node" tabindex="0" data-id="daglig"><strong>Daglig seilartikkel</strong><span>hver dag ~08:00</span></div>
+          <div class="node" tabindex="0" data-id="bruktbaat"><strong>Ukens bruktbåt-tips</strong><span>søndag ~18:00</span></div>
+          <div class="node" tabindex="0" data-id="instagram"><strong>Instagram-innlegg</strong><span>etter hver ny artikkel</span></div>
+          <div class="node" tabindex="0" data-id="rute"><strong>Seilruteplanlegger</strong><span>hver 3. dag ~07:00</span></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head">Modeller · Azure AI Foundry</div>
+        <div class="stack">
+          <div class="node" tabindex="0" data-id="luna"><strong>gpt-5.6-luna</strong><span>tekst · websøk</span></div>
+          <div class="node" tabindex="0" data-id="image"><strong>gpt-image-2.5-sunburst</strong><span>bildegenerering</span></div>
+          <div class="node" tabindex="0" data-id="chat"><strong>GPT-chatmodell</strong><span>AZURE_FOUNDRY_MODEL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div><svg width="36" height="8"><line x1="0" y1="4" x2="36" y2="4" stroke="var(--line)" stroke-width="1.25"/></svg>Kobling</div>
+    <div><svg width="36" height="8"><line x1="0" y1="4" x2="36" y2="4" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 7"/></svg>Data i bevegelse</div>
+    <div><svg width="36" height="8"><line x1="0" y1="4" x2="36" y2="4" stroke="var(--line)" stroke-width="1.25" stroke-dasharray="2 4"/></svg>Leverer data videre</div>
+  </div>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script>
+(() => {
+  const INFO = {
+    site: {
+      t: 'Seiltips.no', m: 'Astro + Tailwind · Cloudflare Worker',
+      b: '<p>Værvarsel, seiltips og artikler for norske seilere. Cloudflare bygger siden med <code>npm run build</code> og deployer den hver gang hovedgrenen på GitHub endres.</p><ul><li>Sider: Forside, Artikler, Vær, Seilruteplan, Seiling 1-2-3, Båter</li><li><code>/api/weather</code> henter MET Norway i workeren, med 10 min cache</li><li>Live vindkart fra Windy på forsiden</li></ul>'
+    },
+    github: {
+      t: 'GitHub', m: 'vegs1o6-create/seiltips',
+      b: '<p>Her ligger alt: kode, artikler som Markdown i <code>src/content/</code>, prompter og workflows.</p><ul><li>Hovedgrenen er det som publiseres</li><li>Agentene kjører som GitHub Actions og committer resultatet direkte</li><li>Nøkler til Foundry, Search Console og Instagram ligger som Actions-secrets</li></ul>'
+    },
+    claude: {
+      t: 'Claude Code', m: 'utvikler · frem og tilbake mot GitHub',
+      b: '<p>Bygger og vedlikeholder siden og agentene. Henter repoet, gjør endringer på en egen <code>claude/*</code>-gren, pusher og åpner en pull request.</p><ul><li>Nye sider, komponenter og agenter</li><li>Feilretting og justering av prompter</li><li>Endringen publiseres når PR-en flettes inn</li></ul>'
+    },
+    keyword: {
+      t: 'Søkeordanalyse', m: 'keyword-analysis.yml · søndag 19:00 UTC',
+      b: '<p>Finner søkeord siden nesten rangerer godt på i Google, og foreslår nye artikkeltemaer.</p><ul><li>Henter 90 dager med data fra Google Search Console</li><li>Plukker søkeord med over 50 visninger og posisjon 8–20</li><li>Modellen grupperer dem i 3–5 temaforslag</li><li>Lagrer i <code>keyword-suggestions.json</code>, som artikkelagenten bruker</li></ul>'
+    },
+    daglig: {
+      t: 'Daglig seilartikkel', m: 'daglig-seilartikkel.mjs · ~08:00',
+      b: '<p>Researcher et sesongaktuelt tema med websøk og skriver en artikkel med kildeliste.</p><ul><li>Unngår temaer fra de siste 30 dagene</li><li>Tar først ubrukte forslag fra søkeordanalysen</li><li>Skriver til <code>src/content/artikler/</code> og committer til hovedgrenen</li></ul>'
+    },
+    bruktbaat: {
+      t: 'Ukens bruktbåt-tips', m: 'ukentlig-bruktbaat-tips.mjs · søndag ~18:00',
+      b: '<p>Leter etter seilbåter til salgs på Finn.no, åpner og leser annonsene, og velger de tre som gir mest båt for pengene.</p><ul><li>Websøk i agentisk modus, reasoning effort «medium»</li><li>Artikkel på 400–600 ord med lenke til hver annonse</li><li>Prøver igjen opptil 4 ganger ved kvotefeil (429)</li></ul>'
+    },
+    instagram: {
+      t: 'Instagram-innlegg', m: 'post-instagram.mjs · workflow_run',
+      b: '<p>Starter automatisk når en av artikkelagentene er ferdig, eller når en artikkel pushes manuelt.</p><ul><li>Tekstmodellen skriver norsk bildetekst, hashtags og en bildeprompt</li><li>Bildemodellen lager et fotorealistisk bilde til <code>public/instagram/</code></li><li>Publiserer via Instagram API with Instagram Login</li></ul>'
+    },
+    rute: {
+      t: 'Seilruteplanlegger', m: 'seilruteplanlegger.mjs · hver 3. dag',
+      b: '<p>Lager en seilruteplan for Oslo – Drøbak – Færder – Hvaler – Koster de neste fem dagene.</p><ul><li>Vind, kast, bølger og nedbør fra MET Norway, tidevann fra Kartverket</li><li>Tallene regnes ut uten KI; modellen skriver seilføring, rute og timing</li><li>Navigatør-persona for en 35-fots sloop med 2 i besetning</li><li>Resultat i <code>src/content/seilvarsel/</code></li></ul>'
+    },
+    luna: {
+      t: 'gpt-5.6-luna', m: 'Responses API · websøk',
+      b: '<p>Hovedmodellen for tekst. Kalles via <code>/openai/v1/responses</code> med websøk slått på.</p><ul><li>Brukes av artikkel-, bruktbåt- og Instagram-agenten</li><li>Kan overstyres per agent, f.eks. <code>AZURE_FOUNDRY_ARTIKKEL_MODEL</code></li></ul>'
+    },
+    image: {
+      t: 'gpt-image-2.5-sunburst', m: 'images/generations · 1024×1024',
+      b: '<p>Bildemodell i gpt-image-serien, deployet på samme Foundry-ressurs som tekstmodellen.</p><ul><li>Lager Instagram-bildet ut fra prompten tekstmodellen skrev</li><li>Deployment settes i <code>AZURE_FOUNDRY_IMAGE_MODEL</code></li></ul>'
+    },
+    chat: {
+      t: 'GPT-chatmodell', m: 'chat/completions · uten websøk',
+      b: '<p>Deploymentet som står i secreten <code>AZURE_FOUNDRY_MODEL</code>. Får ferdige tall og data, og trenger derfor ikke søke på nettet.</p><ul><li>Brukes av seilruteplanleggeren og søkeordanalysen</li><li><code>max_completion_tokens</code> 16 000, siden reasoning-tokens teller med</li><li>Søkeordanalysen kan få eget deployment med <code>AZURE_FOUNDRY_KEYWORD_MODEL</code></li></ul>'
+    }
+  };
+
+  // [fra, til, type, etikett]
+  const EDGES = [
+    ['github', 'site', 'deploy', 'deploy'],
+    ['claude', 'github', 'fwd', 'push · PR'],
+    ['github', 'claude', 'back', 'pull'],
+    ['github', 'keyword', 'normal'],
+    ['github', 'daglig', 'normal'],
+    ['github', 'bruktbaat', 'normal'],
+    ['github', 'instagram', 'normal'],
+    ['github', 'rute', 'normal'],
+    ['keyword', 'daglig', 'feed'],
+    ['keyword', 'chat', 'normal'],
+    ['daglig', 'luna', 'normal'],
+    ['bruktbaat', 'luna', 'normal'],
+    ['instagram', 'luna', 'normal'],
+    ['instagram', 'image', 'normal'],
+    ['rute', 'chat', 'normal']
+  ];
+
+  const diagram = document.getElementById('diagram');
+  const svg = document.getElementById('edges');
+  const tip = document.getElementById('tip');
+  const nodes = {};
+  diagram.querySelectorAll('.node').forEach(n => { nodes[n.dataset.id] = n; });
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  let drawn = [];
+
+  function draw() {
+    svg.innerHTML = '';
+    drawn = [];
+    const base = diagram.getBoundingClientRect();
+    const box = id => {
+      const r = nodes[id].getBoundingClientRect();
+      return { l: r.left - base.left, r: r.right - base.left, t: r.top - base.top, b: r.bottom - base.top, cx: r.left - base.left + r.width / 2, cy: r.top - base.top + r.height / 2 };
+    };
+
+    EDGES.forEach(([a, b, type, label]) => {
+      const A = box(a), B = box(b);
+      let d, x1, y1, x2, y2, lx, ly, anchor = 'middle';
+
+      if (type === 'feed') {
+        // vertikal kobling mellom to agenter i samme kolonne, tegnet som en bue på høyre side
+        x1 = A.r; y1 = A.cy; x2 = B.r; y2 = B.cy;
+        const bulge = 26;
+        d = `M${x1},${y1} C${x1 + bulge},${y1} ${x2 + bulge},${y2} ${x2},${y2}`;
+      } else if (type === 'fwd' || type === 'back') {
+        // Claude Code <-> GitHub: to parallelle kurver
+        const C = type === 'fwd' ? A : B, G = type === 'fwd' ? B : A;
+        const off = type === 'fwd' ? -8 : 8;
+        const sx = C.r, sy = C.cy + off, ex = G.l, ey = G.cy + off;
+        const mx = (sx + ex) / 2 + (type === 'fwd' ? -8 : 8);
+        d = type === 'fwd'
+          ? `M${sx},${sy} C${mx},${sy} ${mx},${ey} ${ex},${ey}`
+          : `M${ex},${ey} C${mx},${ey} ${mx},${sy} ${sx},${sy}`;
+        x1 = sx; y1 = sy; x2 = ex; y2 = ey;
+        lx = mx + (type === 'fwd' ? -12 : 12); ly = (sy + ey) / 2; anchor = type === 'fwd' ? 'end' : 'start';
+      } else {
+        const leftToRight = A.cx < B.cx;
+        x1 = leftToRight ? A.r : A.l; y1 = A.cy;
+        x2 = leftToRight ? B.l : B.r; y2 = B.cy;
+        const mx = (x1 + x2) / 2;
+        d = `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+        lx = mx; ly = (y1 + y2) / 2 - 8;
+      }
+
+      const g = mk('g', {});
+      const path = mk('path', { d, class: 'edge' });
+      if (type === 'feed') path.setAttribute('stroke-dasharray', '2 4');
+      const flow = mk('path', { d, class: 'flow' + (type === 'fwd' || type === 'back' ? ' always' : '') });
+      const d1 = mk('circle', { cx: x1, cy: y1, r: 2.5, class: 'dot' });
+      const d2 = mk('circle', { cx: x2, cy: y2, r: 2.5, class: 'dot' });
+      g.append(path, flow, d1, d2);
+      if (label && lx !== undefined) {
+        const tx = mk('text', { x: lx, y: ly, 'text-anchor': anchor, class: 'edge-label' });
+        tx.textContent = label;
+        g.append(tx);
+      }
+      svg.append(g);
+      drawn.push({ a, b, els: [path, flow, d1, d2] });
+    });
+  }
+
+  function focusNode(id) {
+    diagram.classList.add('focus');
+    const lit = new Set([id]);
+    drawn.forEach(e => {
+      const on = e.a === id || e.b === id;
+      if (on) { lit.add(e.a); lit.add(e.b); }
+      e.els.forEach(el => el.classList.toggle('lit', on));
+    });
+    Object.entries(nodes).forEach(([k, n]) => n.classList.toggle('lit', lit.has(k)));
+  }
+  function clearFocus() {
+    diagram.classList.remove('focus');
+    drawn.forEach(e => e.els.forEach(el => el.classList.remove('lit')));
+    Object.values(nodes).forEach(n => n.classList.remove('lit', 'active'));
+  }
+
+  function showTip(id, el) {
+    const i = INFO[id];
+    tip.innerHTML = `<h3>${i.t}</h3><div class="meta">${i.m}</div>${i.b}`;
+    tip.classList.add('show');
+    const r = el.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    let x = r.right + 14, y = r.top;
+    if (x + tw > vw - 12) x = r.left - tw - 14;
+    if (x < 12) { x = Math.max(12, Math.min(vw - tw - 12, r.left)); y = r.bottom + 10; }
+    if (y + th > vh - 12) y = Math.max(12, vh - th - 12);
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+  function hideTip() { tip.classList.remove('show'); }
+
+  let pinned = null;
+  Object.entries(nodes).forEach(([id, el]) => {
+    el.addEventListener('mouseenter', () => { if (!pinned) { focusNode(id); showTip(id, el); } });
+    el.addEventListener('mouseleave', () => { if (!pinned) { clearFocus(); hideTip(); } });
+    el.addEventListener('focus', () => { focusNode(id); showTip(id, el); });
+    el.addEventListener('blur', () => { if (pinned !== id) { clearFocus(); hideTip(); } });
+    el.addEventListener('click', ev => {
+      ev.stopPropagation();
+      if (pinned === id) { pinned = null; clearFocus(); hideTip(); return; }
+      pinned = id; clearFocus(); el.classList.add('active'); focusNode(id); showTip(id, el);
+    });
+  });
+  document.addEventListener('click', () => { if (pinned) { pinned = null; clearFocus(); hideTip(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { pinned = null; clearFocus(); hideTip(); } });
+  window.addEventListener('scroll', () => { if (!pinned) hideTip(); }, { passive: true });
+  document.querySelector('.scroll').addEventListener('scroll', () => { pinned = null; clearFocus(); hideTip(); }, { passive: true });
+
+  draw();
+  new ResizeObserver(draw).observe(diagram);
+  if (document.fonts) document.fonts.ready.then(draw);
+})();
+</script>
