@@ -102,16 +102,16 @@
   .flow.back { animation-name: runBack; }
   @media (prefers-reduced-motion: reduce) { .flow { animation: none; } .node { transition: none; } }
 
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 48px; align-items: end; }
+  @media (max-width: 820px) { .top { grid-template-columns: minmax(0, 1fr); } }
   .tip {
-    position: fixed; z-index: 10; max-width: 340px;
     background: var(--surface); color: var(--ink);
     border: 1px solid var(--line); border-radius: 8px;
-    box-shadow: var(--shadow);
-    padding: 14px 16px; font-size: 13.5px; line-height: 1.55;
-    pointer-events: none; opacity: 0; transform: translateY(4px);
-    transition: opacity .15s, transform .15s;
+    padding: 16px 18px; font-size: 13.5px; line-height: 1.55;
+    transition: border-color .2s;
   }
-  .tip.show { opacity: 1; transform: none; }
+  .tip.show { border-color: var(--accent); }
+  .tip .empty { margin: 0; color: var(--muted); }
   .tip h3 { margin: 0 0 2px; font-size: 15px; font-weight: 600; }
   .tip .meta { font: 400 11px/1.4 var(--mono); color: var(--accent); margin-bottom: 8px; }
   .tip p { margin: 0 0 8px; }
@@ -126,11 +126,14 @@
 </style>
 
 <div class="wrap">
+  <div class="top">
   <header>
     <div class="eyebrow">Systemkart · september 2026</div>
     <h1>Slik henger Seiltips.no sammen</h1>
-    <p>GitHub er midtpunktet. Claude Code utvikler siden mot repoet, fem agenter i GitHub Actions skriver innhold ved hjelp av modeller i Azure AI Foundry, og alt som havner på hovedgrenen publiseres automatisk. <span class="hint-mouse">Hold musen over en boks for detaljer.</span><span class="hint-touch">Trykk på en boks for detaljer.</span></p>
+    <p>GitHub er midtpunktet. Claude Code utvikler siden mot repoet, fem agenter i GitHub Actions skriver innhold ved hjelp av modeller i Azure AI Foundry, og alt som havner på hovedgrenen publiseres automatisk.</p>
   </header>
+  <div class="tip" id="tip" aria-live="polite"></div>
+  </div>
 
   <div class="scroll">
     <div class="diagram" id="diagram">
@@ -180,7 +183,6 @@
   </div>
 </div>
 
-<div class="tip" id="tip" role="tooltip"></div>
 
 <script>
 (() => {
@@ -331,41 +333,43 @@
     Object.values(nodes).forEach(n => n.classList.remove('lit', 'active'));
   }
 
-  function showTip(id, el) {
-    const i = INFO[id];
-    tip.innerHTML = `<h3>${i.t}</h3><div class="meta">${i.m}</div>${i.b}`;
-    tip.classList.add('show');
-    const r = el.getBoundingClientRect();
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    const vw = document.documentElement.clientWidth, vh = window.innerHeight;
-    let x = r.right + 14, y = r.top;
-    if (x + tw > vw - 12) x = r.left - tw - 14;
-    if (x < 12) { x = Math.max(12, Math.min(vw - tw - 12, r.left)); y = r.bottom + 10; }
-    if (y + th > vh - 12) y = Math.max(12, vh - th - 12);
-    tip.style.left = x + 'px';
-    tip.style.top = y + 'px';
+  const EMPTY = '<p class="empty"><span class="hint-mouse">Hold musen over en boks i kartet for å se hva den gjør.</span><span class="hint-touch">Trykk på en boks i kartet for å se hva den gjør.</span></p>';
+  const render = id => { const i = INFO[id]; return `<h3>${i.t}</h3><div class="meta">${i.m}</div>${i.b}`; };
+
+  // Reserver plass til den lengste teksten, så siden ikke hopper når panelet bytter innhold.
+  function reserve() {
+    tip.style.minHeight = '';
+    let max = 0;
+    Object.keys(INFO).forEach(id => { tip.innerHTML = render(id); max = Math.max(max, tip.offsetHeight); });
+    tip.style.minHeight = max + 'px';
+    tip.innerHTML = current ? render(current) : EMPTY;
   }
-  function hideTip() { tip.classList.remove('show'); }
+
+  let current = null;
+  function showTip(id) { current = id; tip.innerHTML = render(id); tip.classList.add('show'); }
+  function hideTip() { current = null; tip.innerHTML = EMPTY; tip.classList.remove('show'); }
 
   let pinned = null;
   Object.entries(nodes).forEach(([id, el]) => {
-    el.addEventListener('mouseenter', () => { if (!pinned) { focusNode(id); showTip(id, el); } });
+    el.addEventListener('mouseenter', () => { if (!pinned) { focusNode(id); showTip(id); } });
     el.addEventListener('mouseleave', () => { if (!pinned) { clearFocus(); hideTip(); } });
-    el.addEventListener('focus', () => { focusNode(id); showTip(id, el); });
+    el.addEventListener('focus', () => { focusNode(id); showTip(id); });
     el.addEventListener('blur', () => { if (pinned !== id) { clearFocus(); hideTip(); } });
     el.addEventListener('click', ev => {
       ev.stopPropagation();
       if (pinned === id) { pinned = null; clearFocus(); hideTip(); return; }
-      pinned = id; clearFocus(); el.classList.add('active'); focusNode(id); showTip(id, el);
+      pinned = id; clearFocus(); el.classList.add('active'); focusNode(id); showTip(id);
     });
   });
   document.addEventListener('click', () => { if (pinned) { pinned = null; clearFocus(); hideTip(); } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { pinned = null; clearFocus(); hideTip(); } });
-  window.addEventListener('scroll', () => { if (!pinned) hideTip(); }, { passive: true });
-  document.querySelector('.scroll').addEventListener('scroll', () => { pinned = null; clearFocus(); hideTip(); }, { passive: true });
 
+  hideTip();
+  reserve();
   draw();
   new ResizeObserver(draw).observe(diagram);
-  if (document.fonts) document.fonts.ready.then(draw);
+  let lastW = tip.offsetWidth;
+  new ResizeObserver(() => { if (tip.offsetWidth !== lastW) { lastW = tip.offsetWidth; reserve(); } }).observe(tip);
+  if (document.fonts) document.fonts.ready.then(() => { reserve(); draw(); });
 })();
 </script>
