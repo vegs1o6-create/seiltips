@@ -87,22 +87,22 @@ const ctaButtons = [
     )
   }
 
-  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:pb-10">
     <div class="grid grid-cols-1 gap-10 lg:grid-cols-2">
       <div class="min-w-0">
-        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:h-full lg:auto-rows-fr lg:gap-4">
           {
             ctaButtons.map((cta) => (
               <a
                 href={cta.href}
                 class:list={[
-                  'flex min-w-0 flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center font-semibold text-white shadow-soft transition-transform hover:-translate-y-1',
+                  'flex min-w-0 flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center font-semibold text-white shadow-soft transition-transform hover:-translate-y-1 lg:justify-center lg:gap-2 lg:px-6 lg:py-8',
                   cta.style,
                 ]}
               >
-                <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain sm:h-14 sm:w-14" aria-hidden="true" />
-                <span class="font-display text-sm">{cta.title}</span>
-                <span class="text-xs font-normal opacity-90">{cta.description}</span>
+                <img src={cta.iconSrc} alt="" class="h-10 w-10 object-contain sm:h-14 sm:w-14 lg:h-20 lg:w-20" aria-hidden="true" />
+                <span class="font-display text-sm lg:text-lg">{cta.title}</span>
+                <span class="text-xs font-normal opacity-90 lg:text-sm">{cta.description}</span>
               </a>
             ))
           }
