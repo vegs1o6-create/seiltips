@@ -13,6 +13,14 @@ name: Keyword analysis agent
 on:
   schedule:
     - cron: '0 19 * * 0' # søndag 19:00 UTC
+  # MIDLERTIDIG for testing før merge – fjernes før branchen merges.
+  push:
+    branches: [claude/loving-bohr-ityqs5]
+    paths:
+      - '.github/workflows/keyword-analysis.yml'
+      - 'scripts/fetch_search_console.py'
+      - 'scripts/generate_keyword_suggestions.py'
+      - '.github/prompts/keyword-analysis.md'
   workflow_dispatch:
     inputs:
       dager:
