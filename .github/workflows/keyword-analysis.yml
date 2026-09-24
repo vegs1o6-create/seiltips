@@ -13,15 +13,6 @@ name: Keyword analysis agent
 on:
   schedule:
     - cron: '0 19 * * 0' # søndag 19:00 UTC
-  # MIDLERTIDIG for testing før merge – fjernes før branchen merges.
-  push:
-    branches: [claude/loving-bohr-ityqs5]
-    paths:
-      - '.github/workflows/keyword-analysis.yml'
-      - 'scripts/fetch_search_console.py'
-      - 'scripts/generate_keyword_suggestions.py'
-      - '.github/prompts/keyword-analysis.md'
-      - '.github/test-data/**'
   workflow_dispatch:
     inputs:
       dager:
@@ -82,22 +73,6 @@ jobs:
           # Valgfri: egen deployment for søkeordanalysen (ellers brukes AZURE_FOUNDRY_MODEL).
           AZURE_FOUNDRY_KEYWORD_MODEL: ${{ secrets.AZURE_FOUNDRY_KEYWORD_MODEL }}
         run: python scripts/generate_keyword_suggestions.py
-
-      # MIDLERTIDIG for testing før merge: kjører Foundry-kallet mot syntetiske
-      # GSC-data (Search Console har ingen data ennå) og skriver til en testfil
-      # som ikke committes.
-      - name: TEST – Foundry-kall med syntetiske data
-        if: github.event_name == 'push'
-        env:
-          AZURE_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
-          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
-          AZURE_FOUNDRY_MODEL: ${{ secrets.AZURE_FOUNDRY_MODEL }}
-          AZURE_FOUNDRY_KEYWORD_MODEL: ${{ secrets.AZURE_FOUNDRY_KEYWORD_MODEL }}
-        run: |
-          python scripts/generate_keyword_suggestions.py \
-            --gsc-data .github/test-data/gsc-queries-sample.json \
-            --output /tmp/test-keyword-suggestions.json
-          cat /tmp/test-keyword-suggestions.json
 
       - name: Commit og push forslagene
         run: |
