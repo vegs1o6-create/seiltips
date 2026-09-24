@@ -2,6 +2,7 @@
 title: "Høstseilas med AIS: Slik unngår du å stole blindt på skjermen"
 description: "AIS gir bedre oversikt i høstmørket, men bare når du vet hva systemet viser – og hva det ikke viser."
 pubDate: 2026-09-24T06:09:57.555Z
+image: "/instagram/hostseilas-med-ais-slik-unngar-du-a-stole-blindt-pa-skjermen.png"
 tags: ["AIS", "sikkerhet til sjøs"]
 sources: ["https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/", "https://www.kystverket.no/sjotransport-og-havn/ais/", "https://www.imo.org/en/ourwork/safety/pages/ais.aspx", "https://www.kartverket.no/til-sjos"]
 ---
