@@ -74,6 +74,11 @@ jobs:
         if: steps.tidssjekk.outputs.proceed == 'true'
         run: |
           git add "${{ steps.generer.outputs.file }}"
+          # Hvis artikkelen bygget på et forslag fra keyword-analysis-agent, er
+          # forslaget markert med "brukt": true – det committes i samme commit.
+          if [ -f keyword-suggestions.json ]; then
+            git add keyword-suggestions.json
+          fi
           tittel=$(grep -m1 '^title:' "${{ steps.generer.outputs.file }}" | sed -E 's/^title:\s*"?([^"]+)"?\s*$/\1/')
           git commit -m "Legg til artikkel: ${tittel}"
           git push

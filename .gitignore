@@ -22,3 +22,7 @@ yarn-error.log*
 
 # OS
 .DS_Store
+
+# keyword-analysis-agent: rå Search Console-data (mellomsteg, committes ikke)
+data/gsc-queries.json
+__pycache__/

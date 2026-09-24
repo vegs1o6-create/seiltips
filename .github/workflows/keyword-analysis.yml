@@ -1,0 +1,88 @@
+name: Keyword analysis agent
+
+# Kjører hver søndag kl. 19:00 UTC. Henter søkeord-data fra Google Search
+# Console (scripts/fetch_search_console.py), ber en modell i Microsoft (Azure)
+# AI Foundry finne søkeord seiltips.no nesten rangerer godt på og foreslå nye
+# artikkeltemaer (scripts/generate_keyword_suggestions.py), og committer
+# oppdatert keyword-suggestions.json. "Daglig seilartikkel" plukker deretter
+# forslagene med "brukt": false før den velger tema selv.
+#
+# I motsetning til de andre workflowene trengs ikke et vaktbikkje-steg for
+# sommertid: kjøretidspunktet er ment å være fast i UTC, og en forsinket
+# schedule-kjøring gjør ingen skade (den legger bare til forslag).
+on:
+  schedule:
+    - cron: '0 19 * * 0' # søndag 19:00 UTC
+  workflow_dispatch:
+    inputs:
+      dager:
+        description: 'Antall dager med Search Console-data å analysere'
+        required: false
+        default: '90'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: keyword-analysis
+  cancel-in-progress: false
+
+jobs:
+  analyser-sokeord:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      # Eiendommen slik den heter i Search Console. Overstyr med repo-variabelen
+      # GSC_SITE_URL (Settings → Secrets and variables → Actions → Variables),
+      # f.eks. "https://seiltips.no/" for en URL-prefiks-eiendom.
+      GSC_SITE_URL: ${{ vars.GSC_SITE_URL || 'sc-domain:seiltips.no' }}
+    steps:
+      - name: Sjekk ut repoet
+        uses: actions/checkout@v4
+
+      - name: Sett opp Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Installer avhengigheter
+        run: pip install -r requirements.txt
+
+      - name: Sett opp Git-bruker for commit
+        run: |
+          git config user.name "seiltips-bot"
+          git config user.email "seiltips-bot@users.noreply.github.com"
+
+      - name: Hent søkeord-data fra Google Search Console
+        env:
+          GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
+        run: |
+          python scripts/fetch_search_console.py \
+            --site-url "$GSC_SITE_URL" \
+            --days "${{ github.event.inputs.dager || '90' }}" \
+            --output data/gsc-queries.json
+
+      - name: Generer nøkkelordforslag med Azure AI Foundry
+        env:
+          AZURE_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          AZURE_FOUNDRY_MODEL: ${{ secrets.AZURE_FOUNDRY_MODEL }}
+          # Valgfri: egen deployment for søkeordanalysen (ellers brukes AZURE_FOUNDRY_MODEL).
+          AZURE_FOUNDRY_KEYWORD_MODEL: ${{ secrets.AZURE_FOUNDRY_KEYWORD_MODEL }}
+        run: python scripts/generate_keyword_suggestions.py
+
+      - name: Commit og push forslagene
+        run: |
+          # Rå GSC-data (data/gsc-queries.json) er i .gitignore – kun forslagene committes.
+          if [ -f keyword-suggestions.json ]; then
+            git add keyword-suggestions.json
+          fi
+          if git diff --staged --quiet; then
+            echo "Ingen nye nøkkelordforslag denne uken – hopper over commit."
+            exit 0
+          fi
+          git commit -m "Ukentlige nøkkelordforslag $(date -u +%F)"
+          git push
