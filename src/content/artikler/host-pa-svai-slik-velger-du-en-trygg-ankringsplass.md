@@ -2,6 +2,7 @@
 title: "Høst på svai: Slik velger du en trygg ankringsplass"
 description: "Vind og vær skifter raskere om høsten. Med noen enkle vurderinger kan du ligge tryggere for anker langs norskekysten."
 pubDate: 2026-09-25T06:09:27.718Z
+image: "/instagram/host-pa-svai-slik-velger-du-en-trygg-ankringsplass.png"
 tags: ["ankring", "høstseilas"]
 sources: ["https://www.seilmagasinet.no/ankring-pa-svai-sm202303/ligg-trygt-for-anker/813900", "https://www.seilmagasinet.no/ankring-hans-jakob-valderhaug-sm202503/tabber-og-tips-etter-et-liv-pa-svai/920620", "https://www.kystverket.no/sjotransport-og-havn/fritidsbat2/", "https://www.sdir.no/fritidsbat/vis-sjovett/sjovettreglene-og-vannvettreglene", "https://www.seilmagasinet.no/ankring-praktisk-stoff-fra-arkivet-svai/sikker-ankring-pa-svai/762222"]
 ---
