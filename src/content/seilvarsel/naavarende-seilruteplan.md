@@ -1,65 +1,69 @@
 ---
-title: "Seilruteplan 22/09–26/09: Rolig start, friskere kystvind"
-description: "Rolig vind i Oslofjorden, friskere forhold ved Færder og økende bølger mot Kosterøyene. Dag 1 peker seg ut som beste seilvindu."
-pubDate: 2026-09-22
-periodeFra: 2026-09-22
-periodeTil: 2026-09-26
+title: "Seilruteplan 25/9–29/9: Frisk vind og avtakende styrke"
+description: "Friskest vind ved Færder dag 1–2, deretter gradvis roligere. Beste sydgående seilvindu er dag 2; dag 5 blir mest motorpreget."
+pubDate: 2026-09-25
+periodeFra: 2026-09-25
+periodeTil: 2026-09-29
 tags: ["ruteplanlegging", "vaervarsel"]
 ---
 
 ## Sammendrag
-Dag 1 har rolige til moderate sørlige vinder og er periodens beste seilvindu sydover.  
-Dag 2–3 blir det friskere og mer utsatt ved Færder, med regn og bølger opp mot 0.6 m.  
-Dag 4–5 er vinden svak, men bølgene øker ved Færder, Hvaler og Kosterøyene.  
-For en lett 35-foter med to personer bør etappen deles opp med fleksible havner underveis.
+Dag 1–2 er det frisk vind og sjø ved Færder og Kosterøyene, med opptil 12,1 m/s og bølger på 1,8 m.  
+Dag 3–4 holder vinden seg sørlig, men avtar gradvis; nedbør er ventet dag 4.  
+Dag 5 blir klart roligere, med 2,1–4,6 m/s i de aktuelle punktene og lavere bølger.  
+Beste sydgående seilvindu er dag 2, eventuelt dag 3 for en mer komfortabel etappe fra Færder.
 
 ## Seilføring per dag
-- **22. september:** Full rigg, eventuelt ett rev ved passering av Færder dersom vinden øker. Sørlig vind 3.2–5.7 m/s og lave bølger gir gode forhold.
-- **23. september:** Ett rev på de mest utsatte strekkene. Ved Færder er vinden 8.5 m/s fra V, med kast 10.5 m/s og bølgehøyde 0.5 m. Regn og skiftende vind krever oppmerksomhet.
-- **24. september:** Ett rev, eventuelt dobbelt rev ved lokale vindøkninger. Nordlig til nordøstlig vind gir motvind eller kryss på kurs sydover. ⚠️ Mindre egnet for en lang, sammenhengende etappe.
-- **25. september:** Full rigg i de letteste periodene, men beregn motorseiling. Vind 2.2–5.7 m/s og bølgehøyde 0.6–0.7 m gjør dette mer til en transportdag enn en effektiv seildag.
-- **26. september:** Motorbåt-forhold eller full rigg med motorstøtte. Vinden er bare 2.1–3.6 m/s, mens bølgehøyden ved Kosterøyene er 0.9 m. ⚠️ Lite gunstig dersom målet er ren seiling.
+- **Dag 1 – 25. september:** Oslo–Drøbak kan seiles med full rigg. Mot Færder og videre sørover: **ett rev**, med 12,1 m/s fra SSV ved Færder, kast 15,3 m/s og bølger 1,8 m. Vær forberedt på krevende sjø utenfor fjorden.
+- **Dag 2 – 26. september:** **Ett rev** på den eksponerte strekningen. Ved Færder er vinden 11,0 m/s fra V og kast 13,8 m/s, med bølger 1,5 m. Gode forhold for en erfaren tomannsbesetning, men fortsatt frisk sjø.
+- **Dag 3 – 27. september:** **Full rigg eller ett rev**, avhengig av komfort og sjø. Færder har 9,8 m/s fra SSV, kast 13,0 m/s og bølger 1,4 m.
+- **Dag 4 – 28. september:** **Full rigg eller ett rev**. Vinden er 9,8 m/s fra S ved Færder og 5,9 m/s fra S ved Kosterøyene. Nedbør er meldt, og kastdata mangler.
+- **Dag 5 – 29. september:** **Full rigg i perioder, ellers motorbåt-forhold**. Vinden er 2,1–4,6 m/s ved Oslo, Drøbak og Færder, og 2,6–3,4 m/s ved Hvaler og Kosterøyene. Bølgene er 0,0–0,7 m. Kastdata mangler.
 
 ## Ruteanbefalinger – segmentvis
 
 ### Oslo → Drøbak
-**Beste tidspunkt:** 22. september, avgang tidlig morgen.  
-På kurs sydover blir SSV-vinden i Oslo en akterlig slør eller slør. Ved Drøbak dreier vinden til SSØ, fortsatt gunstig på den korte etappen. Bølgehøyden er 0.1 m både i Oslo og Drøbak.
+Beste passering er **dag 1 tidlig morgen**, med avgang fra Oslo rundt kl. 06:00. Vinden ved Oslo er 4,0 m/s fra SV, og ved Drøbak 4,2 m/s fra S. Kursen sydover gir slør eller halvvind.
 
-Drøbaksundet er smalt og grunt, og passeringen bør legges nær tidevannsskiftet. For 22. september viser dataene i Drøbak lavvann kl. 07:00 på 63 cm, høyvann kl. 07:10 på 70 cm, lavvann kl. 09:20 på 62 cm og lavvann kl. 21:40 på 58 cm over sjøkartnull. De tettliggende verdiene kl. 07:00–09:20 gir ikke et presist strømvindu; planlegg passering omtrent kl. 08:30–09:30 og hold god kontroll i den trange leden. Tidevannsforskjellen er liten, men strømmen kan likevel merkes lokalt.
+Sikt mot passering av Drøbaksundet rundt høyvannet kl. 07:10, da vannstanden ved Drøbak er 81 cm over sjøkartnull. Lavvann er oppgitt kl. 07:00 til 75 cm, så forskjellen er liten, men sundet er smalt og grunt. Hold god kontroll på dybde, strøm og møtende trafikk, og ikke legg passeringen unødvendig tett på grunne partier.
+
+Alternativt er dag 2 tidlig morgen god, med 4,8 m/s fra VNV ved Oslo og 4,9 m/s fra NV ved Drøbak. Da mangler det oppgitt dagtidevann ved Drøbak; lavvann er kl. 23:40.
 
 ### Drøbak → Færder
-**Beste tidspunkt:** 22. september, etter passering av Drøbaksundet, eller 23. september dersom etappen må utsettes.  
-Kursen er omtrent sørover til sørvest. Sørlig vind ved Færder gir slør eller akterlig slør, mens vinden ved Drøbak er SSØ. Dag 1 er klart mest komfortabel med 5.7 m/s ved Færder, kast 7.3 m/s og bølgehøyde 0.4 m.
+**Dag 2 er beste etappe**, med avgang fra Drøbak rundt kl. 07:00–08:00 etter passering av Drøbaksundet. Vinden dreier fra NV ved Drøbak til V ved Færder, og kursen sydover blir slør eller halvvind. Ved Færder er vinden 11,0 m/s, kast 13,8 m/s og bølgehøyde 1,5 m; bruk ett rev og planlegg med margin.
 
-På 22. september ligger høyvann ved Færder kl. 15:00 på 76 cm over sjøkartnull. Det kan gi noe mer vann under kjølen ved innseiling senere på dagen, men tidevannet skal bare finjustere tidspunktet – vind og sjø bør styre hovedvalget. Dag 2 øker vinden ved Færder til 8.5 m/s fra V, med kast 10.5 m/s, bølger 0.5 m og regn.
+Dag 1 er mulig for en erfaren besetning, men vinden øker til 12,1 m/s fra SSV ved Færder, med kast 15,3 m/s og bølger 1,8 m. Det er mindre komfortabelt for en lett 35-foter med to personer.
+
+Tidevannet ved Færder dag 2 er høyvann kl. 05:20 på 68 cm og lavvann kl. 10:50 på 47 cm over sjøkartnull. Dette er en finjustering av timing, ikke en grunn til å overstyre vind- og bølgeforholdene.
 
 ### Færder → Hvaler
-**Beste tidspunkt:** 22. september, helst etter passering av Færder og før kvelden.  
-Kursen mot Hvaler er om lag øst-sørøst. Sørlig vind gir bred slør eller slør. Hvaler har 3.3 m/s fra S, kast 5.7 m/s og bølgehøyde 0.2 m dag 1, mens Færder har 0.4 m. Dette er et godt, moderat kyststrekk.
+**Dag 3 formiddag** er et godt kompromiss mellom vind og sjø. Vinden ved Færder er 9,8 m/s fra SSV, mens Hvaler har 7,0 m/s fra SV og bølger 1,1 m. Kursen østover/sydover gir slør eller halvvind, med ett rev som utgangspunkt.
 
-Ved Færder er det lavvann kl. 07:00 på 50 cm, høyvann kl. 07:10 på 54 cm, lavvann kl. 09:00 på 50 cm og høyvann kl. 15:00 på 76 cm over sjøkartnull. Hvaler har lavvann kl. 07:00 på 51 cm, høyvann kl. 07:10 på 55 cm og lavvann kl. 21:10 på 46 cm. For en ettermiddagspassasje mot Hvaler er vannstanden stigende etter lavvannet om morgenen, men forskjellene er beskjedne.
+Dag 2 kan også brukes, men sjøen er friskere: 1,5 m ved Færder og 1,2 m ved Hvaler. Ved Hvaler er høyvann kl. 17:30 på 72 cm og lavvann kl. 23:10 på 47 cm over sjøkartnull. Dag 3 er høyvann kl. 05:50 på 68 cm og lavvann kl. 11:20 på 48 cm. Legg gjerne den mest trange innaskjærs navigeringen nærmere høyvann, men prioriter sikt og vind over den beskjedne tidevannsforskjellen.
 
 ### Hvaler → Kosterøyene
-**Beste tidspunkt:** 22. september dersom resten av ruten allerede ligger til rette; ellers vent til et passende værvindu og del etappen.  
-Kursen er hovedsakelig sørover. Sørlig eller sørvestlig vind gir akterlig vind, lens eller akterlig slør. Dag 1 er best med 3.2 m/s fra SSV, kast 5.8 m/s og bølgehøyde 0.4 m ved Kosterøyene.
+**Dag 3** gir mest seilbar vind, med 7,1 m/s fra SV ved Kosterøyene, kast 13,5 m/s og bølger 1,5 m. Kursen sydover blir slør eller halvvind, men farvannet utenfor Hvaler og mot Kosterøyene er eksponert. Bruk ett rev ved avgang og vurder å redusere mer dersom kastene bygger sjø.
 
-Tidevannsdata mangler for Kosterøyene 22.–26. september. Hvaler har lavvann kl. 21:10 den 22. september, men det er ikke grunnlag for å beregne strømforholdene videre mot Kosterøyene. Dag 2 er fortsatt seilbar, men med regn, 4.5 m/s fra SSV, kast 7.9 m/s og bølger 0.6 m. Dag 5 øker bølgehøyden til 0.9 m selv om vinden bare er 3.6 m/s fra VSV.
+Dag 4 er roligere, med 5,9 m/s fra S ved Kosterøyene og bølger 1,2 m, men nedbør er meldt. Dag 5 har lave bølger på 0,6 m, men bare 3,4 m/s fra SSV; regn med motorbruk eller langsom seilas. Tidevannsdata mangler for Kosterøyene alle fem dagene.
 
 ## Timing – sydover
-Optimalt er avgang fra Oslo **22. september ca. kl. 05:00–06:00**, slik at Drøbaksundet kan passeres omtrent **kl. 08:30–09:30**. Sørlig vind gir gunstig slør eller akterlig slør hele veien mot Drøbak og videre mot Færder. Det er ingen frontinformasjon i datasettet; dag 1 har ikke nedbør ved de oppgitte punktene.
+For en samlet sydgående plan er **avgang fra Oslo dag 2 rundt kl. 06:30–07:00** best. Da er vinden moderat i Oslo, 4,8 m/s fra VNV, og øker til 11,0 m/s fra V ved Færder uten å overstige båtens anbefalte komfortgrense. Kursen sydover gir i hovedsak slør eller halvvind.
 
-Ved Drøbak bør passeringen legges rundt tidevannsovergangene som er oppgitt for dagen: lavvann kl. 07:00, høyvann kl. 07:10 og lavvann kl. 09:20. Siden verdiene ligger uvanlig tett, bør de brukes som en grov timingindikasjon, ikke som et eksakt strømvarsel. En passering før eller rundt kl. 09:20 reduserer risikoen for å møte den sterkeste lokale strømmen i feil del av sundet. Færder kan nås senere på dagen med høyvann kl. 15:00 som en mindre fordel for vannstanden.
+Passer Drøbaksundet etter avgang, helst rundt morgenen. Dag 2 er bare lavvann oppgitt ved Drøbak, kl. 23:40, så det er ingen tydelig dagtidsbarriere i tidevannsdataene. Dag 1 kan avgang kl. 06:00 gi passering nær høyvann kl. 07:10 ved Drøbak, men den kraftigere vinden og sjøen ved Færder gjør dag 2 mer komfortabel.
+
+En praktisk etappeplan er Oslo–Drøbak dag 1, Drøbak–Færder dag 2, Færder–Hvaler dag 3 og Hvaler–Kosterøyene dag 4 eller 5.
 
 ## Timing – nordover
-Det beste nordgående vindvinduet er **25. september**, men vinden er svak. Fra Kosterøyene bør avgang skje tidlig, med motorseiling tilgjengelig, og etappen bør eventuelt deles ved Hvaler eller Færder. Vinden fra SV gir slør eller akterlig slør nordover, men bølgehøyden er 0.7 m ved Kosterøyene og Færder.
+Fra **Hvaler mot Oslo dag 5** er avgang rundt kl. 07:00 mest praktisk. Vinden er svak, 2,6 m/s fra SSV ved Hvaler og 2,1 m/s fra NNØ ved Drøbak, så motor bør være klar. Bølgene er lave, men seilfarten kan bli begrenset.
 
-Dersom avgang skjer fra Hvaler mot Oslo, er **26. september tidlig morgen** et praktisk alternativ. Vinden fra SSV ved Hvaler gir gunstig slør nordover, og høyvann ved Hvaler kl. 17:30 på 72 cm kan gi noe høyere vannstand senere på dagen. Ved Færder er høyvann kl. 05:20 på 68 cm og lavvann kl. 10:50 på 47 cm. Drøbak har lavvann kl. 23:40 på 59 cm. Tidevannsdata mangler for Kosterøyene, og de beskjedne forskjellene bør ikke overstyre vind, sikt og bølger.
+Ved Drøbak er høyvann oppgitt kl. 17:20 på 84 cm og kl. 20:20 på 89 cm over sjøkartnull. En avgang kl. 07:00 gir mulighet for å nærme seg Drøbaksundet rundt kvelds høyvann, avhengig av faktisk fart og stopp. Bruk tidevannet som finjustering, og unngå å presse en trang passering hvis fremdriften blir lav.
+
+Fra **Kosterøyene** bør dag 5 helst brukes til Koster–Hvaler, med avgang tidlig morgen. Tidevannsdata mangler ved Kosterøyene, og den svake vinden på 3,4 m/s fra SSV tilsier motor eller svært langsom lens/slør. Fortsett Hvaler–Oslo neste dag dersom tidsplanen ikke gir god margin.
 
 ## Konfidensvurdering
-- **Høy konfidens – dag 1–2:** Vind, kast, bølgehøyde og nedbør er relativt tydelige. Dag 1 er klart best sydover. Dag 2 er mer utsatt ved Færder, men fortsatt innenfor båtens komfortområde med redusert seilføring.
-- **Usikre indikasjoner – dag 3–5:** Dag 3 har motvindspreget vind på deler av ruten og regn. Dag 4–5 viser svake vinder, men økende bølger mot Kosterøyene. Manglende kastverdier og manglende tidevannsdata flere steder gjør detaljert timing mindre sikker.
-- Tidevannsdata mangler ved Drøbak 23.–24. september, ved Hvaler 23. september og ved Kosterøyene alle dager. Tidevannet bør derfor brukes som finjustering, ikke som hovedgrunnlag for rutevalget.
+- **Høy konfidens – dag 1–2:** Frisk vind ved Færder og Kosterøyene, bølger rundt 1,5–1,8 m og moderat vind i Oslofjorden. Dag 2 peker seg tydelig ut som beste sydgående hovedetappe.
+- **Usikre indikasjoner – dag 3–5:** Vindstyrke og retning ser ut til å avta, særlig dag 5, men utviklingen kan endres. Kastdata mangler dag 4–5 på alle punkter, og nedbørsdata er bare tilgjengelig som ja/nei.
+- Tidevannsdata mangler ved Kosterøyene alle dager. Ved Drøbak er tidevannsforskjellene små, men passering bør fortsatt planlegges med hensyn til dybde og lokal strøm.
 
 ## Anbefaling
-Dra **22. september**, med tidlig avgang fra Oslo og planlagt passering av Drøbaksundet rundt kl. 08:30–09:30. Dette er det tydeligste og mest komfortable seilvinduet, med gunstig sørlig vind og små bølger. Legg inn fleksibilitet for å stoppe ved Drøbak, Færder eller Hvaler, og unngå å presse hele ruten videre dersom dag 2–3 gir mer sjø enn forventet.
+Dra gjerne nå, men legg opp til en delt etappe: Oslo–Drøbak dag 1, deretter avgang fra Drøbak dag 2 rundt kl. 07:00–08:00 mot Færder. Fortsett mot Hvaler dag 3 når vinden har avtatt noe, og velg dag 4 eller 5 til Kosterøyene etter ønsket om henholdsvis mer seilvind eller roligere sjø.
