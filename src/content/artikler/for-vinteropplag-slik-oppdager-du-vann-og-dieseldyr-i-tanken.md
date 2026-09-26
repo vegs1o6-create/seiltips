@@ -2,6 +2,7 @@
 title: "Før vinteropplag: Slik oppdager du vann og dieseldyr i tanken"
 description: "Vann i dieseltanken kan gi tette filtre og motorstopp. Sjekk drivstoffsystemet nå, før båten blir stående gjennom vinteren."
 pubDate: 2026-09-26T06:09:26.783Z
+image: "/instagram/for-vinteropplag-slik-oppdager-du-vann-og-dieseldyr-i-tanken.png"
 tags: ["båtvedlikehold", "diesel", "vinteropplag"]
 sources: ["https://sikkerhetombord.no/vann-i-diesel/", "https://www.batmagasinet.no/dieseldyr-drivstoff/slik-unngr-du-dieseldyr/171675", "https://www.dco.uscg.mil/Portals/9/DCO%20Documents/5p/CG-5PC/INV/Alerts/USCGSA_0622.pdf?ver=7zdg1cTgZgG0aI1CZdrtqw%3D%3D"]
 ---
