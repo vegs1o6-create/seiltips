@@ -2,6 +2,7 @@
 title: "Høstseilas med VHF: Slik gjør du radioen klar før turen"
 description: "Mørkere dager og skiftende vær gjør VHF-en ekstra viktig. Slik tester du radioen og lærer opp alle om bord før høstseilasen."
 pubDate: 2026-09-27T06:09:35.093Z
+image: "/instagram/hostseilas-med-vhf-slik-gjor-du-radioen-klar-for-turen.png"
 tags: ["VHF", "sikkerhet", "høstseilas", "norskekysten"]
 sources: ["https://www.sdir.no/fritidsbat/maritim-radio-for-fritidsbatbrukere/hva-kan-kystradiostasjonene-gjore-for-deg/", "https://www.kystverket.no/navigasjonstjenester/kystradio---infrastruktur-for-nod--og-sikkerhetskommunikasjon/kanalplan-og-nodprosedyre-kystradio/", "https://www.sdir.no/fritidsbat/maritim-radio-for-fritidsbatbrukere/dette-trenger-du-vhf-pa-1-2-3/", "https://www.kystradio.no/"]
 ---
