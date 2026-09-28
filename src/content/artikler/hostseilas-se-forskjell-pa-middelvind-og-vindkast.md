@@ -2,6 +2,7 @@
 title: "Høstseilas: Se forskjell på middelvind og vindkast"
 description: "Middelvinden forteller ikke hele historien. Slik leser du høstvarselet og vurderer vindkast før du legger fra kai."
 pubDate: 2026-09-28T06:10:45.940Z
+image: "/instagram/hostseilas-se-forskjell-pa-middelvind-og-vindkast.png"
 tags: ["vær", "høstseilas"]
 sources: ["https://www.met.no/vaer-og-klima/ekstremvaervarsler-og-andre-farevarsler/vaerfenomener-som-kan-gi-farevarsel-fra-met/kuling-stormvarsel-for-kyst-og-naere-fiskebanker", "https://hjelp.yr.no/hc/no/articles/360002022134-Vindpiler-og-Beaufortskalaen", "https://rs.no/sikker-til-sjos/forsta-vaeret/", "https://www.yr.no/nb/farevarsler"]
 ---
