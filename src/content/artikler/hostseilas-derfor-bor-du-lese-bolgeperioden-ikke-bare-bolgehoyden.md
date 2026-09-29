@@ -2,6 +2,7 @@
 title: "Høstseilas: Derfor bør du lese bølgeperioden – ikke bare bølgehøyden"
 description: "Bølgehøyde alene forteller ikke hele historien. Slik bruker du periode, retning og rutevarsel når høstsjøen skal vurderes."
 pubDate: 2026-09-29T06:10:22.430Z
+image: "/instagram/hostseilas-derfor-bor-du-lese-bolgeperioden-ikke-bare-bolgehoyden.png"
 tags: ["høstseilas", "bølgevarsel"]
 sources: ["https://www.kystverket.no/sjovegen/vartjenester/bolge--og-stromvarsel/", "https://www.yr.no/artikkel/hvordan-blir-bolgene-til_-1.7582297", "https://www.yr.no/artikkel/hva-gir-hoyest-bolger_-1.11761588", "https://ocean.met.no/waves"]
 ---
