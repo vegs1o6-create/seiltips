@@ -2,6 +2,7 @@
 title: "Mørkere høstkvelder: Sjekk lanternene før du legger ut"
 description: "Når kveldene blir mørkere, må lanternene være klare. Slik kontrollerer du lysene og leser fyrlyktene langs norskekysten."
 pubDate: 2026-09-30T06:10:02.316Z
+image: "/instagram/morkere-hostkvelder-sjekk-lanternene-for-du-legger-ut.png"
 tags: ["lanterner", "navigasjon", "høstseilas"]
 sources: ["https://rs.no/sikker-til-sjos/lanterneforing-i-morket/", "https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/", "https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/fyrlykter/", "https://slukkinger.kystverket.no/"]
 ---
