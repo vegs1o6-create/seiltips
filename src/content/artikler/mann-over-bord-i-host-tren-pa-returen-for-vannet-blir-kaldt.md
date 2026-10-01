@@ -2,6 +2,7 @@
 title: "Mann over bord i høst: Tren på returen før vannet blir kaldt"
 description: "En kort MOB-øvelse kan gjøre stor forskjell. Slik trener dere trygt på å finne og få en person tilbake om bord."
 pubDate: 2026-10-01T06:12:11.360Z
+image: "/instagram/mann-over-bord-i-host-tren-pa-returen-for-vannet-blir-kaldt.png"
 tags: ["sikkerhet", "mann over bord"]
 sources: ["https://rs.no/sikker-til-sjos/hjelp-mann-over-bord/", "https://www.sdir.no/fritidsbat/vis-sjovett/husk-vest-i-bat/", "https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/", "https://ung.rs.no/aktivitet/mann-overbord/"]
 ---
