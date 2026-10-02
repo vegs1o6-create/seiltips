@@ -2,6 +2,7 @@
 title: "Før høstseilasen: Sjekk navigasjonsvarslene, ikke bare værmeldingen"
 description: "Slukkede fyrlykter, drivende gjenstander og kartrettelser kan endre en kjent rute. Slik sjekker du kysten før avgang."
 pubDate: 2026-10-02T06:10:12.064Z
+image: "/instagram/for-hostseilasen-sjekk-navigasjonsvarslene-ikke-bare-vaermeldingen.png"
 tags: ["navigasjon", "høstseilas"]
 sources: ["https://www.kystverket.no/navigasjonstjenester/navigasjonsvarsling/", "https://kyvreports.kystverket.no/NavcoReport/navigasjonsvarsler.aspx", "https://www.kartverket.no/til-sjos/efs", "https://www.kartverket.no/til-sjos/kart/norskesjokart", "https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/"]
 ---
