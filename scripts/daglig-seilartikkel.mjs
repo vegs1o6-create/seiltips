@@ -23,6 +23,7 @@ const DEFAULT_MODEL = 'gpt-5.6-luna';
 const RECENT_DAYS = 30;
 const SUGGESTIONS_FILE = 'keyword-suggestions.json';
 const PRIORITY_ORDER = { høy: 0, middels: 1, lav: 2 };
+const MAX_ATTEMPTS = 2;
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -107,10 +108,17 @@ function pickSuggestion(data) {
   return unused[0] ?? null;
 }
 
-function stripCodeFence(text) {
-  const trimmed = text.trim();
-  const match = trimmed.match(/^```[a-zA-Z]*\n([\s\S]*)\n```$/);
-  return match ? match[1].trim() : trimmed;
+// Rydder opp i modell-svaret før validering: fjerner BOM, normaliserer
+// CRLF, plukker ut innholdet i en ```-kodeblokk (også om det står tekst rundt
+// den) og kutter bort eventuell innledende prat før frontmatteren
+// (f.eks. "Her er artikkelen:").
+function normalizeContent(text) {
+  let s = text.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
+  const fence = s.match(/```[a-zA-Z]*\n(---\n[\s\S]*?)\n```/);
+  if (fence) s = fence[1].trim();
+  const start = s.search(/^---[ \t]*\n(?=[\s\S]*?^title:)/m);
+  if (start > 0) s = s.slice(start);
+  return s.replace(/^---[ \t]*$/gm, '---');
 }
 
 function validateContent(content) {
@@ -207,13 +215,21 @@ sources: ["<url1>", "<url2>"]
 // Hostet websøk finnes kun på Responses-API-et (/v1/responses), ikke på
 // Chat Completions (/v1/chat/completions) – der er "tools" begrenset til
 // egendefinerte function/custom-verktøy, uten server-side søk.
+// Med websøk kan modellen sende flere message-elementer (f.eks. en kort
+// statusmelding før søkene), så vi foretrekker den siste meldingen som
+// inneholder frontmatter, og faller ellers tilbake til den siste meldingen.
 function extractResponseText(data) {
+  const texts = [];
   for (const item of data.output ?? []) {
     if (item.type !== 'message' || !Array.isArray(item.content)) continue;
-    const textPart = item.content.find((c) => c.type === 'output_text');
-    if (textPart?.text) return textPart.text;
+    const text = item.content
+      .filter((c) => c.type === 'output_text' && c.text)
+      .map((c) => c.text)
+      .join('');
+    if (text.trim()) texts.push(text);
   }
-  return null;
+  if (!texts.length) return data.output_text || null;
+  return [...texts].reverse().find((t) => /^---\s*$/m.test(t) && /^title:/m.test(t)) ?? texts.at(-1);
 }
 
 async function callFoundry(userPrompt) {
@@ -282,9 +298,21 @@ async function main() {
     console.log('Ingen ubrukte forslag i keyword-suggestions.json – modellen velger tema fritt.');
   }
   console.log('Ber Azure AI Foundry-modellen research og skrive dagens artikkel …');
-  const raw = await callFoundry(buildPrompt(recentEntries, today, nowIso(), picked?.s));
-  const content = stripCodeFence(raw);
-  const frontmatter = validateContent(content);
+  const prompt = buildPrompt(recentEntries, today, nowIso(), picked?.s);
+  let content;
+  let frontmatter;
+  for (let attempt = 1; ; attempt++) {
+    const raw = await callFoundry(prompt);
+    content = normalizeContent(raw);
+    try {
+      frontmatter = validateContent(content);
+      break;
+    } catch (err) {
+      console.warn(`Forsøk ${attempt}: ${err.message}\nStarten av svaret var:\n${raw.slice(0, 800)}`);
+      if (attempt >= MAX_ATTEMPTS) throw err;
+      console.log('Prøver på nytt …');
+    }
+  }
 
   const title = frontmatter.match(/^title:\s*"?([^"\n]+)"?\s*$/m)?.[1]?.trim();
   if (!title) throw new Error('Fant ikke title i frontmatter fra modell-svaret.');
