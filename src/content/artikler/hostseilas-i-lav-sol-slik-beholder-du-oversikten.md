@@ -2,6 +2,7 @@
 title: "Høstseilas i lav sol: Slik beholder du oversikten"
 description: "Lav høstsol kan skjule både sjømerker og trafikk. Her er en enkel rutine for tryggere navigering langs norskekysten."
 pubDate: 2026-10-03T07:11:30.314Z
+image: "/instagram/hostseilas-i-lav-sol-slik-beholder-du-oversikten.png"
 tags: ["høstseilas", "navigasjon"]
 sources: ["https://www.sdir.no/fritidsbat/regelverk-for-fritidsbat/Sjoveisreglene/", "https://lovdata.no/dokument/SF/forskrift/1975-12-01-5/", "https://www.kystverket.no/navigasjonstjenester/"]
 ---
