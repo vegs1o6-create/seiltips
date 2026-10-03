@@ -2,6 +2,7 @@
 title: "Opptak i høst: Slik vasker du båten uten å spre bunnstoff"
 description: "Ved opptak kan bunnstoff, støv og vaskevann havne i sjøen. Slik gjør du høstvasken mer miljøvennlig."
 pubDate: 2026-10-03T09:01:46.435Z
+image: "/instagram/opptak-i-host-slik-vasker-du-baten-uten-a-spre-bunnstoff.png"
 tags: ["miljø", "båtvedlikehold"]
 sources: ["https://www.miljodirektoratet.no/aktuelt/fagmeldinger/2026/januar-2026/redusere-utslipp-fra-fritidsbater-forslag-til-ny-forskrift/", "https://www.miljodirektoratet.no/ansvarsomrader/avfall/plast-i-havet/mikroplast/", "https://sortere.no/avfallstype/Farlig_avfall/37", "https://lovdata.no/dokument/SF/forskrift/2004-06-01-931"]
 ---
