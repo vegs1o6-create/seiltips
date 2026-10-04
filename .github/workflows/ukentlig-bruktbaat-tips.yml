@@ -2,12 +2,14 @@ name: Ukens bruktbåt-tips
 
 # Kjører hver søndag rundt kl. 18:00 norsk tid. GitHub Actions cron kjører
 # alltid i UTC og følger ikke sommertid, så vi legger inn to cron-tidspunkter
-# (ett for vintertid CET, ett for sommertid CEST) og lar et vaktbikkje-steg
-# avgjøre hvilken kjøring som faktisk skal gjøre jobben.
+# (ett for vintertid CET, ett for sommertid CEST). GitHub sin schedule-trigger
+# kan komme mye for sent, så i stedet for et smalt klokkeslett-vindu sjekker et
+# vaktbikkje-steg om ukens tips allerede er publisert (se daglig-seilartikkel.yml).
+# Minuttet er bevisst ikke :00 – da er GitHub mest overbelastet.
 on:
   schedule:
-    - cron: '0 17 * * 0' # 18:00 CET (vintertid, UTC+1)
-    - cron: '0 16 * * 0' # 18:00 CEST (sommertid, UTC+2)
+    - cron: '7 17 * * 0' # 18:07 CET (vintertid, UTC+1)
+    - cron: '7 16 * * 0' # 18:07 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
@@ -27,21 +29,38 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk at klokken er rundt 18:00 i Norge
+      - name: Sjekk om ukens tips allerede er publisert
         id: tidssjekk
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Manuelt trigget (workflow_dispatch) – kjører uansett klokkeslett."
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett."
             exit 0
           fi
+          ukedag=$(TZ="Europe/Oslo" date +%u) # 7 = søndag, 1 = mandag
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
-          echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" > "17:45" && "$now_oslo" < "18:15" ]]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-          else
+          echo "Klokken er $now_oslo i Norge akkurat nå (ukedag $ukedag)."
+          # Ikke før 17:45 søndag (vintertid-cronen på 16 UTC er 17:07 CET), men
+          # tillat en forsinket kjøring utover søndag kveld og mandag.
+          if [[ "$ukedag" == "7" && "$now_oslo" < "17:45" ]]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (17:45–18:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            echo "For tidlig på søndag – venter på neste cron-kjøring."
+            exit 0
+          fi
+          if [[ "$ukedag" != "7" && "$ukedag" != "1" ]]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Ikke søndag/mandag – hopper over."
+            exit 0
+          fi
+          if [[ "$ukedag" == "7" ]]; then sondag=$(TZ="Europe/Oslo" date +%F); else sondag=$(TZ="Europe/Oslo" date -d yesterday +%F); fi
+          siden=$(TZ="Europe/Oslo" date -d "${sondag} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
+          allerede=$(git log --since="$siden" --grep='^Ukens bruktbåt-tips' --oneline -- src/content/artikler)
+          if [[ -n "$allerede" ]]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Ukens bruktbåt-tips er allerede publisert (søndag ${sondag}) – hopper over."
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Ukens bruktbåt-tips er ikke publisert ennå (søndag ${sondag}) – kjører."
           fi
 
       - name: Sett opp Node.js

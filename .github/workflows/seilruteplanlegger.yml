@@ -19,8 +19,8 @@ name: Seilruteplanlegger
 # for en værbasert ruteplan som uansett blir foreldet etter noen dager.
 on:
   schedule:
-    - cron: '0 6 */3 * *' # 07:00 CET (vintertid, UTC+1)
-    - cron: '0 5 */3 * *' # 07:00 CEST (sommertid, UTC+2)
+    - cron: '7 6 */3 * *' # 07:07 CET (vintertid, UTC+1)
+    - cron: '7 5 */3 * *' # 07:07 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:

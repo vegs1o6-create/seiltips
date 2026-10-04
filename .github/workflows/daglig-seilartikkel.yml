@@ -7,10 +7,12 @@ name: Daglig seilartikkel
 # klokkeslett-vindu, sjekker et vaktbikkje-steg heller om dagens artikkel allerede er
 # publisert – da kan cron-kjøringen komme når den vil og likevel gjøre jobben, uten å
 # risikere duplikater når begge cron-tidspunktene til slutt trigger samme dag.
+# Minuttet er bevisst ikke :00 – GitHub er mest overbelastet på hel time, og
+# schedule-kjøringer da blir oftere forsinket eller droppet helt.
 on:
   schedule:
-    - cron: '0 7 * * *' # ca. 08:00 CET (vintertid, UTC+1)
-    - cron: '0 6 * * *' # ca. 08:00 CEST (sommertid, UTC+2)
+    - cron: '7 7 * * *' # ca. 08:07 CET (vintertid, UTC+1)
+    - cron: '7 6 * * *' # ca. 08:07 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
