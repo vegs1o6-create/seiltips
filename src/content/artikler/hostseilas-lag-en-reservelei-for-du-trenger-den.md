@@ -2,6 +2,7 @@
 title: "Høstseilas: Lag en reservelei før du trenger den"
 description: "Når været snur langs kysten, er en plan B gull verdt. Slik bruker du RouteInfo og Kystinfo til å finne tryggere alternativer."
 pubDate: 2026-10-04T08:10:06.071Z
+image: "/instagram/hostseilas-lag-en-reservelei-for-du-trenger-den.png"
 tags: ["navigasjon", "høstseilas"]
 sources: ["https://routeinfo.kystverket.no/index", "https://www.kystverket.no/navigasjonstjenester/artikkel-digital-rutetjeneste---routeinfo.no", "https://www.kystverket.no/navigasjonstjenester/kystinfo/", "https://www.sdir.no/nyheter/planlegging-av-fritidsbatseilas/", "https://kyvreports.kystverket.no/NavcoReport/navigasjonsvarsler.aspx"]
 ---
