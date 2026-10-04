@@ -12,7 +12,9 @@ name: Seilruteplanlegger
 # Som i daglig-seilartikkel.yml kjører GitHub Actions cron alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for
 # vintertid CET, ett for sommertid CEST) og lar et vaktbikkje-steg avgjøre
-# hvilken kjøring som faktisk skal gjøre jobben.
+# hvilken kjøring som faktisk skal gjøre jobben: den må komme mellom 07:00 og
+# 07:45 norsk tid (romslig nok for vanlig forsinkelse fra GitHub), og den
+# hopper over hvis ruteplanen allerede er oppdatert i dag.
 #
 # "*/3" i dag-i-måneden-feltet gir ikke matematisk nøyaktig "hver 3. dag"
 # rundt månedsskifter (avstanden blir kortere der), men det er nøyaktig nok
@@ -40,16 +42,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk at klokken er rundt 07:00 i Norge
+      - name: Sjekk tidsvindu og om dagens ruteplan allerede er laget
         id: tidssjekk
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Manuelt trigget (workflow_dispatch) – kjører uansett."
+            exit 0
+          fi
           now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
           echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" || ("$now_oslo" > "06:45" && "$now_oslo" < "07:15") ]]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-          else
+          if [[ "$now_oslo" < "07:00" || ! "$now_oslo" < "07:45" ]]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (06:45–07:15 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            echo "Utenfor tidsvinduet (07:00–07:45 norsk tid), denne av de to cron-kjøringene gjør ingenting."
+            exit 0
+          fi
+          oslo_i_dag=$(TZ="Europe/Oslo" date +%F)
+          siden=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
+          allerede=$(git log --since="$siden" --grep='^Oppdater seilruteplan' --oneline -- src/content/seilvarsel)
+          if [[ -n "$allerede" ]]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Seilruteplanen er allerede oppdatert i dag (norsk dato ${oslo_i_dag}) – hopper over."
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "Seilruteplanen er ikke oppdatert i dag ennå – kjører."
           fi
 
       - name: Sett opp Node.js
