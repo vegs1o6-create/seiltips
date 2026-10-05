@@ -2,6 +2,7 @@
 title: "Høstseilas: Sjekk vannstanden før du går inn i grunne havner"
 description: "Tidevannstabellen forteller ikke alltid hele sannheten. Slik bruker du vannstandsvarsel når høstværet endrer innseilingen."
 pubDate: 2026-10-05T06:28:48.421Z
+image: "/instagram/hostseilas-sjekk-vannstanden-for-du-gar-inn-i-grunne-havner.png"
 tags: ["høstseilas", "vannstand"]
 sources: ["https://www.kartverket.no/til-sjos/se-havniva", "https://www.kartverket.no/til-sjos/se-havniva/lar-om-tidevann-og-vannstand/tabellar-for-tidvatn", "https://www.yr.no/artikkel/hva-menes-med-stormflo_-1.12097313", "https://www.kartverket.no/til-sjos/se-havniva/referanseniva/hva-er-et-referanseniva"]
 ---
