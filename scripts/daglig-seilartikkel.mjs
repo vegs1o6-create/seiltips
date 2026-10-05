@@ -25,6 +25,65 @@ const SUGGESTIONS_FILE = 'keyword-suggestions.json';
 const PRIORITY_ORDER = { høy: 0, middels: 1, lav: 2 };
 const MAX_ATTEMPTS = 2;
 
+// Temaspor som roteres dag for dag, slik at artiklene ikke ender opp med å
+// handle om det samme sesongtemaet hver dag (f.eks. bare høstseilas og
+// opptak). Bare sporet "Sesongaktuelt" får lov å vinkle artikkelen rundt
+// årstiden; resten skal være like nyttige uansett måned.
+const CATEGORIES = [
+  {
+    navn: 'Seilteknikk og trim',
+    vinkler: 'seiltrim, rev, kryss og slør, spinnaker/gennaker, balanse i båten, tung- og lettvindsseiling, manøvrering for motor i havn',
+  },
+  {
+    navn: 'Sesongaktuelt',
+    vinkler: 'det som faktisk er aktuelt akkurat nå i sesongen (vær, båtpleie, opplag/sjøsetting, planlegging)',
+    sesong: true,
+  },
+  {
+    navn: 'Destinasjoner og turforslag',
+    vinkler: 'en konkret skjærgård, øy, uthavn, gjestehavn eller seilingsled langs norskekysten – hva som gjør stedet verdt et besøk og hva man bør vite før man går inn',
+  },
+  {
+    navn: 'Sikkerhet og sjømannskap',
+    vinkler: 'sjøveisregler, vikepliktsituasjoner, mann-over-bord, nødsignaler, sikkerhetsutstyr, skipperansvar, alkohol og promillegrenser',
+  },
+  {
+    navn: 'Livet om bord',
+    vinkler: 'mat og matlaging i bysse, seiling med barn eller hund, oppbevaring og plassutnyttelse, søvn og vaktordning, komfort på lengre turer',
+  },
+  {
+    navn: 'Navigasjon og kunnskap',
+    vinkler: 'sjøkart og kartsymboler, fyrlykter og sektorlys, merkesystemet, knop og stikk, båtførerprøven og VHF-sertifikat, tradisjonell navigasjon som backup',
+  },
+  {
+    navn: 'Båttyper, utstyr og teknikk',
+    vinkler: 'forskjeller på båttyper og rigger, hva du bør se etter i utstyr (seil, tauverk, elektronikk, ankere), hvordan ting fungerer under panseret',
+  },
+  {
+    navn: 'Kappseilas, klubb og miljø',
+    vinkler: 'regattaer og kappseilas for nybegynnere, seilforeninger og klubbliv, joller og ungdomsseiling, kjente norske seilbegivenheter og seilhistorie',
+  },
+  {
+    navn: 'Bærekraft og økonomi',
+    vinkler: 'miljøvennlig båtliv, avfall og septik, bunnstoff, elmotor, hva det faktisk koster å ha båt, forsikring, båtplass, deleeie og båtklubb-modeller',
+  },
+];
+
+// Ulike artikkelformater gir variasjon i form, ikke bare i tema. Lengden er
+// innbyrdes primisk med CATEGORIES (9 og 5), så kombinasjonene går i
+// ring over 45 dager i stedet for at samme spor alltid får samme format.
+const FORMATS = [
+  'Praktisk guide: forklar steg for steg hvordan man gjør noe.',
+  'Vanlige feil: hva mange seilere gjør feil, og hvordan man gjør det bedre.',
+  'Forklarende: forklar hvorfor noe fungerer som det gjør (fysikk, regler, historikk), med praktiske konsekvenser.',
+  'Nybegynnerens innføring: for noen som er ganske ny på sjøen – unngå sjargong eller forklar den.',
+  'Sjekkliste eller sammenligning: en tydelig punktliste eller sammenligning av alternativer, med kort begrunnelse for hvert punkt.',
+];
+
+// Ord som har dominert titlene. Hvis mange av de siste titlene bruker dem,
+// ber vi eksplisitt modellen om å holde dem unna tittelen.
+const OVERBRUKTE_ORD = ['høst', 'opptak', 'vinteropplag', 'opplag', 'vinterlagring', 'frost'];
+
 function requireEnv(name) {
   const value = process.env[name];
   if (!value) throw new Error(`Mangler påkrevd miljøvariabel: ${name}`);
@@ -46,6 +105,25 @@ function todayOslo() {
 // alfabetisk filnavn-orden i stedet for faktisk publiseringstidspunkt.
 function nowIso() {
   return new Date().toISOString();
+}
+
+function dayNumber(today) {
+  return Math.floor(Date.parse(`${today}T00:00:00Z`) / 86_400_000);
+}
+
+function todaysTrack(today) {
+  const n = dayNumber(today);
+  return { kategori: CATEGORIES[n % CATEGORIES.length], format: FORMATS[n % FORMATS.length] };
+}
+
+// Finner ord fra OVERBRUKTE_ORD som står i minst 3 av de 10 nyeste titlene.
+function overusedWords(entries) {
+  const latest = [...entries]
+    .filter((e) => e.pubDate)
+    .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+    .slice(0, 10)
+    .map((e) => e.title.toLowerCase());
+  return OVERBRUKTE_ORD.filter((ord) => latest.filter((t) => t.includes(ord)).length >= 3);
 }
 
 function extractFrontmatterField(content, field) {
@@ -148,7 +226,7 @@ søkeordene naturlig i teksten og mellomtitlene – uten å overdrive (ingen
 søkeord-stapping). Dagens dato er`;
 }
 
-function buildPrompt(recentEntries, today, pubDate, suggestion) {
+function buildPrompt(recentEntries, today, pubDate, suggestion, track, overused) {
   const recentList = recentEntries.length
     ? recentEntries.map((e) => `- ${e.title}${e.pubDate ? ` (${e.pubDate})` : ''}`).join('\n')
     : '(ingen tidligere artikler funnet)';
@@ -166,18 +244,34 @@ ${
     suggestion
       ? `${suggestionSection(suggestion)} ${today}.
 `
-      : `## 2. Velg tema og research med websøk
-Bruk websøket ditt til å research aktuell, sesongrelevant informasjon om seiling
-langs norskekysten. Dagens dato er ${today}. Velg ett konkret tema innenfor en av
-disse kategoriene (velg det som er mest aktuelt akkurat nå OG minst dekket fra før):
+      : `## 2. Dagens temaspor – research med websøk
+Dagens dato er ${today}. For å få variasjon på nettsiden roterer temaet dag for
+dag. Dagens spor er:
 
-- Værforhold/sesongvarsler og hvordan lese dem
-- Sikkerhet til sjøs: redningsvester, brannsikkerhet, sjøveisregler, mann-over-bord
-- Praktisk seilerkunnskap: knop, navigasjon, fortøyning, ankring, seiltrim
-- Båtvedlikehold og utstyr: sesongklargjøring, vinteropplag, sjøsetting, motor
-- Bærekraft og miljø til sjøs
-- Norske seilingsdestinasjoner: skjærgårder, gjestehavner, seilingsleder
+- Spor: ${track.kategori.navn}
+- Eksempler på vinkler: ${track.kategori.vinkler}
+- Format: ${track.format}
+
+Velg ett konkret, avgrenset tema innenfor dette sporet som IKKE er dekket i
+listen over. Bruk websøket ditt til å research det.
+${
+          track.kategori.sesong
+            ? ''
+            : `
+Dette sporet er IKKE sesongbundet: artikkelen skal være like nyttig å lese i
+april som i oktober. Ikke ramm den inn rundt årstiden (ingen "høstseilas",
+"før opptak", "vinteropplag" o.l. i tittel eller ingress), og ikke velg et tema
+som bare handler om opplag, opptak eller høstvær.
 `
+        }`
+  }${
+    overused.length
+      ? `
+Merk: Mange av de siste titlene inneholder ${overused.map((o) => `"${o}"`).join(', ')}.
+Ikke bruk disse ordene i tittelen i dag, og ikke start tittelen med samme mønster
+("<Sesong>: Slik …") som de siste artiklene. Varier også tittelformen.
+`
+      : ''
   }
 Gjør minst 3–5 websøk. Prioriter norske/skandinaviske kilder der det finnes, og
 kryssjekk faktapåstander i minst 2 kilder før du bruker dem. Noter ned de fulle
@@ -298,7 +392,11 @@ async function main() {
     console.log('Ingen ubrukte forslag i keyword-suggestions.json – modellen velger tema fritt.');
   }
   console.log('Ber Azure AI Foundry-modellen research og skrive dagens artikkel …');
-  const prompt = buildPrompt(recentEntries, today, nowIso(), picked?.s);
+  const track = todaysTrack(today);
+  const overused = overusedWords(recentEntries);
+  if (!picked) console.log(`Dagens temaspor: ${track.kategori.navn} – ${track.format}`);
+  if (overused.length) console.log(`Overbrukte tittelord som skal unngås: ${overused.join(', ')}`);
+  const prompt = buildPrompt(recentEntries, today, nowIso(), picked?.s, track, overused);
   let content;
   let frontmatter;
   for (let attempt = 1; ; attempt++) {
