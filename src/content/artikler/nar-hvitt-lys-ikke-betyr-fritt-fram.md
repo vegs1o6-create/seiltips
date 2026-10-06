@@ -2,6 +2,7 @@
 title: "Når hvitt lys ikke betyr fritt fram"
 description: "Sektorlys kan vise vei gjennom mørket, men bare når du leser fargene sammen med sjøkartet og fyllisten."
 pubDate: 2026-10-06T06:24:27.843Z
+image: "/instagram/nar-hvitt-lys-ikke-betyr-fritt-fram.png"
 tags: ["navigasjon", "fyrlykter"]
 sources: ["https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/fyrlykter/", "https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/norsk-fyrliste/", "https://nfs.kystverket.no/fyrlister/Fyrliste_Vest.pdf"]
 ---
