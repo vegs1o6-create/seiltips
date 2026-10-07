@@ -2,6 +2,7 @@
 title: "Rulleforseil forklart: Enklere seiling, men ikke uten grenser"
 description: "Lær hvordan rulleforseilet fungerer, hva du bør passe på, og hvorfor delvis innrulling ikke alltid gir best seiling."
 pubDate: 2026-10-07T13:10:01.575Z
+image: "/instagram/rulleforseil-forklart-enklere-seiling-men-ikke-uten-grenser.png"
 tags: ["seilutstyr", "nybegynner", "rulleforseil"]
 sources: ["https://www.seilmagasinet.no/sm2016-1/gjennomprvd-og-enkelt/602979", "https://www.seilmagasinet.no/rullesystemet-ditt-skal-snurre-lett-og-enkelt/422863", "https://www.seldenmast.com/products/furlex-systems/", "https://elvstromsails.com/sail-technology/sail-types/"]
 ---
