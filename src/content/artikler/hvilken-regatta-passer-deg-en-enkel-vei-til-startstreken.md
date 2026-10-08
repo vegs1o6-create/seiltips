@@ -2,6 +2,7 @@
 title: "Hvilken regatta passer deg? En enkel vei til startstreken"
 description: "Sammenlign fire måter å begynne med kappseiling på, og velg regattaformatet som passer erfaring, båt og ambisjoner."
 pubDate: 2026-10-08T13:17:12.594Z
+image: "/instagram/hvilken-regatta-passer-deg-en-enkel-vei-til-startstreken.png"
 tags: ["kappseilas", "regatta", "seilforening", "nybegynner"]
 sources: ["https://www.norgesseilforbund.org/for-seilforeninger/oversikt-seilforeninger", "https://www.norgesseilforbund.org/for-seilere/kappseilasregler/gjeldende-kappseilingsregler", "https://www.seilmagasinet.no/kappseilingsregler-slik-bli-du-en-regattaseiler/regattaregler-og-seilingsbestemmelser/695628", "https://www.kns.no/kurs-og-seiltilbud/"]
 ---
