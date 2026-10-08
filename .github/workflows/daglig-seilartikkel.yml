@@ -1,6 +1,9 @@
 name: Daglig seilartikkel
 
-# Kjører hver dag rundt kl. 08:00 norsk tid. GitHub Actions cron kjører alltid i UTC og
+# Kjører annenhver dag (workflowen trigges daglig, men hopper over hvis det er publisert
+# en artikkel i dag eller i går – se vaktbikkje-steget). Instagram-innlegget følger
+# artikkelen via workflow_run, så det kommer også bare annenhver dag.
+# Kjøretidspunkt: rundt kl. 08:00 norsk tid. GitHub Actions cron kjører alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for vintertid CET,
 # ett for sommertid CEST). GitHub sin schedule-trigger kan komme flere timer for sent
 # (observert opptil 9–15 timer), så i stedet for å kreve at kjøringen treffer et smalt
@@ -32,7 +35,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk om dagens artikkel allerede er publisert
+      - name: Sjekk om det er publisert artikkel i går eller i dag
         id: tidssjekk
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -41,15 +44,16 @@ jobs:
             exit 0
           fi
           oslo_i_dag=$(TZ="Europe/Oslo" date +%F)
-          siden=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
+          oslo_i_gar=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} -1 day" +%F)
+          siden=$(TZ="Europe/Oslo" date -d "${oslo_i_gar} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
           til=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 23:59:59" -u +"%Y-%m-%dT%H:%M:%SZ")
           allerede=$(git log --since="$siden" --until="$til" --grep='^Legg til artikkel:' --oneline -- src/content/artikler)
           if [[ -n "$allerede" ]]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "En artikkel er allerede publisert i dag (norsk dato ${oslo_i_dag}) – hopper over."
+            echo "En artikkel er allerede publisert i går eller i dag (${oslo_i_gar}–${oslo_i_dag}) – hopper over (annenhver dag)."
           else
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Ingen artikkel publisert i dag (norsk dato ${oslo_i_dag}) ennå – kjører uansett klokkeslett."
+            echo "Ingen artikkel publisert siden ${oslo_i_gar} – kjører uansett klokkeslett."
           fi
 
       - name: Sett opp Node.js
