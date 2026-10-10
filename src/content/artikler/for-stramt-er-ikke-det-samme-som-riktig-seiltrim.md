@@ -2,6 +2,7 @@
 title: "For stramt er ikke det samme som riktig seiltrim"
 description: "Mange trimmer seilene for hardt inn på kryss. Se etter telltales, luft i akterliket og en båt som holder balansen."
 pubDate: 2026-10-10T07:48:27.098Z
+image: "/instagram/for-stramt-er-ikke-det-samme-som-riktig-seiltrim.png"
 tags: ["seiltrim", "kryss", "seilteknikk"]
 sources: ["https://www.landenberger-onedesign.com/en/segeltrimm", "https://www.ussailing.org/news/jib-and-mainsail-trim-how-telltales-work/", "https://www.rya.org.uk/products/rya-sail-trim-handbook/"]
 ---
