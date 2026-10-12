@@ -2,6 +2,7 @@
 title: "Lyngør for første gang: En enkel plan for innseiling og øyliv"
 description: "Lyngør er en bilfri uthavn med trange sund, gjestebrygge og mye å oppleve. Slik planlegger du det første besøket."
 pubDate: 2026-10-12T15:11:08.454Z
+image: "/instagram/lyngor-for-forste-gang-en-enkel-plan-for-innseiling-og-oyliv.png"
 tags: ["destinasjoner", "Lyngør", "nybegynnere", "gjestehavn"]
 sources: ["https://www.visitnorway.com/listings/lyng%C3%B8r/16537/", "https://velihavn.no/uthavner/lyngor", "https://velihavn.no/gjestehavner/lyngor-seilmakerverksted", "https://www.kartverket.no/til-sjos/kart/norskesjokart", "https://dnl.kartverket.no/"]
 ---
