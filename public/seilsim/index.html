@@ -1,0 +1,3485 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SeilSim</title>
+<meta name="description" content="SeilSim – et rolig, lyseblått seilspill i 3D med dynamisk vær, værkart og valg av vindstyrke.">
+<meta property="og:title" content="SeilSim">
+<meta property="og:description" content="Et rolig, lyseblått seilspill i 3D. Rund bøyene, les været og seil trygt i havn.">
+<meta name="theme-color" content="#eaf6fb">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SeilSim">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  html,body{ margin:0; height:100%; }
+  html{ padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px); box-sizing:border-box; }
+  body{ font-family:system-ui,sans-serif; font-size:14px; }
+  [hidden]{ display:none!important; }
+  img{ max-width:100%; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* SeilSim-tokens — hentet fra designsystemet «SeilSim» (tokens.json) */
+  :root{
+    --surface-100:#eaf6fb; --surface-200:#d8edf5; --surface-300:#c3e2ee; --surface-400:#a7d0e0;
+    --ink:#16303f; --ink-muted:#3f6478; --ink-faint:#6f8fa0;
+    --ocean-100:#d3ecf7; --ocean-300:#9ed4ec; --ocean-500:#4fa8d8; --ocean-700:#1f6f9c;
+    --on-ocean:#ffffff; --on-ocean-tint:#16303f;
+    --sun-300:#ffe9a8; --sun-500:#f6c94a; --sun-700:#a5780b; --on-sun:#16303f;
+    --meadow-300:#c9ecd1; --meadow-500:#6fbf8c; --meadow-700:#2f7d54; --on-meadow:#ffffff; --on-meadow-tint:#16303f;
+    --plum-300:#ddd5f5; --plum-500:#7a66cc; --on-plum:#ffffff; --on-plum-tint:#16303f;
+    --coral-300:#fbd7c6; --coral-500:#f0906a; --coral-700:#b84d2e; --on-coral:#ffffff; --on-coral-tint:#16303f;
+    --success:var(--meadow-700); --warning:var(--sun-500); --danger:var(--coral-700);
+    --focus-ring:#1f6f9c;
+    --value:var(--sun-700);
+    --ui-accent:var(--ocean-700); --ui-hot:var(--coral-700);
+
+    --font-heading:'Baloo 2', system-ui, sans-serif;
+    --font-sans:'Nunito', system-ui, sans-serif;
+
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+    --space-5:24px; --space-6:32px; --space-7:48px; --space-8:64px;
+    --radius-sm:10px; --radius-md:16px; --radius-lg:24px; --radius-pill:999px;
+    --shadow-sm:0 1px 2px rgba(22,48,63,0.08);
+    --shadow-md:0 4px 12px rgba(22,48,63,0.12);
+    --shadow-lift:0 8px 24px rgba(22,48,63,0.16);
+    --glass:rgba(234,246,251,0.50); --glass-btn:rgba(255,255,255,0.45); --glass-line:rgba(255,255,255,0.55);
+    color-scheme: light;
+  }
+  /* Kveld */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --surface-100:#0d1b24; --surface-200:#14262f; --surface-300:#1b3340; --surface-400:#2b4a59;
+      --glass:rgba(13,27,36,0.50); --glass-btn:rgba(255,255,255,0.10); --glass-line:rgba(255,255,255,0.14);
+      --ink:#eaf3f8; --ink-muted:#9fc0cf; --ink-faint:#5c7f8f; --focus-ring:#9ed4ec; --value:var(--sun-500); --ui-accent:var(--ocean-300); --ui-hot:var(--coral-500);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --surface-100:#0d1b24; --surface-200:#14262f; --surface-300:#1b3340; --surface-400:#2b4a59;
+    --glass:rgba(13,27,36,0.50); --glass-btn:rgba(255,255,255,0.10); --glass-line:rgba(255,255,255,0.14);
+    --ink:#eaf3f8; --ink-muted:#9fc0cf; --ink-faint:#5c7f8f; --focus-ring:#9ed4ec; --value:var(--sun-500); --ui-accent:var(--ocean-300); --ui-hot:var(--coral-500);
+    color-scheme: dark;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--surface-100);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:16px; line-height:24px;
+    display:flex; flex-direction:column;
+    min-height:100%;
+    padding:max(var(--space-3), env(safe-area-inset-top)) var(--space-4) max(var(--space-3), env(safe-area-inset-bottom));
+    overscroll-behavior:none;
+    user-select:none; -webkit-user-select:none;
+  }
+  .wrap{ max-width:1080px; width:100%; margin:0 auto; }
+
+  header{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); margin-bottom:var(--space-3); }
+  .brand{ font-family:var(--font-heading); font-weight:700; font-size:32px; line-height:38px; margin:0; }
+  .brand small{ display:block; font-family:var(--font-sans); font-size:12px; line-height:16px; font-weight:500; letter-spacing:.02em; color:var(--ink-muted); }
+  .header-actions{ display:flex; gap:var(--space-2); }
+
+  /* Button — fra designsystemet */
+  .hb-button{
+    display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2);
+    border:none; border-radius:var(--radius-pill);
+    padding:var(--space-3) var(--space-5);
+    font-family:var(--font-sans); font-size:15px; line-height:20px; font-weight:700;
+    cursor:pointer; touch-action:none;
+    transition:transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  }
+  .hb-button:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; }
+  .hb-button--primary{ background:var(--ocean-700); color:var(--on-ocean); box-shadow:var(--shadow-sm); }
+  .hb-button--secondary{ background:var(--sun-500); color:var(--on-sun); box-shadow:var(--shadow-sm); }
+  .hb-button--primary:hover, .hb-button--secondary:hover{ box-shadow:var(--shadow-md); transform:translateY(-1px); }
+  .hb-button--ghost{ background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--surface-400); }
+  .hb-button--ghost:hover{ background:var(--surface-200); }
+  .hb-button--ghost.active{ background:var(--ocean-500); color:var(--on-ocean-tint); box-shadow:none; }
+  .hb-button--sm{ padding:var(--space-2) var(--space-4); }
+  .hb-button--lg{ padding:var(--space-4) var(--space-6); }
+  .hb-button svg{ width:18px; height:18px; flex:none; }
+
+  /* Badge — fra designsystemet */
+  .hb-badge{
+    display:inline-flex; align-items:center; gap:var(--space-1);
+    padding:var(--space-1) var(--space-3);
+    border-radius:var(--radius-pill);
+    font-size:13px; line-height:18px; font-weight:700;
+    white-space:nowrap;
+  }
+  .hb-badge[hidden]{ display:none; }
+  .hb-badge--info{ background:var(--ocean-100); color:var(--on-ocean-tint); }
+  .hb-badge--success{ background:var(--meadow-300); color:var(--on-meadow-tint); }
+  .hb-badge--warning{ background:var(--sun-300); color:var(--on-sun); }
+  .hb-badge--danger{ background:var(--coral-300); color:var(--on-coral-tint); }
+  .hb-badge svg{ width:14px; height:14px; }
+
+  .hud{ display:flex; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-3); }
+  .hud .spacer{ flex:1; }
+
+  .stage{
+    position:relative; flex:1; min-height:clamp(520px, 74dvh, 880px); --ctl-h:190px;
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    background:var(--surface-200);
+    box-shadow:var(--shadow-sm);
+  }
+  .stage canvas{ display:block; position:absolute; inset:0; width:100%; height:100%; }
+
+  /* Trimpanel — seilene og vinden sett ovenfra */
+  .trim{
+    position:absolute; top:var(--space-4); right:var(--space-4);
+    background:var(--surface-300); color:var(--ink);
+    border-radius:var(--radius-lg);
+    padding:var(--space-3);
+    box-shadow:var(--shadow-sm);
+    display:flex; align-items:center; gap:var(--space-3);
+  }
+  .trim svg{ width:96px; height:96px; display:block; }
+  .trim .label{ font-size:13px; line-height:18px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-muted); }
+  .trim .value{ font-family:var(--font-heading); font-size:19px; line-height:26px; font-weight:600; color:var(--value); }
+  .trim .sub{ font-size:14px; line-height:20px; color:var(--ink-muted); }
+
+  .pointer{
+    position:absolute; width:40px; height:40px; margin:-20px 0 0 -20px;
+    border-radius:50%; display:grid; place-items:center;
+    background:var(--sun-500); color:var(--on-sun);
+    box-shadow:var(--shadow-md);
+    pointer-events:none;
+  }
+  .pointer.next{ background:var(--plum-500); color:var(--on-plum); box-shadow:0 0 0 4px var(--plum-300), var(--shadow-md); animation:nextpulse 1.1s ease-in-out infinite; }
+  @keyframes nextpulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.2); } }
+  @media (prefers-reduced-motion:reduce){ .pointer.next{ animation:none; } }
+  .hb-badge--next{ background:var(--plum-300); color:var(--on-plum-tint); }
+  .pointer.home{ background:var(--meadow-700); color:var(--on-meadow); }
+  .pointer[hidden]{ display:none; }
+  .pointer svg{ width:20px; height:20px; }
+
+  .toast{
+    position:absolute; left:50%; bottom:calc(var(--ctl-h) + var(--space-3)); transform:translateX(-50%);
+    pointer-events:none;
+  }
+
+  /* Kort / modal */
+  .overlay{
+    position:absolute; inset:0; z-index:20;
+    display:grid; place-items:center;
+    padding:var(--space-4);
+    background:rgba(13,27,36,0.2);
+    overflow:auto;
+  }
+  .overlay[hidden]{ display:none; }
+  .hb-card{
+    background:var(--surface-300);
+    border-radius:var(--radius-lg);
+    padding:var(--space-5);
+    box-shadow:var(--shadow-lift);
+    color:var(--ink);
+    max-width:440px; width:100%;
+  }
+  .hb-card__eyebrow{ font-size:13px; line-height:18px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:var(--space-1); }
+  .hb-card__title{ font-family:var(--font-heading); font-size:32px; line-height:38px; font-weight:700; margin:0 0 var(--space-2); }
+  .hb-card__body{ color:var(--ink-muted); margin:0 0 var(--space-5); }
+  .hb-card__body p{ margin:0 0 var(--space-2); }
+  .hb-card__actions{ display:flex; flex-wrap:wrap; gap:var(--space-3); }
+  .hb-card ul{ margin:0; padding-left:var(--space-5); font-size:14px; line-height:20px; }
+  .hb-card li{ margin-bottom:var(--space-1); }
+  kbd{
+    font-family:var(--font-sans); font-size:12px; line-height:16px; font-weight:700;
+    padding:0 var(--space-1); border-radius:6px;
+    background:var(--surface-100); color:var(--ink);
+    box-shadow:inset 0 0 0 1px var(--surface-400);
+  }
+  .stats{ display:flex; gap:var(--space-2); flex-wrap:wrap; margin-bottom:var(--space-4); }
+
+  /* Fartsmåler — stor skive nede til venstre */
+  .speedo{
+    position:absolute; left:var(--space-4); bottom:calc(var(--ctl-h) + var(--space-3));
+    width:92px; padding:var(--space-1) var(--space-2);
+    background:var(--surface-300); color:var(--ink);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-md);
+    pointer-events:none;
+  }
+  .speedo svg{ display:block; width:100%; height:auto; }
+  .speedo .track{ fill:none; stroke:var(--surface-400); stroke-width:11; stroke-linecap:round; }
+  .speedo .arc{ fill:none; stroke:var(--ui-accent); stroke-width:11; stroke-linecap:round; transition:stroke .25s; }
+  .speedo.hot .arc{ stroke:var(--ui-hot); }
+  .speedo .num{ font-family:var(--font-heading); font-weight:700; font-size:46px; fill:var(--ink); font-variant-numeric:tabular-nums; }
+  .speedo .cap{ font-family:var(--font-sans); font-weight:700; font-size:19px; letter-spacing:.06em; fill:var(--ink-muted); }
+  .speedo .top, .speedo .scale{ display:none; }
+
+  /* Valg av vind */
+  .windpick{ display:flex; flex-direction:column; gap:var(--space-1); margin:var(--space-3) 0; }
+  .windpick__label{ font-size:12px; line-height:16px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-muted); }
+  .seg{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:4px; padding:4px; background:var(--surface-300); border-radius:var(--radius-pill); box-shadow:inset 0 0 0 1px var(--surface-400); }
+  /* Ledertavle */
+  .lbbox{ display:flex; flex-direction:column; gap:var(--space-2); margin:var(--space-3) 0; }
+  .lbbox__title, .lbdetails summary{ font-size:12px; line-height:16px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-muted); }
+  .lbdetails{ margin:var(--space-3) 0; }
+  .lbdetails summary{ cursor:pointer; min-height:32px; display:flex; align-items:center; }
+  .lbdetails[open] summary{ margin-bottom:var(--space-2); }
+  .lb{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .lb li{ display:grid; grid-template-columns:28px minmax(0, 1fr) auto; column-gap:var(--space-2); align-items:baseline; padding:8px var(--space-3); background:var(--surface-100); border-radius:var(--radius-md); box-shadow:inset 0 0 0 1px var(--surface-400); }
+  .lb li.me{ background:var(--sun-300); color:var(--on-sun); box-shadow:inset 0 0 0 2px var(--sun-700); }
+  .lb__rank{ font-family:var(--font-heading); font-weight:700; font-size:17px; color:var(--ink-muted); }
+  .lb li.me .lb__rank{ color:var(--on-sun); }
+  .lb__name{ font-weight:700; font-size:15px; line-height:20px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb__time{ font-family:var(--font-heading); font-weight:700; font-size:17px; font-variant-numeric:tabular-nums; }
+  .lb__meta{ grid-column:2 / -1; font-size:12px; line-height:16px; color:var(--ink-muted); }
+  .lb li.me .lb__meta{ color:var(--on-sun); }
+  .lbnote{ font-size:12px; line-height:16px; color:var(--ink-muted); margin:0; }
+  .lbform{ display:flex; flex-direction:column; gap:var(--space-1); }
+  .lbform label{ font-size:14px; line-height:20px; font-weight:700; }
+  .lbform__row{ display:flex; gap:var(--space-2); flex-wrap:wrap; }
+  .lbform input{ flex:1 1 150px; min-width:0; min-height:44px; padding:0 var(--space-3); font:inherit; font-size:16px; color:var(--ink); background:var(--surface-100); border:0; border-radius:var(--radius-pill); box-shadow:inset 0 0 0 2px var(--surface-400); }
+  .lbform input:focus-visible{ outline:3px solid var(--ui-accent); outline-offset:2px; }
+  .lbform__msg{ font-size:13px; line-height:18px; color:var(--ink-muted); min-height:0; }
+  .lbform__msg:empty{ display:none; }
+
+  .learn{ text-align:left; }
+  .learn details{ border-top:1px solid var(--surface-400); padding:var(--space-2) 0; }
+  .learn summary{ cursor:pointer; min-height:36px; display:flex; align-items:center; font-weight:700; font-size:15px; }
+  .learn details > :not(summary){ font-size:14px; line-height:20px; color:var(--ink-muted); }
+  .learn p{ margin:0 0 var(--space-2); }
+  .learn ul{ margin:0 0 var(--space-2); padding-left:var(--space-5); }
+  .learn li{ margin-bottom:var(--space-2); }
+  #menuOverlay{ position:fixed; z-index:50; background:rgba(13,27,36,0.45); }
+  #menuOverlay .hb-card{ max-height:calc(100dvh - 32px); overflow:auto; align-self:center; max-width:560px; }
+  .seg--3{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  .menutabs{ margin:var(--space-2) 0 var(--space-3); }
+  .menupane[hidden]{ display:none; }
+  .menunote{ margin:0 0 var(--space-2); font-size:14px; color:var(--ink-muted); }
+  .menuh{ font-family:var(--font-heading); font-size:17px; line-height:24px; margin:var(--space-3) 0 var(--space-1); }
+  .keys{ display:grid; grid-template-columns:minmax(96px, auto) minmax(0, 1fr); gap:var(--space-2) var(--space-3); margin:0; font-size:14px; line-height:20px; align-items:baseline; }
+  .keys dt{ font-weight:700; color:var(--ink); }
+  .keys dd{ margin:0; color:var(--ink-muted); }
+  .keys kbd{ min-width:24px; display:inline-block; text-align:center; }
+  @media (max-width:420px){ .keys{ grid-template-columns:1fr; gap:0; } .keys dd{ margin-bottom:var(--space-2); } }
+  /* Seiltrim */
+  .trimrow{
+    grid-column:1 / -1;
+    display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--space-2) var(--space-5);
+    padding:var(--space-1) var(--space-4);
+    background:var(--glass); box-shadow:inset 0 0 0 1px var(--glass-line);
+    -webkit-backdrop-filter:blur(8px) saturate(1.2); backdrop-filter:blur(8px) saturate(1.2);
+    border-radius:var(--radius-lg);
+  }
+  .trimrow[hidden]{ display:none; }
+  .trimctl{ display:grid; grid-template-columns:auto minmax(0, 1fr) 3.2em; align-items:center; gap:var(--space-2); min-width:0; font-size:14px; color:var(--ink); }
+  .trimctl output{ font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink-muted); text-align:right; font-size:13px; }
+  .trimctl input[type=range]{ width:100%; height:36px; margin:0; accent-color:var(--ui-accent); touch-action:pan-y; }
+  .trimtoggle{ align-self:center; min-width:120px; min-height:36px; padding:var(--space-1) var(--space-4); }
+  .trimtoggle[hidden]{ display:none; }
+  .trimtoggle[aria-expanded="true"]{ background:var(--ocean-500); color:var(--on-ocean-tint); }
+  @media (max-width:720px){ .trimrow{ grid-template-columns:1fr; gap:0; padding:var(--space-1) var(--space-3); order:4; } }
+  .seg--2{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .controls.single{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  @media (max-width:720px){ .controls.single .panel[data-sail]{ grid-column:1 / -1; } }
+  .seg__btn{ font:inherit; font-weight:700; font-size:14px; line-height:20px; min-height:40px; padding:0 var(--space-2); border:0; border-radius:var(--radius-pill); background:transparent; color:var(--ink); cursor:pointer; transition:background .15s, color .15s; }
+  .seg__btn:hover{ background:var(--surface-400); }
+  .seg__btn[aria-selected="true"], .seg__btn[aria-checked="true"]{ background:var(--ocean-700); color:var(--on-ocean); box-shadow:var(--shadow-sm); }
+  .seg__btn:focus-visible{ outline:3px solid var(--ui-accent); outline-offset:2px; }
+
+  /* Værkart — vindfelt, byger og tidslinje */
+  .wxmap{
+    position:absolute; right:var(--space-4); bottom:calc(var(--ctl-h) + var(--space-3));
+    width:372px; max-height:calc(100% - var(--ctl-h) - 2 * var(--space-4)); overflow:auto; max-width:calc(100% - 2 * var(--space-4));
+    padding:var(--space-3);
+    background:var(--surface-300); color:var(--ink);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow-md);
+    display:flex; flex-direction:column; gap:var(--space-2);
+  }
+  .wxmap[hidden]{ display:none; }
+  .wx-head{ display:flex; align-items:center; gap:var(--space-2); }
+  .wx-head .wx-title{ margin-right:auto; }
+  .wx-size{ min-height:36px; padding:var(--space-1) var(--space-3); }
+  .wxmap{ --wxs:168px; }
+  .wxmap.big{ width:min(calc(100% - 2 * var(--space-4)), 860px); max-width:none; --wxs:clamp(240px, min(calc(100dvh - var(--ctl-h) - 250px), calc(100vw - 330px)), 600px); }
+  .wxmap.big .wx-body{ grid-template-columns:var(--wxs) minmax(0, 1fr); }
+  .wxmap.big .wx-stack{ width:var(--wxs); height:var(--wxs); }
+  .wxmap.big .wx-meteo{ display:block; }
+  .wxmap.big .wx-axis{ display:flex; }
+  .wxmap.big .wx-legend{ display:grid; }
+  .wxmap.big .wx-text{ font-size:15px; line-height:21px; }
+  @media (max-width:720px){ .wxmap.big{ width:calc(100% - 2 * var(--space-3)); max-height:calc(100% - var(--ctl-h) - 2 * var(--space-3)); --wxs:min(calc(100vw - 64px), calc(100dvh - var(--ctl-h) - 330px)); } .wxmap.big .wx-body{ grid-template-columns:1fr; justify-items:center; } .wxmap.big .wx-side{ width:100%; } }
+  .wx-title{ font-family:var(--font-heading); font-size:19px; line-height:26px; font-weight:600; margin:0; }
+  .wx-body{ display:grid; grid-template-columns:168px minmax(0, 1fr); gap:var(--space-3); }
+  .wx-stack{
+    position:relative; width:168px; height:168px;
+    border-radius:var(--radius-md); overflow:hidden;
+    background:var(--surface-100); box-shadow:inset 0 0 0 1px var(--surface-400);
+    cursor:crosshair; touch-action:manipulation;
+  }
+  .wx-stack canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .wx-stack #wxFlow{ pointer-events:none; }
+  .wx-side{ display:flex; flex-direction:column; gap:var(--space-2); min-width:0; }
+  .wx-text{ font-size:13px; line-height:18px; color:var(--ink); }
+  .wx-text b{ font-weight:700; }
+  .wx-text .muted{ color:var(--ink-muted); }
+  .wx-meteo{ position:relative; height:64px; border-radius:var(--radius-sm); overflow:hidden; background:var(--surface-100); box-shadow:inset 0 0 0 1px var(--surface-400); }
+  .wx-meteo canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .wx-axis{ display:flex; justify-content:space-between; gap:var(--space-2); font-size:11px; line-height:14px; font-weight:700; color:var(--ink-muted); }
+  .wx-time{ display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:var(--space-3); align-items:center; }
+  .wx-time input[type=range]{ width:100%; height:28px; margin:0; accent-color:var(--ui-accent); }
+  .wx-legend{ display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:var(--space-2); align-items:center; font-size:11px; line-height:14px; font-weight:700; color:var(--ink-muted); }
+  .wx-ramp{ height:8px; border-radius:var(--radius-pill); box-shadow:inset 0 0 0 1px rgba(22,48,63,.25); }
+
+  /* Kontroller */
+  .controls{
+    position:absolute; z-index:5; left:var(--space-3); right:var(--space-3); bottom:var(--space-3);
+    display:grid; grid-template-columns:1fr auto 1fr; gap:var(--space-2); align-items:end;
+  }
+  .panel{
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(8px) saturate(1.2); backdrop-filter:blur(8px) saturate(1.2);
+    box-shadow:inset 0 0 0 1px var(--glass-line);
+    border-radius:var(--radius-lg);
+    padding:var(--space-2) var(--space-3);
+  }
+  .controls .hb-button--ghost{ background:var(--glass-btn); box-shadow:inset 0 0 0 1px var(--glass-line); }
+  .controls .hb-button--ghost:hover{ background:var(--glass-btn); }
+  .controls .hb-button--ghost.active{ background:var(--ocean-500); color:var(--on-ocean-tint); }
+  .panel[data-sail] .panel-btns{ grid-template-columns:1.5fr 1.5fr 1fr 1fr; }
+  .panel[data-sail] .panel-btns .hb-button{ padding:var(--space-2) 0; min-height:44px; font-size:14px; }
+  .panel[data-sail] [data-status]{ font-size:12px; padding:0 var(--space-2); }
+  .panel[data-sail] .panel-btns .long{ display:none; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); margin-bottom:var(--space-2); }
+  .panel-name{ font-family:var(--font-heading); font-size:19px; line-height:26px; font-weight:600; }
+  .panel-keys{ font-size:12px; line-height:16px; font-weight:500; color:var(--ink-muted); }
+  .meter{ height:8px; border-radius:var(--radius-pill); background:var(--surface-400); overflow:hidden; margin-bottom:var(--space-1); }
+  .meter span{ display:block; height:100%; width:0; border-radius:var(--radius-pill); background:var(--ocean-700); }
+  .panel-meta{ font-size:14px; line-height:20px; color:var(--ink-muted); margin-bottom:var(--space-2); }
+  .panel-btns{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); }
+  .panel-btns .hb-button{ min-height:44px; padding:var(--space-2) var(--space-3); }
+  .helm{ display:flex; flex-direction:column; justify-content:center; gap:var(--space-2); min-width:260px; }
+  .helm .panel-btns .hb-button{ min-height:64px; }
+
+  @media (max-width:720px){
+    .brand{ font-size:24px; line-height:30px; }
+    header{ flex-wrap:wrap; gap:var(--space-2); }
+    .header-actions{ margin-left:auto; }
+    .header-actions .hb-button--sm{ padding:var(--space-2) var(--space-3); }
+    .controls{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--space-2); left:var(--space-2); right:var(--space-2); bottom:var(--space-2); }
+    .panel[data-sail] .meter, .panel[data-sail] .panel-meta{ display:none; }
+    .panel[data-sail] .panel-head{ margin-bottom:var(--space-1); }
+    .panel-head{ flex-wrap:wrap; row-gap:var(--space-1); }
+    .panel-name{ font-size:17px; }
+    .helm{ grid-column:1 / -1; order:3; min-width:0; }
+    .helm .panel-btns .hb-button{ min-height:52px; }
+    .panel{ padding:var(--space-2) var(--space-3); }
+    .panel-keys{ display:none; }
+    .panel-btns .hb-button{ font-size:14px; }
+    .trim{ top:var(--space-3); right:var(--space-3); padding:var(--space-2); gap:var(--space-2); }
+    .trim svg{ width:72px; height:72px; }
+    .trim .sub{ display:none; }
+    .speedo{ width:76px; left:var(--space-3); bottom:calc(var(--ctl-h) + var(--space-2)); padding:var(--space-1) var(--space-1); }
+    .wxmap{ right:var(--space-3); top:var(--space-3); bottom:auto; width:calc(100% - 2 * var(--space-3)); max-width:372px; padding:var(--space-2); }
+    .wx-body{ grid-template-columns:112px minmax(0, 1fr); gap:var(--space-2); }
+    .wx-stack{ width:112px; height:112px; }
+    .wx-meteo, .wx-axis, .wx-legend{ display:none; }
+    .wx-text{ font-size:12px; line-height:16px; }
+    .wx-open .speedo, .wx-open .trim{ display:none; }
+  }
+  @media (max-height:780px){ .wx-open .trim{ display:none; } }
+  @media (max-width:420px){
+    .panel-btns .hb-button span.long{ display:none; }
+    .brand small{ display:none; }
+  }
+
+  /* iPad liggende: spillet fyller hele skjermen, ingen scrolling */
+  @media (orientation:landscape){
+    html, body{ height:100%; overflow:hidden; overscroll-behavior:none; }
+    body{ padding:0; min-height:0; position:fixed; inset:0; }
+    .wrap{ max-width:none; margin:0; }
+    .stage{ position:fixed; inset:0; min-height:0; border-radius:0; box-shadow:none; }
+    header{ position:fixed; z-index:6; top:max(var(--space-2), env(safe-area-inset-top)); left:max(var(--space-3), env(safe-area-inset-left)); right:max(var(--space-3), env(safe-area-inset-right)); margin:0; pointer-events:none; }
+    header > *{ pointer-events:auto; }
+    .brand{ font-size:22px; line-height:28px; color:var(--ink); text-shadow:0 0 8px var(--glass-btn); }
+    .brand small{ display:none; }
+    .header-actions .hb-button--ghost{ background:var(--glass); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+    .header-actions .hb-button--ghost.active{ background:var(--ocean-500); color:var(--on-ocean-tint); }
+    .hud{ position:fixed; z-index:6; top:calc(max(var(--space-2), env(safe-area-inset-top)) + 36px); left:max(var(--space-3), env(safe-area-inset-left)); right:max(var(--space-3), env(safe-area-inset-right)); margin:0; pointer-events:none; }
+    .trim{ top:calc(var(--space-2) + 52px); right:max(var(--space-3), env(safe-area-inset-right)); padding:var(--space-2); }
+    .trim svg{ width:72px; height:72px; }
+    .trim .sub{ display:none; }
+    .controls{ left:max(var(--space-3), env(safe-area-inset-left)); right:max(var(--space-3), env(safe-area-inset-right)); bottom:max(var(--space-3), env(safe-area-inset-bottom)); grid-template-columns:minmax(0, 1fr) minmax(220px, 300px) minmax(0, 1fr); }
+    .panel[data-sail] .meter, .panel[data-sail] .panel-meta{ display:none; }
+    .panel[data-sail] .panel-head{ margin-bottom:var(--space-1); }
+    .helm .panel-btns .hb-button{ min-height:52px; }
+    .speedo{ left:max(var(--space-3), env(safe-area-inset-left)); }
+    .wxmap{ top:calc(var(--space-2) + 60px); bottom:auto; max-height:calc(100% - var(--ctl-h) - 80px); }
+    .wxmap.big{ top:calc(var(--space-2) + 56px); right:50%; transform:translateX(50%); }
+    .wx-open .trim{ display:none; }
+  }
+  @media (orientation:landscape) and (max-height:520px){ .trim, .speedo{ display:none; } }
+
+  /* Regatta */
+  .rgbanner{ position:absolute; left:50%; top:calc(var(--space-3) + 4px); transform:translateX(-50%); z-index:7; display:flex; flex-direction:column; align-items:center; gap:2px; max-width:min(92%, 520px); padding:var(--space-2) var(--space-5); border-radius:var(--radius-lg); background:var(--glass); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:var(--shadow-md); text-align:center; pointer-events:none; color:var(--ink); }
+  .rgbanner[hidden]{ display:none; }
+  .rgbanner__big{ font-family:var(--font-heading); font-weight:700; font-size:34px; line-height:40px; font-variant-numeric:tabular-nums; }
+  .rgbanner__sub{ font-size:14px; line-height:20px; font-weight:600; color:var(--ink-muted); }
+  .rgbanner.warn .rgbanner__big{ color:var(--coral-700); }
+  .rgbanner.go .rgbanner__big{ color:var(--meadow-700); }
+  .rgbanner.small .rgbanner__big{ font-size:22px; line-height:28px; }
+  @media (orientation:landscape){ .rgbanner{ top:calc(max(var(--space-2), env(safe-area-inset-top)) + 84px); } }
+  @media (orientation:portrait){ .rgbanner{ top:112px; max-width:72%; padding:var(--space-2) var(--space-4); } .rgbanner__big{ font-size:28px; line-height:34px; } .rgbanner.small .rgbanner__big{ font-size:19px; line-height:24px; } .wx-open .rgbanner{ display:none; } }
+  .wx-open .rgbanner{ top:auto; bottom:calc(var(--ctl-h, 0px) + var(--space-3)); }
+  .lbswitch{ margin:0 0 var(--space-2); }
+  .modenote{ font-size:14px; line-height:20px; color:var(--ink-muted); margin:0 0 var(--space-2); }
+  .seg__btn[disabled]{ opacity:.4; cursor:not-allowed; }
+</style>
+</head>
+<body>
+<script src="config.js"></script>
+<script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+</script>
+<div class="wrap" style="display:flex; flex-direction:column; flex:1;">
+
+<header>
+  <h1 class="brand">SeilSim<small>Et rolig seilspill i myke farger.</small></h1>
+  <div class="header-actions">
+    <button class="hb-button hb-button--ghost hb-button--sm" id="focusBtn" aria-pressed="false" title="Kameraet ser mot neste bøye">Se mål</button>
+    <button class="hb-button hb-button--ghost hb-button--sm" id="wxBtn" aria-pressed="false" aria-controls="wxPanel">Kart</button>
+    <button class="hb-button hb-button--ghost hb-button--sm" id="pauseBtn" aria-label="Pause">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 6v12M15 6v12"/></svg>
+    </button>
+    <button class="hb-button hb-button--ghost hb-button--sm" id="soundBtn" aria-label="Slå av lyd" aria-pressed="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path data-on d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/><path data-off d="M16 10l4 4M20 10l-4 4" style="display:none"/></svg>
+    </button>
+    <button class="hb-button hb-button--ghost hb-button--sm" id="themeBtn">Kveld</button>
+  </div>
+</header>
+
+<div class="hud" aria-live="polite">
+  <span class="hb-badge hb-badge--info" id="targetBadge">Bøye 1 av 4</span>
+  <span class="hb-badge hb-badge--info" id="distBadge">0 m</span>
+  <span class="hb-badge hb-badge--success" id="posBadge" hidden>Plass 1 av 3</span>
+  <span class="hb-badge hb-badge--next" id="nextBadge" hidden>Neste</span>
+  <span class="hb-badge hb-badge--warning" id="hoistBadge" hidden>Heis seilene</span>
+  <span class="hb-badge hb-badge--danger" id="squallBadge" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15a4 4 0 1 1 1-7.9A5 5 0 0 1 17.5 9 3.5 3.5 0 0 1 17 16H7"/><path d="M9 19l-1 2M13 19l-1 2"/></svg>
+    Byge i nærheten
+  </span>
+  <span class="hb-badge hb-badge--danger" id="overBadge" hidden>For mye seil — ta ned litt</span>
+  <span class="spacer"></span>
+  <span class="hb-badge hb-badge--warning" id="timeBadge">0:00</span>
+</div>
+
+<div class="stage" id="stage">
+  <canvas id="sea"></canvas>
+  <div class="rgbanner" id="rgBanner" hidden aria-live="polite"><div class="rgbanner__big" id="rgBig"></div><div class="rgbanner__sub" id="rgSub"></div></div>
+
+  <div class="trim" aria-label="Trim og vind">
+    <svg viewBox="-60 -60 120 120" aria-hidden="true">
+      <circle r="56" fill="var(--surface-100)" stroke="var(--surface-400)" stroke-width="1.5"/>
+      <path id="trimHull" d="M0 -40 C10 -28 12 -4 9 30 L-9 30 C-12 -4 -10 -28 0 -40 Z" fill="var(--ocean-700)"/>
+      <line id="jibLine" x1="0" y1="-38" x2="0" y2="-14" stroke="var(--sun-700)" stroke-width="4" stroke-linecap="round"/>
+      <line id="mainLine" x1="0" y1="-10" x2="0" y2="24" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="0" cy="-10" r="3" fill="var(--ink)"/>
+      <g id="windMark">
+        <path d="M0 -55 L0 -40 M-6 -47 L0 -40 L6 -47" fill="none" stroke="var(--value)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </svg>
+    <div>
+      <div class="label">Vind</div>
+      <div class="value" id="windValue">5 m/s</div>
+      <div class="sub" id="pointOfSail">Halvvind</div>
+    </div>
+  </div>
+
+  <div class="speedo" id="speedo" role="img" aria-label="Fart 0 knop">
+    <svg viewBox="0 0 160 142" aria-hidden="true">
+      <path class="track" d="M 36.16 123.84 A 62 62 0 1 1 123.84 123.84" pathLength="100"/>
+      <path class="arc" id="speedoArc" d="M 36.16 123.84 A 62 62 0 1 1 123.84 123.84" pathLength="100" stroke-dasharray="0 100"/>
+      <text class="cap top" x="80" y="56" text-anchor="middle">FART</text>
+      <text class="num" id="speedoNum" x="80" y="99" text-anchor="middle">0.0</text>
+      <text class="cap" x="80" y="121" text-anchor="middle">KNOP</text>
+      <text class="scale" x="34" y="140" text-anchor="middle">0</text>
+      <text class="scale" x="126" y="140" text-anchor="middle">20</text>
+    </svg>
+  </div>
+
+  <aside class="wxmap big" id="wxPanel" aria-label="Værkart" hidden>
+    <div class="wx-head">
+      <h2 class="wx-title">Værkart</h2>
+      <span class="hb-badge hb-badge--info" id="wxWhen">Nå</span>
+    </div>
+    <div class="wx-body">
+      <div class="wx-stack" id="wxStack">
+        <canvas id="wxBase" role="img" aria-label="Kart over vind, byger, øyer og bøyene 1 til 4. Trykk for å lese vinden et sted."></canvas>
+        <canvas id="wxFlow" aria-hidden="true"></canvas>
+      </div>
+      <div class="wx-side">
+        <div class="wx-text" id="wxText"></div>
+        <div class="wx-meteo"><canvas id="wxMeteo" aria-hidden="true"></canvas></div>
+        <div class="wx-axis"><span>Vind ved båten</span><span>5 min</span></div>
+      </div>
+    </div>
+    <div class="wx-time">
+      <input type="range" id="wxSlider" min="0" max="300" step="5" value="0" aria-label="Prognose, sekunder fram i tid">
+      <button class="hb-button hb-button--ghost hb-button--sm" id="wxNow">Nå</button>
+    </div>
+    <div class="wx-legend"><span>3</span><span class="wx-ramp" id="wxRamp"></span><span>22+ m/s</span></div>
+  </aside>
+
+  <div class="pointer next" id="pointerNext" hidden aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <div class="pointer" id="pointer" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <div class="controls" id="controls">
+    <section class="panel" data-sail="main">
+      <div class="panel-head">
+        <span class="panel-name" id="mainName">Storseil</span>
+        <span class="hb-badge hb-badge--info" data-status>Nede</span>
+      </div>
+      <div class="meter"><span data-meter></span></div>
+      <div class="panel-meta" data-meta>Nede · midt</div>
+      <div class="panel-btns">
+        <button class="hb-button hb-button--ghost" data-act="up">Opp</button>
+        <button class="hb-button hb-button--ghost" data-act="down">Ned</button>
+        <button class="hb-button hb-button--ghost" data-act="port" aria-label="Storseil mot babord">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span class="long">Babord</span></button>
+        <button class="hb-button hb-button--ghost" data-act="stbd" aria-label="Storseil mot styrbord"><span class="long">Styrbord</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </section>
+
+    <section class="panel helm" aria-label="Ror">
+      <button type="button" class="hb-button hb-button--ghost hb-button--sm trimtoggle" id="trimToggle" aria-expanded="false" aria-controls="trimPanel">Trim</button>
+      <div class="panel-btns">
+        <button class="hb-button hb-button--ghost" id="leftBtn" aria-label="Styr babord">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Babord</button>
+        <button class="hb-button hb-button--ghost" id="rightBtn" aria-label="Styr styrbord">Styrbord
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </section>
+
+    <section class="panel" data-sail="jib">
+      <div class="panel-head">
+        <span class="panel-name">Forseil</span>
+        <span class="hb-badge hb-badge--info" data-status>Nede</span>
+      </div>
+      <div class="meter"><span data-meter></span></div>
+      <div class="panel-meta" data-meta>Nede · midt</div>
+      <div class="panel-btns">
+        <button class="hb-button hb-button--ghost" data-act="up">Opp</button>
+        <button class="hb-button hb-button--ghost" data-act="down">Ned</button>
+        <button class="hb-button hb-button--ghost" data-act="port" aria-label="Forseil mot babord">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span class="long">Babord</span></button>
+        <button class="hb-button hb-button--ghost" data-act="stbd" aria-label="Forseil mot styrbord"><span class="long">Styrbord</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </section>
+
+    <section class="trimrow" id="trimPanel" aria-label="Seiltrim for storseilet" hidden>
+      <label class="trimctl"><b>Twist</b>
+        <input type="range" id="twIn" min="0" max="100" step="5" value="50" aria-label="Twist">
+        <output id="twVal">50 %</output></label>
+      <label class="trimctl"><b>Kicker</b>
+        <input type="range" id="kiIn" min="0" max="100" step="5" value="50" aria-label="Kicker">
+        <output id="kiVal">50 %</output></label>
+      <label class="trimctl"><b>Akterstag</b>
+        <input type="range" id="bsIn" min="0" max="100" step="5" value="30" aria-label="Akterstag">
+        <output id="bsVal">30 %</output></label>
+    </section>
+  </div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="hb-card">
+      <div class="hb-card__eyebrow">Dagens seilas</div>
+      <h2 class="hb-card__title">God vind i dag</h2>
+      <div class="hb-card__body" id="introK">
+        <p>Rund de gule bøyene i rekkefølge og seil tilbake til havna.</p>
+        <ul>
+          <li>Velg båt og vind under, og trykk <b>Sett seil</b>.</li>
+          <li><b>Opp</b> heiser seilet. Pilene stiller det inn. Blafrer det, trekk det litt innover.</li>
+          <li><b>Babord</b> og <b>Styrbord</b> nederst styrer båten.</li>
+          <li><b>Kart</b> viser vind, byger, øyene og bøyene 1–4.</li>
+          <li>Kjølbåten har seiltrim under: <b>Twist</b>, <b>Kicker</b> og <b>Akterstag</b>.</li>
+        </ul>
+      </div>
+      <div class="hb-card__body" id="introR" hidden>
+        <p>Åpent hav, startlinje, tre merker du må runde og mål mellom to bøyer. Du seiler kjølbåt mot Mia og Jon.</p>
+        <ul>
+          <li>Seil til det røde startfeltet bak linjen innen <b>3 minutter</b>. Da starter en nedtelling på <b>45 sekunder</b>.</li>
+          <li>Vær bak linjen når startskuddet går, og kryss den mellom de to røde bøyene.</li>
+          <li>Rund merke 1, 2 og 3 i rekkefølge. Merket skal være på styrbord side.</li>
+          <li>Kryss mållinjen mellom de to grønne bøyene.</li>
+        </ul>
+      </div>
+      <div class="windpick"><div class="windpick__label" id="mp1">Spill</div><div class="seg seg--2" role="radiogroup" aria-labelledby="mp1">
+          <button type="button" role="radio" class="seg__btn" data-mode="klassisk">Rund bøyene</button><button type="button" role="radio" class="seg__btn" data-mode="regatta">Regatta</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="bp1">Båt</div><div class="seg seg--2" role="radiogroup" aria-labelledby="bp1">
+          <button type="button" role="radio" class="seg__btn" data-boat="kjol">Kjølbåt</button><button type="button" role="radio" class="seg__btn" data-boat="opti">Optimist</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="wp1">Vind</div><div class="seg" role="radiogroup" aria-labelledby="wp1">
+          <button type="button" role="radio" class="seg__btn" data-wind="rolig">Rolig</button><button type="button" role="radio" class="seg__btn" data-wind="middels">Middels</button><button type="button" role="radio" class="seg__btn" data-wind="kraftig">Kraftig</button></div></div>
+      <div class="hb-card__actions">
+        <button class="hb-button hb-button--primary hb-button--lg" id="startBtn">Sett seil</button>
+        <button class="hb-button hb-button--ghost hb-button--lg" id="menuBtnStart">Meny</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOverlay" hidden>
+    <div class="hb-card">
+      <div class="hb-card__eyebrow">Pause</div>
+      <h2 class="hb-card__title">Seilene slakkes</h2>
+      <p class="hb-card__body">Havet venter på deg. Ny vindstyrke gjelder fra neste start.</p>
+<div class="windpick"><div class="windpick__label" id="mp2">Spill</div><div class="seg seg--2" role="radiogroup" aria-labelledby="mp2">
+          <button type="button" role="radio" class="seg__btn" data-mode="klassisk">Rund bøyene</button><button type="button" role="radio" class="seg__btn" data-mode="regatta">Regatta</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="bp2">Båt</div><div class="seg seg--2" role="radiogroup" aria-labelledby="bp2">
+          <button type="button" role="radio" class="seg__btn" data-boat="kjol">Kjølbåt</button><button type="button" role="radio" class="seg__btn" data-boat="opti">Optimist</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="wp2">Vind</div><div class="seg" role="radiogroup" aria-labelledby="wp2">
+          <button type="button" role="radio" class="seg__btn" data-wind="rolig">Rolig</button><button type="button" role="radio" class="seg__btn" data-wind="middels">Middels</button><button type="button" role="radio" class="seg__btn" data-wind="kraftig">Kraftig</button></div></div>
+      <div class="hb-card__actions">
+        <button class="hb-button hb-button--primary" id="resumeBtn">Seil videre</button>
+        <button class="hb-button hb-button--ghost" id="menuBtnPause">Meny</button>
+        <button class="hb-button hb-button--ghost" id="restartBtn">Start på nytt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="menuOverlay" hidden>
+    <div class="hb-card learn" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+      <div class="hb-card__eyebrow">Meny</div>
+      <h2 class="hb-card__title" id="menuTitle">SeilSim</h2>
+      <div class="seg seg--3 menutabs" role="tablist" aria-label="Meny">
+        <button type="button" role="tab" class="seg__btn" id="tabLaer" data-tab="laer" aria-selected="true" aria-controls="paneLaer">Lær</button>
+        <button type="button" role="tab" class="seg__btn" id="tabTavle" data-tab="tavle" aria-selected="false" aria-controls="paneTavle">Ledertavle</button>
+        <button type="button" role="tab" class="seg__btn" id="tabKontr" data-tab="kontr" aria-selected="false" aria-controls="paneKontr">Kontroller</button>
+      </div>
+
+      <div class="menupane" id="paneLaer" role="tabpanel" aria-labelledby="tabLaer">
+        <details open><summary>Å seile</summary>
+        <ul>
+          <li>Pila i vindboksen viser hvor vinden kommer fra. Du kan ikke seile rett mot den. Ligger du for nær, blafrer seilet og farten dør.</li>
+          <li>Seil på skrå mot vinden (skarpt) for å komme deg mot vinden. Med vinden fra siden eller bakfra får du mest fart.</li>
+          <li><b>Babord</b> svinger til venstre og <b>Styrbord</b> til høyre.</li>
+          <li>Skal vinden over på den andre siden, snur du gjennom vinden. Seilet bytter side, og farten faller en stund.</li>
+          <li>Krenger båten for mye, blir du overseilt. Fir ut seilet eller seil lenger fra vinden.</li>
+        </ul>
+      </details>
+      <details><summary>Å føre seilene</summary>
+        <ul>
+          <li>Trykk <b>Opp</b> for å heise seilet før du starter. Uten heist seil står du stille.</li>
+          <li>Pilene til venstre og høyre stiller seilet inn. Blafrer det, trekk det innover. Krenger båten for mye eller går sakte, fir det ut.</li>
+          <li>Skarpt mot vind trekkes seilene hardt inn, på halvvind står de halvveis ute, og på lens helt ute.</li>
+          <li>Kjølbåten har storseil og forseil. Optimisten har ett seil og ett panel.</li>
+        </ul>
+      </details>
+      <details><summary>Seiltrim (kjølbåten)</summary>
+        <ul>
+          <li><b>Twist:</b> Toppen av storseilet åpner seg og slipper ut kraft og krengning. I lite vind taper du litt fart på mye twist (3,0 mot 3,4 knop ved 5 m/s). I 15 m/s skarpt mot vind er det motsatt. Uten twist krenger båten 29° og blir overseilt, mens med full twist er det 19° og båten går 9,0 mot 7,9 knop.</li>
+          <li><b>Kicker:</b> Viktigst når seilet er firt, på slør og lens. Med slakk kicker løfter bommen seg og toppen av seilet blafrer, og du mister opptil 5–7 % fart og noe kontroll. Skarpt mot vind spiller den liten rolle.</li>
+          <li><b>Akterstag:</b> Masta bøyer seg forover og forstaget strammes, så seilene blir flatere. I mye vind gir det mindre krengning og bedre høyde. Skarpt mot vind i 15 m/s gikk båten 5,8 mot 4,9 knop. I lite vind og på slør taper du fart, for eksempel 4,1 mot 5,1 knop ved 5 m/s på halvvind, så akterstaget bør være slakt der.</li>
+        </ul>
+      </details>
+      <details><summary>Bøyer og mål</summary>
+        <ul>
+          <li>Rund alle fire bøyene i rekkefølge og seil i havn. Tiden går mens du seiler.</li>
+          <li>Når du er innenfor 75 m fra bøya du runder, dukker det opp en lilla pil mot neste bøye. Neste bøye får lilla ring, og merket øverst viser avstanden.</li>
+        </ul>
+      </details>
+      <details><summary>Regatta</summary>
+        <ul>
+          <li>Velg <b>Regatta</b> på startkortet. Du får kjølbåt på åpent hav og seiler mot to AI-seilere, Mia og Jon. De seiler samme båt.</li>
+          <li>Du har <b>3 minutter</b> på å seile inn i det røde startfeltet bak startlinjen. Kommer du ikke dit i tide, er seilasen over.</li>
+          <li>Når du er i startfeltet, går en nedtelling på <b>45 sekunder</b>. Hold deg bak linjen til startskuddet. Er du over linjen når det går, må du tilbake og krysse den på nytt.</li>
+          <li>Start mellom de to røde bøyene. Rund merke 1, 2 og 3 i rekkefølge med merket på <b>styrbord</b> side. Du må rundt hvert merke, ikke bare nær det.</li>
+          <li>Rører du et merke, legges det til 10 sekunder på tiden din.</li>
+          <li>Mål går mellom de to grønne bøyene, mot vinden. Tiden regnes fra startskuddet.</li>
+          <li>Seilerne kolliderer ikke med hverandre, og det finnes ingen vikeregler.</li>
+        </ul>
+      </details>
+      <details><summary>Ledertavle</summary>
+        <ul>
+          <li>De 5 beste tidene vises på startkortet og etter målgang, med båt og vind for hver tid.</li>
+          <li>Kommer tiden din inn på listen, skriver du navnet ditt og trykker Lagre. Tidene deles med alle som spiller via lenken.</li>
+          <li>Tider med ulik båt og vind kan ikke sammenlignes direkte. Les båt og vind ved siden av tiden.</li>
+        </ul>
+      </details>
+      </div>
+
+      <div class="menupane" id="paneTavle" role="tabpanel" aria-labelledby="tabTavle" hidden>
+        <div class="seg seg--2 lbswitch" role="radiogroup" aria-label="Velg ledertavle">
+          <button type="button" role="radio" class="seg__btn" data-lbk="scores" aria-checked="true">Rund bøyene</button><button type="button" role="radio" class="seg__btn" data-lbk="regatta" aria-checked="false">Regatta</button>
+        </div>
+        <p class="menunote" id="lbMenuNote">De 5 beste tidene, med båt og vind for hver tid.</p>
+        <div id="lbMenu" class="lbbox__list"></div>
+      </div>
+
+      <div class="menupane" id="paneKontr" role="tabpanel" aria-labelledby="tabKontr" hidden>
+        <h3 class="menuh">iPad og iPhone</h3>
+        <dl class="keys">
+          <dt>Ror</dt><dd>Hold <b>Babord</b> eller <b>Styrbord</b> nede nederst i midten.</dd>
+          <dt>Storseil og forseil</dt><dd><b>Opp</b> heiser og <b>Ned</b> fires. Pilene stiller seilet inn mot babord eller styrbord. Hold knappen nede.</dd>
+          <dt>Trim</dt><dd>Åpner skyvekontrollene Twist, Kicker og Akterstag (kun kjølbåten). Trykk igjen for å lukke.</dd>
+          <dt>Se mål</dt><dd>Kameraet vender mot neste bøye. Trykk <b>Se båt</b> for å gå tilbake.</dd>
+          <dt>Kart</dt><dd>Åpner kartet. Trykk i kartet for å lese vinden et sted, og dra i skyveknappen for å se været fram i tid.</dd>
+          <dt>Knappene øverst</dt><dd>Pause (II), lyd av og på, og Kveld for mørk visning.</dd>
+        </dl>
+        <h3 class="menuh">PC (tastatur)</h3>
+        <dl class="keys">
+          <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Ror mot babord og styrbord</dd>
+          <dt><kbd>W</kbd> <kbd>S</kbd></dt><dd>Storseil opp og ned (heis)</dd>
+          <dt><kbd>A</kbd> <kbd>D</kbd></dt><dd>Storseil mot babord og styrbord</dd>
+          <dt><kbd>I</kbd> <kbd>K</kbd></dt><dd>Forseil opp og ned (heis)</dd>
+          <dt><kbd>J</kbd> <kbd>L</kbd></dt><dd>Forseil mot babord og styrbord</dd>
+          <dt><kbd>V</kbd></dt><dd>Åpne og lukke kartet</dd>
+          <dt><kbd>P</kbd> / <kbd>Esc</kbd></dt><dd>Pause. Esc lukker også menyen.</dd>
+          <dt><kbd>M</kbd></dt><dd>Lyd av og på</dd>
+        </dl>
+      </div>
+
+      <div class="hb-card__actions" style="margin-top:var(--space-3)">
+        <button class="hb-button hb-button--primary" id="menuBack">Tilbake</button>
+        <button class="hb-button hb-button--ghost" id="menuRestart" hidden>Start på nytt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="finishOverlay" hidden>
+    <div class="hb-card">
+      <div class="hb-card__eyebrow" id="finishEyebrow">I havn</div>
+      <h2 class="hb-card__title" id="finishTitle">Fin seilas</h2>
+      <div class="stats">
+        <span class="hb-badge hb-badge--warning" id="finalTime">0:00</span>
+        <span class="hb-badge hb-badge--success" id="bestTime" hidden>Ny beste tid</span>
+      </div>
+      <p class="hb-card__body" id="finishText">Du kom trygt i havn.</p>
+      <div class="lbbox" id="rgResBox" hidden>
+        <div class="lbbox__title">Resultat</div>
+        <div id="rgRes" class="lbbox__list"></div>
+      </div>
+      <div class="lbbox" id="lbBox">
+        <div class="lbbox__title" id="lbBoxTitle">Ledertavle · topp 5</div>
+        <form class="lbform" id="lbForm" hidden>
+          <label for="lbName">Du kom inn på topp 5! Skriv inn navnet ditt</label>
+          <div class="lbform__row">
+            <input id="lbName" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" placeholder="Navnet ditt" required>
+            <button class="hb-button hb-button--primary" id="lbSave" type="submit">Lagre tid</button>
+          </div>
+        </form>
+        <div class="lbform__msg" id="lbMsg" role="status"></div>
+        <div id="lbFinish" class="lbbox__list"></div>
+      </div>
+<div class="windpick"><div class="windpick__label" id="mp3">Spill</div><div class="seg seg--2" role="radiogroup" aria-labelledby="mp3">
+          <button type="button" role="radio" class="seg__btn" data-mode="klassisk">Rund bøyene</button><button type="button" role="radio" class="seg__btn" data-mode="regatta">Regatta</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="bp3">Båt</div><div class="seg seg--2" role="radiogroup" aria-labelledby="bp3">
+          <button type="button" role="radio" class="seg__btn" data-boat="kjol">Kjølbåt</button><button type="button" role="radio" class="seg__btn" data-boat="opti">Optimist</button></div></div>
+      <div class="windpick"><div class="windpick__label" id="wp3">Vind</div><div class="seg" role="radiogroup" aria-labelledby="wp3">
+          <button type="button" role="radio" class="seg__btn" data-wind="rolig">Rolig</button><button type="button" role="radio" class="seg__btn" data-wind="middels">Middels</button><button type="button" role="radio" class="seg__btn" data-wind="kraftig">Kraftig</button></div></div>
+      <div class="hb-card__actions">
+        <button class="hb-button hb-button--secondary" id="againBtn">Seil igjen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="errorOverlay" hidden>
+    <div class="hb-card">
+      <div class="hb-card__eyebrow">Ingen forbindelse</div>
+      <h2 class="hb-card__title">Havet lastet ikke</h2>
+      <p class="hb-card__body">3D-motoren kunne ikke hentes. Sjekk nettforbindelsen og last siden på nytt.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  // vises hvis three.js ikke kan lastes
+  window.addEventListener('error', e => {
+    if (e.target && e.target.tagName === 'SCRIPT') document.getElementById('errorOverlay').hidden = false;
+  }, true);
+  setTimeout(() => { if (!window.__seilsimReady) document.getElementById('errorOverlay').hidden = false; }, 12000);
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+window.__seilsimReady = true;
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+document.getElementById('errorOverlay').hidden = true;
+
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+const $ = id => document.getElementById(id);
+const angDiff = (a, b) => { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const fmtTime = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function rng(seed){ return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+// ---------------------------------------------------------------------------
+// Tema
+// ---------------------------------------------------------------------------
+const root = document.documentElement;
+const colors = {};
+function isDark(){
+  const t = root.dataset.theme;
+  return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function readColors(){
+  const cs = getComputedStyle(root);
+  for (const n of ['surface-100','surface-200','surface-300','surface-400','ink','ink-muted',
+    'ocean-100','ocean-300','ocean-500','ocean-700','on-ocean','sun-300','sun-500','sun-700',
+    'meadow-300','meadow-500','meadow-700','coral-300','coral-500','coral-700','plum-300','plum-500','ui-accent','ui-hot'])
+    colors[n] = cs.getPropertyValue('--' + n).trim();
+  $('themeBtn').textContent = isDark() ? 'Dag' : 'Kveld';
+}
+try { const t = localStorage.getItem('seilsim-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+readColors();
+
+// ---------------------------------------------------------------------------
+// Scene
+// ---------------------------------------------------------------------------
+const stage = $('stage');
+const canvas = $('sea');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xffffff, 80, 320);
+const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 800);
+
+const hemi = new THREE.HemisphereLight(0xffffff, 0x88aabb, 1.6);
+scene.add(hemi);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.6);
+sunLight.position.set(-40, 80, -30);
+scene.add(sunLight);
+
+// materialer knyttet til tokens, så temabytte oppdaterer alt
+const themed = [];
+function mat(token, opts = {}, darkToken){
+  const m = new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0, flatShading: true, ...opts });
+  themed.push({ m, token, darkToken });
+  return m;
+}
+function applyTheme(){
+  readColors();
+  const dark = isDark();
+  for (const { m, token, darkToken } of themed) m.color.set(colors[dark && darkToken ? darkToken : token]);
+  const sky = new THREE.Color(colors['surface-100']);
+  scene.background = sky;
+  scene.fog.color.copy(sky);
+  hemi.intensity = dark ? 0.9 : 1.6;
+  sunLight.intensity = dark ? 0.7 : 1.6;
+  sunLight.color.set(dark ? colors['ocean-300'] : '#ffffff');
+  streakMat.color.set(dark ? colors['ocean-300'] : '#ffffff');
+  rainMat.color.set(colors['coral-700']);
+  buildRamp(); wx.dirty = true;
+}
+
+$('themeBtn').addEventListener('click', () => {
+  root.dataset.theme = isDark() ? 'light' : 'dark';
+  try { localStorage.setItem('seilsim-theme', root.dataset.theme); } catch (e) {}
+  applyTheme();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
+
+// --- Hav ---------------------------------------------------------------------
+const SEA_SIZE = 420, SEA_SEG = 84, CELL = SEA_SIZE / SEA_SEG;
+const seaGeo = new THREE.PlaneGeometry(SEA_SIZE, SEA_SIZE, SEA_SEG, SEA_SEG);
+seaGeo.rotateX(-Math.PI / 2);
+const seaBase = Float32Array.from(seaGeo.attributes.position.array);
+const sea = new THREE.Mesh(seaGeo, mat('ocean-300', { roughness: 0.6 }, 'surface-300'));
+scene.add(sea);
+
+let waveAmp = 0.4;
+function waveH(x, z, t){
+  return waveAmp * (
+    Math.sin(x * 0.09 + t * 1.1) * 0.55 +
+    Math.sin(z * 0.12 - t * 0.9) * 0.45 +
+    Math.sin((x + z) * 0.05 + t * 0.6) * 0.5);
+}
+function updateSea(cx, cz, t){
+  const sx = Math.round(cx / CELL) * CELL, sz = Math.round(cz / CELL) * CELL;
+  sea.position.set(sx, 0, sz);
+  const p = seaGeo.attributes.position.array;
+  for (let i = 0; i < p.length; i += 3){
+    p[i + 1] = waveH(seaBase[i] + sx, seaBase[i + 2] + sz, t);
+  }
+  seaGeo.attributes.position.needsUpdate = true;
+}
+
+// --- Verden ----------------------------------------------------------------
+let WORLD = 720;                                  // 1500 i regatta
+const rand = rng(11);
+const islandDefs = [
+  [210, 270, 50], [450, 195, 40], [525, 450, 62], [285, 495, 36],
+  [120, 420, 28], [375, 345, 24], [615, 120, 33], [90, 105, 30],
+];
+const islands = islandDefs.map(([x, z, r]) => ({ x, z, r }));
+const islandGroups = [], harborGroups = [];
+const harbor = { x: 360, z: 640 };
+const buoys = [ { x: 375, z: 495 }, { x: 630, z: 270 }, { x: 300, z: 120 }, { x: 75, z: 300 } ];
+
+const sandMat = mat('sun-300');
+const grassMat = mat('meadow-500');
+const treeMat = mat('meadow-700');
+const rockMat = mat('surface-400', {}, 'surface-400');
+
+for (const is of islands){
+  const g = new THREE.Group();
+  const sand = new THREE.Mesh(new THREE.CylinderGeometry(is.r + 2, is.r + 6, 2, 20), sandMat);
+  sand.position.y = -0.3;
+  g.add(sand);
+  const hillGeo = new THREE.SphereGeometry(is.r * 0.95, 14, 8, 0, TAU, 0, Math.PI / 2);
+  const hp = hillGeo.attributes.position;
+  for (let i = 0; i < hp.count; i++){
+    const y = hp.getY(i);
+    const j = 0.88 + rand() * 0.2;
+    hp.setX(i, hp.getX(i) * j); hp.setZ(i, hp.getZ(i) * j);
+    hp.setY(i, y * (0.28 + rand() * 0.06));
+  }
+  hillGeo.computeVertexNormals();
+  const hill = new THREE.Mesh(hillGeo, grassMat);
+  hill.position.y = 0.5;
+  g.add(hill);
+  const trees = Math.round(is.r / 6);
+  for (let i = 0; i < trees; i++){
+    const a = rand() * TAU, d = rand() * is.r * 0.6;
+    const h = 5 + rand() * 5;
+    const tree = new THREE.Mesh(new THREE.ConeGeometry(1.6 + rand(), h, 6), treeMat);
+    const tx = Math.cos(a) * d, tz = Math.sin(a) * d;
+    const ground = 0.5 + is.r * 0.28 * Math.sqrt(Math.max(0, 1 - (d / is.r) ** 2));
+    tree.position.set(tx, ground + h / 2 - 0.5, tz);
+    g.add(tree);
+  }
+  if (is.r > 30){
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(2.5, 0), rockMat);
+    rock.position.set(is.r * 0.9, 0.4, -is.r * 0.3);
+    g.add(rock);
+  }
+  g.position.set(is.x, 0, is.z);
+  scene.add(g);
+  islandGroups.push(g);
+}
+
+// havn
+{
+  const g = new THREE.Group();
+  const land = new THREE.Mesh(new THREE.CylinderGeometry(90, 96, 3, 28), grassMat);
+  land.scale.z = 0.35;
+  land.position.set(0, 0, 75);
+  g.add(land);
+  const pierMat = mat('sun-300');
+  const pier = new THREE.Mesh(new THREE.BoxGeometry(5, 1, 34), pierMat);
+  pier.position.set(-14, 0.8, 45);
+  g.add(pier);
+  const wallMat = mat('ocean-100', {}, 'surface-400');
+  const roofMat = mat('ocean-700');
+  [[-40, 70], [-25, 76], [22, 70], [40, 74], [8, 80]].forEach(([x, z], i) => {
+    const w = 7 + (i % 2) * 3, h = 5 + (i % 3);
+    const house = new THREE.Mesh(new THREE.BoxGeometry(w, h, 7), wallMat);
+    house.position.set(x, 1.5 + h / 2, z);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.78, 4, 4), roofMat);
+    roof.rotation.y = Math.PI / 4;
+    roof.position.set(x, 1.5 + h + 2, z);
+    g.add(house, roof);
+  });
+  g.position.set(harbor.x, 0, harbor.z);
+  scene.add(g);
+  harborGroups.push(g);
+}
+const homeRingMat = mat('surface-400', { transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+const homeRing = new THREE.Mesh(new THREE.RingGeometry(12.5, 14, 48), homeRingMat);
+homeRing.rotation.x = -Math.PI / 2;
+homeRing.position.set(harbor.x, 0.9, harbor.z);
+scene.add(homeRing);
+
+// bøyer
+function numberSprite(n){
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const x = c.getContext('2d');
+  x.fillStyle = colors['sun-300'];
+  x.beginPath(); x.arc(64, 64, 58, 0, TAU); x.fill();
+  x.lineWidth = 6; x.strokeStyle = '#16303f'; x.stroke();
+  x.fillStyle = '#16303f';
+  x.font = '700 72px Nunito, system-ui, sans-serif';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(String(n), 64, 70);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
+  s.scale.set(3.2, 3.2, 1);
+  return s;
+}
+const buoyInk = mat('ink', {}, 'surface-100');
+function makeBuoy(labelText, x, z, big = 1){
+  const g = new THREE.Group();
+  const m = new THREE.MeshStandardMaterial({ roughness: 0.8, flatShading: true });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.2, 2.4, 10), m);
+  body.position.y = 0.8;
+  const top = new THREE.Mesh(new THREE.ConeGeometry(0.9, 1.4, 10), m);
+  top.position.y = 2.7;
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.05, 0.35, 10), buoyInk);
+  band.position.y = 1.2;
+  const label = numberSprite(labelText);
+  label.position.y = 5.2;
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1, 0.15, 6, 40), new THREE.MeshBasicMaterial({ transparent: true }));
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.3;
+  g.add(body, top, band, label, ring);
+  g.position.set(x, 0, z);
+  scene.add(g);
+  return { g, m, ring, label, big };
+}
+const buoyObjs = buoys.map((b, i) => makeBuoy(String(i + 1), b.x, b.z));
+
+// byger
+const rainMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.45 });
+const squallObjs = [0, 1].map(() => {
+  const g = new THREE.Group();
+  const cloudMat = mat('coral-300', { transparent: true, opacity: 0.92 }, 'coral-500');
+  for (let i = 0; i < 7; i++){
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(10 + Math.random() * 8, 8, 6), cloudMat);
+    const a = i / 7 * TAU;
+    puff.position.set(Math.cos(a) * 22, 32 + Math.random() * 5, Math.sin(a) * 22);
+    puff.scale.y = 0.55;
+    g.add(puff);
+  }
+  const patch = new THREE.Mesh(new THREE.CircleGeometry(50, 32), mat('coral-500', { transparent: true, opacity: 0.22 }));
+  patch.rotation.x = -Math.PI / 2;
+  patch.position.y = 0.9;
+  g.add(patch);
+  const pts = [];
+  for (let i = 0; i < 160; i++){
+    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * 42;
+    const x = Math.cos(a) * d, z = Math.sin(a) * d, y = Math.random() * 30;
+    pts.push(x, y, z, x - 0.6, y - 3, z);
+  }
+  const rg = new THREE.BufferGeometry();
+  rg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+  const rain = new THREE.LineSegments(rg, rainMat);
+  g.add(rain);
+  scene.add(g);
+  return { g, rain, x: 0, z: 0, r: 50 };
+});
+
+// vindstriper
+const STREAKS = 70;
+const streakMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.55 });
+const streakGeo = new THREE.BufferGeometry();
+streakGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(STREAKS * 6), 3));
+const streakLines = new THREE.LineSegments(streakGeo, streakMat);
+streakLines.frustumCulled = false;
+scene.add(streakLines);
+const streaks = Array.from({ length: STREAKS }, () => ({ x: 0, y: 0, z: 0, life: Math.random() }));
+
+// kjølvann
+const WAKE = 160;
+const wakeMesh = new THREE.InstancedMesh(new THREE.CircleGeometry(1, 10), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 }), WAKE);
+wakeMesh.frustumCulled = false;
+scene.add(wakeMesh);
+const wake = Array.from({ length: WAKE }, () => ({ x: 0, z: 0, age: 99 }));
+let wakeIdx = 0, wakeTimer = 0;
+const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0)), tmpV = new THREE.Vector3(), tmpS = new THREE.Vector3();
+
+// --- Båten -----------------------------------------------------------------
+// Båten er bygd med baugen mot -z og styrbord mot +x.
+const boat = new THREE.Group();
+const tilt = new THREE.Group();
+boat.add(tilt);
+scene.add(boat);
+
+const cruiserG = new THREE.Group();
+tilt.add(cruiserG);
+const MAST_Z = -0.6, BOOM_Y = 1.7, MAST_H = 9.2, BOOM_LEN = 3.9;
+const TACK = new THREE.Vector3(0, 0.55, -4.1);
+const FORESTAY_TOP = new THREE.Vector3(0, BOOM_Y + MAST_H * 0.84, MAST_Z);
+const JIB_FOOT = 4.8;
+function buildCruiserBody(grp, hullToken, deckToken, cabinToken = 'ocean-100'){
+  const s = new THREE.Shape();
+  s.moveTo(0, 4.3);
+  s.bezierCurveTo(1.35, 2.6, 1.55, -1, 1.25, -3.8);
+  s.lineTo(-1.25, -3.8);
+  s.bezierCurveTo(-1.55, -1, -1.35, 2.6, 0, 4.3);
+  const hullGeo = new THREE.ExtrudeGeometry(s, { depth: 1.3, bevelEnabled: true, bevelThickness: 0.12, bevelSize: 0.12, bevelSegments: 2, curveSegments: 10 });
+  hullGeo.rotateX(-Math.PI / 2);
+  const hp = hullGeo.attributes.position;
+  for (let i = 0; i < hp.count; i++){
+    const y = hp.getY(i);
+    if (y < 0.4){ hp.setX(i, hp.getX(i) * 0.45); }
+  }
+  hullGeo.computeVertexNormals();
+  const hull = new THREE.Mesh(hullGeo, mat(hullToken));
+  hull.position.y = -0.8;
+  grp.add(hull);
+
+  const deckGeo = new THREE.ShapeGeometry(s, 10);
+  deckGeo.rotateX(-Math.PI / 2);
+  deckGeo.scale(0.9, 1, 0.94);
+  const deck = new THREE.Mesh(deckGeo, mat(deckToken));
+  deck.position.y = 0.63;
+  grp.add(deck);
+
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.6, 2.2), mat(cabinToken, {}, 'surface-400'));
+  cabin.position.set(0, 0.9, 0.1);
+  grp.add(cabin);
+  const cockpit = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 1.8), mat('ocean-700'));
+  cockpit.position.set(0, 0.66, 2.3);
+  grp.add(cockpit);
+}
+buildCruiserBody(cruiserG, 'ocean-700', 'sun-300');
+const inkMat = mat('ink', {}, 'surface-100');
+const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, MAST_H + 1.2, 6, 14), inkMat);
+mast.position.set(0, BOOM_Y + (MAST_H + 1.2) / 2 - 1.1, MAST_Z);
+const mastBase = Float32Array.from(mast.geometry.attributes.position.array);
+let mastBendNow = -1;
+// masta bøyer seg forover i midten når akterstaget strammes
+const BEND_MAX = 0.6;
+function setMastBend(b){
+  if (Math.abs(b - mastBendNow) < 0.002) return;
+  mastBendNow = b;
+  const pa = mast.geometry.attributes.position.array;
+  for (let i = 0; i < pa.length; i += 3){
+    const v = clamp((mast.position.y + mastBase[i + 1] - BOOM_Y) / MAST_H, 0, 1);
+    pa[i + 2] = mastBase[i + 2] - b * BEND_MAX * Math.sin(Math.PI * v);
+  }
+  mast.geometry.attributes.position.needsUpdate = true;
+}
+cruiserG.add(mast);
+const STAY_N = 9;
+const stay = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: STAY_N }, () => new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0x16303f }));
+stay.frustumCulled = false;
+const BACKSTAY_TOP = new THREE.Vector3(0, BOOM_Y + MAST_H * 0.96, MAST_Z);
+const BACKSTAY_END = new THREE.Vector3(0, 0.8, 3.6);
+const back = new THREE.Line(new THREE.BufferGeometry().setFromPoints(Array.from({ length: STAY_N }, () => new THREE.Vector3())), new THREE.LineBasicMaterial({ color: 0x16303f }));
+back.frustumCulled = false;
+cruiserG.add(back);
+cruiserG.add(stay);
+const boomPivot = new THREE.Group();
+boomPivot.position.set(0, BOOM_Y, MAST_Z);
+cruiserG.add(boomPivot);
+const boomMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, BOOM_LEN, 6), inkMat);
+boomMesh.rotation.x = Math.PI / 2;
+boomMesh.position.z = BOOM_LEN / 2;
+boomPivot.add(boomMesh);
+const sailBag = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.3, BOOM_LEN * 0.95), mat('surface-100', {}, 'ocean-100'));
+sailBag.position.set(0, 0.2, BOOM_LEN / 2);
+boomPivot.add(sailBag);
+// vimpel i mastetoppen
+const vane = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 4), mat('sun-500'));
+vane.geometry.rotateX(Math.PI / 2);
+vane.geometry.translate(0, 0, 0.6);
+vane.position.set(0, BOOM_Y + MAST_H + 0.2, MAST_Z);
+cruiserG.add(vane);
+
+
+// --- Optimist: flatt baugspeil (pram), åpen skrog, ett sprisseil ----------------
+const optG = new THREE.Group();
+optG.visible = false;
+tilt.add(optG);
+const OPT = { mastZ: -1.05, boomY: 1.25, luff: 4.2, boomLen: 4.0 };
+{
+  const sh = new THREE.Shape();
+  sh.moveTo(-0.95, 2.5);
+  sh.lineTo(0.95, 2.5);
+  sh.bezierCurveTo(1.2, 1.2, 1.3, -1.2, 1.3, -2.25);
+  sh.quadraticCurveTo(1.3, -2.5, 1.05, -2.5);
+  sh.lineTo(-1.05, -2.5);
+  sh.quadraticCurveTo(-1.3, -2.5, -1.3, -2.25);
+  sh.bezierCurveTo(-1.3, -1.2, -1.2, 1.2, -0.95, 2.5);
+  // åpent skrog: en vegg med hull i midten, og et eget gulv inni
+  const WALL = 0.15;
+  const sx = (1.3 - WALL) / 1.3, sy = (2.5 - WALL) / 2.5;
+  const ring = new THREE.Shape(sh.getPoints(14));
+  ring.holes.push(new THREE.Path(sh.getPoints(14).map(q => new THREE.Vector2(q.x * sx, q.y * sy))));
+  const g = new THREE.ExtrudeGeometry(ring, { depth: 0.9, bevelEnabled: false, curveSegments: 14 });
+  g.rotateX(-Math.PI / 2);
+  const gp = g.attributes.position;
+  for (let i = 0; i < gp.count; i++){ if (gp.getY(i) < 0.3) gp.setX(i, gp.getX(i) * 0.72); }
+  g.computeVertexNormals();
+  // gruppe 0 = topp og bunn (gul list), gruppe 1 = sidene
+  const hullO = new THREE.Mesh(g, [mat('sun-500'), mat('ocean-500')]);
+  hullO.position.y = -0.4;
+  optG.add(hullO);
+  const inner = new THREE.Shape(sh.getPoints(14).map(q => new THREE.Vector2(q.x * sx, q.y * sy)));
+  const flG = new THREE.ShapeGeometry(inner, 8); flG.rotateX(-Math.PI / 2); flG.scale(0.8, 1, 1);
+  const floorO = new THREE.Mesh(flG, mat('surface-100')); floorO.position.y = -0.1; optG.add(floorO);
+  // flyteposer langs sidene, som på den ekte
+  for (const [x, z, len] of [[-0.92, -1.35, 1.3], [0.92, -1.35, 1.3], [-1.05, 1.75, 1.0], [1.05, 1.75, 1.0]]){
+    const tank = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.38, len), mat('surface-200', {}, 'ocean-100'));
+    tank.position.set(x, 0.1, z); optG.add(tank);
+  }
+  // hikkestropper på gulvet
+  for (const x of [-0.45, 0.45]){
+    const strap = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, 1.9), mat('ink', {}, 'surface-100'));
+    strap.position.set(x, -0.06, 1.1); optG.add(strap);
+  }
+  const thwart = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.28, 0.14), mat('sun-300'));
+  thwart.position.set(0, 0.3, 0.55); optG.add(thwart);
+  const cs = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.6, 0.9), mat('sun-300'));
+  cs.position.set(0, 0.2, -0.05); optG.add(cs);
+  const rud = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.5), inkMat);
+  rud.position.set(0, 0.15, 2.7); optG.add(rud);
+  const till = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 1.0), inkMat);
+  till.position.set(0, 0.75, 2.35); optG.add(till);
+}
+const optTop = OPT.boomY + OPT.luff + 0.4;
+const optMast = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.085, optTop - 0.5, 6), inkMat);
+optMast.position.set(0, (optTop + 0.5) / 2, OPT.mastZ);
+optG.add(optMast);
+const optPivot = new THREE.Group();
+optPivot.position.set(0, OPT.boomY, OPT.mastZ);
+optG.add(optPivot);
+const optBoom = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, OPT.boomLen, 6), inkMat);
+optBoom.rotation.x = Math.PI / 2; optBoom.position.z = OPT.boomLen / 2;
+optPivot.add(optBoom);
+const optBag = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.24, OPT.boomLen * 0.95), mat('surface-100', {}, 'ocean-100'));
+optBag.position.set(0, 0.16, OPT.boomLen / 2);
+optPivot.add(optBag);
+const optVane = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.9, 4), mat('sun-500'));
+optVane.geometry.rotateX(Math.PI / 2); optVane.geometry.translate(0, 0, 0.45);
+optVane.position.set(0, optTop + 0.05, OPT.mastZ);
+optG.add(optVane);
+// sprit: stang fra masta ut til seilets øvre bakre hjørne
+const spritGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+const spritLine = new THREE.Line(spritGeo, new THREE.LineBasicMaterial({ color: 0x16303f }));
+spritLine.frustumCulled = false;
+optG.add(spritLine);
+
+// stagene: forstaget henger mot le når akterstaget er slakt, akterstaget henger ned
+function updateStays(bs, leeSign){
+  const sp = stay.geometry.attributes.position, bp = back.geometry.attributes.position;
+  const sag = (1 - bs) * 0.32 * leeSign, bsag = (1 - bs) * 0.45;
+  for (let i = 0; i < STAY_N; i++){
+    const t = i / (STAY_N - 1), w = Math.sin(Math.PI * t);
+    sp.setXYZ(i, lerp(TACK.x, FORESTAY_TOP.x, t) + sag * w, lerp(TACK.y, FORESTAY_TOP.y, t), lerp(TACK.z, FORESTAY_TOP.z, t));
+    bp.setXYZ(i, 0, lerp(BACKSTAY_TOP.y, BACKSTAY_END.y, t) - bsag * w, lerp(BACKSTAY_TOP.z, BACKSTAY_END.z, t));
+  }
+  sp.needsUpdate = true; bp.needsUpdate = true;
+}
+// seil — rutenett av punkter som bygges på nytt hver frame
+function makeSail(token, darkToken, parent = tilt){
+  const R = 8, C = 6;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array((R + 1) * (C + 1) * 3), 3));
+  const idx = [];
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++){
+    const a = r * (C + 1) + c, b = a + 1, d = a + C + 1, e = d + 1;
+    idx.push(a, d, b, b, d, e);
+  }
+  geo.setIndex(idx);
+  const m = mat(token, { side: THREE.DoubleSide, roughness: 1, emissive: 0x6f8fa0, emissiveIntensity: 0.35 }, darkToken);
+  const mesh = new THREE.Mesh(geo, m);
+  mesh.frustumCulled = false;
+  parent.add(mesh);
+  return { mesh, geo, R, C };
+}
+// storseilet er hvitt, forseilet lyst gult så de er lette å skille
+const mainSailMesh = makeSail('on-ocean', 'ocean-100');
+const jibSailMesh = makeSail('sun-300');
+
+const P = new THREE.Vector3();
+const NOEX = { tw: 0, sgn: 0, bend: 0, sag: 0, lift: 0, flapTop: null };
+const TWIST_MAX = 24 * DEG;             // twist i toppen ved 100 %
+function buildSail(s, luff0, luff1, footLen, topFrac, delta, camber, flap, t, ex = NOEX){
+  const pos = s.geo.attributes.position.array;
+  let k = 0;
+  const flapTop = ex.flapTop == null ? flap : ex.flapTop;
+  for (let r = 0; r <= s.R; r++){
+    const v = r / s.R;
+    // twist: seilet åpner seg gradvis fra ca. 18 % av høyden og oppover
+    const dl = delta + ex.sgn * ex.tw * Math.max(0, (v - 0.18) / 0.64);
+    const cx = Math.sin(dl), cz = Math.cos(dl);          // korde, akterover
+    const px = Math.cos(dl), pz = -Math.sin(dl);         // normal
+    const w = Math.sin(Math.PI * v);
+    const lx = lerp(luff0.x, luff1.x, v) + ex.sag * w, ly = lerp(luff0.y, luff1.y, v), lz = lerp(luff0.z, luff1.z, v) + ex.bend * w;
+    const len = footLen * (1 - v * topFrac);
+    const fl = lerp(flap, flapTop, v);
+    for (let c = 0; c <= s.C; c++){
+      const u = c / s.C;
+      const bulge = Math.sin(Math.PI * u) * (1 - v * 0.5);
+      let off = camber * len * 0.14 * bulge;
+      if (fl) off += Math.sin(t * 22 + u * 7 + v * 3) * 0.22 * bulge * fl;
+      pos[k++] = lx + cx * u * len + px * off;
+      pos[k++] = ly + (1 - v) * u * 0.25 + Math.sin(ex.lift) * u * len * (1 - v * 0.3);
+      pos[k++] = lz + cz * u * len + pz * off;
+    }
+  }
+  s.geo.attributes.position.needsUpdate = true;
+  s.geo.computeVertexNormals();
+}
+
+
+
+const BOATS = {
+  kjol: { name: 'Kjølbåt', sails: 2, group: cruiserG, pivot: boomPivot, bag: sailBag, mastZ: MAST_Z, boomY: BOOM_Y, luff: MAST_H, boomLen: BOOM_LEN,
+          topFrac: 0.93, areaM: 1.0, areaJ: 0.65, heelLimit: 380, heelMax: 22, bobK: 0.8, lift: 0, maxSpeed: 11, drive: 1, turn: 1, cam: 1, lookY: 2.4, wakeBack: 4.2,
+          trim: true, trimHull: 'M0 -40 C10 -28 12 -4 9 30 L-9 30 C-12 -4 -10 -28 0 -40 Z' },
+  opti: { name: 'Optimist', sails: 1, group: optG, pivot: optPivot, bag: optBag, mastZ: OPT.mastZ, boomY: OPT.boomY, luff: OPT.luff, boomLen: OPT.boomLen,
+          topFrac: 0.55, areaM: 0.9, areaJ: 0, heelLimit: 170, heelMax: 28, bobK: 1, lift: 0.4, maxSpeed: 4.1, drive: 1, turn: 1.4, cam: 0.68, lookY: 1.7, wakeBack: 2.8,
+          trim: false, trimHull: 'M-10 -34 L10 -34 C14 -20 16 10 15 30 L-15 30 C-16 10 -14 -20 -10 -34 Z' },
+};
+let boatKey = 'kjol';
+try { const b = localStorage.getItem('seilsim-boat'); if (BOATS[b]) boatKey = b; } catch (e) {}
+let pickBoat = boatKey;      // valget i menyen; boatKey er båten som faktisk seiler
+let B = BOATS[boatKey];
+let trimOpen = false;
+function applyBoat(){
+  B = BOATS[boatKey];
+  for (const k in BOATS) BOATS[k].group.visible = k === boatKey;
+  const jp = document.querySelector('[data-sail="jib"]');
+  if (jp) jp.hidden = B.sails < 2;
+  const one = B.sails < 2;
+  $('mainName').textContent = one ? 'Seil' : 'Storseil';
+  $('hoistBadge').textContent = one ? 'Heis seilet' : 'Heis seilene';
+  $('jibLine').style.display = one ? 'none' : '';
+  $('trimHull').setAttribute('d', B.trimHull);
+  document.querySelector('.controls').classList.toggle('single', one);
+  $('trimToggle').hidden = !B.trim;
+  if (!B.trim) setTrimOpen(false); else $('trimPanel').hidden = !trimOpen;
+  $('overBadge').textContent = B.trim ? 'For mye seil — ta ned, eller flat ut med akterstag og twist' : 'For mye seil — ta ned litt';
+  if (one){ state.jib.hoist = 0; state.jib.angle = 0; }
+}
+
+// ---------------------------------------------------------------------------
+// Tilstand
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Vindmodell
+// Vind og byger er faste funksjoner av sted og tid. Derfor kan værkartet varsle dem.
+// Retning: radianer, 0 = vind fra nord (blåser mot +z), positiv mot øst.
+// ---------------------------------------------------------------------------
+const WIND_LEVELS = {
+  rolig:   { label: 'Rolig',   base: 5.0,  amp: 0.55, band: 1.0, sq: 0.30, min: 2.5, max: 8.0,  start: [3.8, 6.2],  title: 'Rolig bris i dag' },
+  middels: { label: 'Middels', base: 9.0,  amp: 1.0,  band: 2.5, sq: 0.65, min: 6.0, max: 14.0, start: [8.5, 11],   title: 'God vind i dag' },
+  kraftig: { label: 'Kraftig', base: 12.5, amp: 1.15, band: 3.5, sq: 0.55, min: 9.5, max: 19.0, start: [11.5, 14.5], title: 'Full storm i seilene' },
+};
+let windLevel = 'middels';
+try { const w = localStorage.getItem('seilsim-wind'); if (WIND_LEVELS[w]) windLevel = w; } catch (e) {}
+let pickWind = windLevel;
+let mode = 'klassisk';
+try { const m = localStorage.getItem('seilsim-mode'); if (m === 'regatta' || m === 'klassisk') mode = m; } catch (e) {}
+let pickMode = mode;
+const WS = { dir0: 0, base: 9, ph: [0, 0, 0, 0, 0, 0], band: [0, 0], period: 900 };
+const SQ = [ { x0: 0, z0: 0, vx: 0, vz: 0, r: 50 }, { x0: 0, z0: 0, vx: 0, vz: 0, r: 50 } ];
+const FORECAST = 300;                       // sekunder fram i tid
+const mod = (a, n) => ((a % n) + n) % n;
+
+function windBase(x, z, t){
+  if (WS.fixed) return { dir: WS.fixed.dir, spd: WS.fixed.spd };      // kun for testing
+  const ph = WS.ph;
+  const dir = WS.dir0 + 0.30 * Math.sin(t / 62 + ph[0]) + 0.10 * Math.sin(t / 21 + ph[1])
+            + 0.12 * Math.sin(x * 0.0075 + z * 0.004 + t / 45 + ph[2]);
+  const L = WIND_LEVELS[windLevel];
+  let spd = L.base + L.amp * (1.6 * Math.sin(t / 48 + ph[3]) + 0.8 * Math.sin(t / 17 + ph[4])
+          + 1.3 * Math.sin(x * 0.009 - z * 0.006 + t / 26 + ph[5]));
+  // to kastbånd som driver med vinden
+  const u = x * -Math.sin(WS.dir0) + z * Math.cos(WS.dir0);
+  const P = WS.period;
+  for (let i = 0; i < 2; i++){
+    const d = mod(u - WS.band[i] - t * 8 + P / 2, P) - P / 2;
+    spd += L.band * Math.exp(-(d * d) / (2 * 80 * 80));
+  }
+  return { dir, spd: clamp(spd, L.min, L.max) };
+}
+function squallPos(i, t){
+  const q = SQ[i];
+  return { x: mod(q.x0 + q.vx * t, WORLD), z: mod(q.z0 + q.vz * t, WORLD) };
+}
+function squallInfl(x, z, t){
+  let m = 0;
+  for (let i = 0; i < SQ.length; i++){
+    const p = squallPos(i, t);
+    m = Math.max(m, 1 - smooth(SQ[i].r * 0.7, SQ[i].r, Math.hypot(p.x - x, p.z - z)));
+  }
+  return m;
+}
+// middelvind inkludert byger, brukt av kartet
+function windAt(x, z, t){
+  const b = windBase(x, z, t), q = squallInfl(x, z, t);
+  return { dir: b.dir, spd: b.spd * (1 + WIND_LEVELS[windLevel].sq * q), q, base: b.spd };
+}
+
+const state = {
+  running: false, paused: false, finished: false, t: 0, clock: 0,
+  x: harbor.x, z: harbor.z - 30, heading: 0, speed: 0, heel: 0, pitch: 0,
+  wind: { dir: 0, strength: 5, targetDir: 0, targetStrength: 5, timer: 0 },
+  main: { hoist: 0, angle: 0 },
+  jib: { hoist: 0, angle: 0 },
+  trim: { twist: 0.5, kicker: 0.5, backstay: 0.3 },
+  leg: 0, over: false, bump: 0, leeSide: 0,
+  info: {},
+};
+
+function applyWorld(){
+  const reg = mode === 'regatta';
+  WORLD = reg ? 1600 : 720;
+  islandGroups.forEach(g => { g.visible = !reg; });
+  harborGroups.forEach(g => { g.visible = !reg; });
+  homeRing.visible = !reg;
+  buoyObjs.forEach(b => { b.g.visible = !reg; });
+  rgShow(reg);
+}
+function reset(){
+  const r = Math.random;
+  mode = pickMode; windLevel = pickWind; boatKey = mode === 'regatta' ? 'kjol' : pickBoat;   // valgene låses når seilasen starter
+  const reg = mode === 'regatta';
+  applyBoat(); applyWorld();
+  Object.assign(state, { running: false, paused: false, finished: false, t: 0, leg: 0, speed: 0, heel: 0, over: false, bump: 0 });
+  // nytt vær hver gang: vindretning, faser, kastbånd og to byger på faste baner
+  WS.dir0 = (r() - 0.5) * TAU;                        // vinden kan komme fra alle kanter
+  WS.ph = Array.from({ length: 6 }, () => r() * TAU);
+  WS.band = [r() * WS.period, r() * WS.period];
+  let sp = { x: harbor.x, z: harbor.z - 32 };
+  if (reg){ rgGeometry(); sp = RG.spawn; }
+  for (let n = 0; n < 80; n++){                       // start i frisk bris, ikke i stille
+    const v = windBase(sp.x, sp.z, 0).spd;
+    if (v >= WIND_LEVELS[windLevel].start[0] && v <= WIND_LEVELS[windLevel].start[1]) break;
+    WS.ph = Array.from({ length: 6 }, () => r() * TAU);
+  }
+  SQ.forEach(q => {
+    const a = WS.dir0 + (r() - 0.5) * 0.5, sp2 = 1.7 + r() * 0.8;
+    q.vx = -Math.sin(a) * sp2; q.vz = Math.cos(a) * sp2;
+  });
+  if (reg){                                           // byger som passerer området mens seilasen pågår
+    SQ.forEach((q, i) => {
+      const T = 150 + i * 150 + r() * 120;
+      q.x0 = RG.center.x - q.vx * T + (r() - 0.5) * 300; q.z0 = RG.center.z - q.vz * T + (r() - 0.5) * 300;
+    });
+  } else {
+    SQ[0].x0 = 160 + r() * 360; SQ[0].z0 = 20 + r() * 80;
+    SQ[1].x0 = 380 + r() * 260; SQ[1].z0 = 300 + r() * 150;
+  }
+  state.x = sp.x; state.z = sp.z;
+  const wb = windBase(state.x, state.z, 0);
+  state.wind.dir = wb.dir; state.wind.strength = wb.spd;
+  state.heading = reg ? RG.spawnHeading : (wb.dir + Math.PI / 2 + TAU) % TAU;   // klassisk: start på halvvind
+  Object.assign(state.main, { hoist: 0, angle: 0, flip: null });
+  Object.assign(state.jib, { hoist: 0, angle: 0, flip: null });
+  state.leeSide = 0;
+  squallObjs.forEach((o, i) => { const p = squallPos(i, 0); o.x = p.x; o.z = p.z; });
+  for (const w of wake) w.age = 99;
+  for (const s of streaks) respawnStreak(s, true);
+  wx.off = 0; wx.probe = null; wx.dirty = true;
+  $('wxSlider').value = 0;
+  camInit = false;
+  if (reg) rgInit();
+  else { $('rgBanner').hidden = true; $('posBadge').hidden = true; }
+}
+
+// ---------------------------------------------------------------------------
+// Seilfysikk
+// Vinkler i båtens ramme måles med klokka fra baugen (styrbord = +90°).
+// Et seil med vinkel δ (positiv = styrbord) har korden pekende 180° − δ.
+// ---------------------------------------------------------------------------
+function liftCoef(a){ // a i grader, 0–180
+  if (a <= 90){
+    if (a < 22) return 1.3 * Math.sin(a / 22 * Math.PI / 2);
+    return 1.3 * Math.cos((a - 22) / 68 * Math.PI / 2);
+  }
+  return -liftCoef(180 - a);
+}
+function sailForce(delta, flowAng, cam = 0.55){
+  const chord = Math.PI - delta;
+  const a = angDiff(flowAng, chord);
+  const alpha = Math.abs(a) / DEG;
+  let cl = liftCoef(alpha) * (0.725 + 0.5 * cam);                       // fyldigere seil gir mer løft
+  let cd = (0.12 + 1.2 * Math.sin(Math.abs(a)) ** 2) * (0.78 + 0.4 * cam);   // og mer motstand
+  const luff = alpha < 7;
+  if (luff){ cl = 0; cd = 0.04; }
+  const liftDir = flowAng + Math.sign(a || 1) * Math.PI / 2;
+  const fwd = cl * Math.cos(liftDir) + cd * Math.cos(flowAng);
+  const side = cl * Math.sin(liftDir) + cd * Math.sin(flowAng);
+  return { fwd, side, alpha, luff, a };
+}
+function sailStatus(s, f, running){
+  if (s.hoist < 0.05) return ['Nede', 'info'];
+  if (f.luff) return ['Blafrer', 'warning'];
+  if (f.fwd < -0.02) return ['Bakk', 'danger'];
+  if (f.alpha > 42 && !running) return ['For stramt', 'warning'];
+  return ['Drar godt', 'success'];
+}
+function pointOfSail(deg){
+  if (deg < 35) return 'I vindøyet';
+  if (deg < 65) return 'Kryss';
+  if (deg < 110) return 'Halvvind';
+  if (deg < 155) return 'Slør';
+  return 'Lens';
+}
+
+const TRIM_BANDS = [
+  { h: 0.18, w: 0.45, lever: 0.35 / 0.5755 },
+  { h: 0.50, w: 0.33, lever: 0.60 / 0.5755 },
+  { h: 0.82, w: 0.22, lever: 1.00 / 0.5755 },
+];
+const ONE_BAND = { h: 0.5, w: 1, lever: 1 };
+
+const input = { left: false, right: false,
+  main: { up: false, down: false, port: false, stbd: false },
+  jib: { up: false, down: false, port: false, stbd: false } };
+
+function update(dt){
+  const w = state.wind;
+  state.t += dt;
+
+  // vind og byger er faste funksjoner av sted og tid, så kartet kan varsle dem
+  const wb = windBase(state.x, state.z, state.t);
+  w.dir = wb.dir; w.strength = wb.spd;
+
+  let inSquall = 0, nearSquall = false;
+  squallObjs.forEach((o, i) => {
+    const p = squallPos(i, state.t);
+    o.x = p.x; o.z = p.z;
+    const d = Math.hypot(o.x - state.x, o.z - state.z);
+    inSquall = Math.max(inSquall, 1 - smooth(o.r * 0.7, o.r, d));
+    if (d < o.r + 70) nearSquall = true;
+  });
+  const gust = inSquall * (WIND_LEVELS[windLevel].sq + Math.sin(state.t * 2.3) * 0.12);
+  const trueSpeed = Math.min(w.strength * (1 + gust), 22);
+  const trueDir = w.dir + inSquall * Math.sin(state.t * 0.9) * 0.25;
+
+  // tilsynelatende vind i båtens ramme
+  const h = state.heading;
+  const Fx = Math.sin(h), Fz = -Math.cos(h), Sx = Math.cos(h), Sz = Math.sin(h);
+  const tfx = -Math.sin(trueDir) * trueSpeed, tfz = Math.cos(trueDir) * trueSpeed;
+  const afx = tfx - Fx * state.speed, afz = tfz - Fz * state.speed;
+  const aFwd = afx * Fx + afz * Fz, aStb = afx * Sx + afz * Sz;
+  const app2 = aFwd * aFwd + aStb * aStb;
+  const flowAng = Math.atan2(aStb, aFwd);
+  const awa = Math.abs(angDiff(flowAng + Math.PI, 0));   // tilsynelatende vindvinkel fra baugen
+
+  // seilhåndtering
+  for (const k of ['main', 'jib']){
+    const s = state[k], i = input[k];
+    s.hoist = clamp(s.hoist + ((i.up ? 1 : 0) - (i.down ? 1 : 0)) * 0.45 * dt, 0, 1);
+    const lim = k === 'main' ? 85 : 78;
+    if (s.flip != null){                       // slått: seilet svinger over av seg selv
+      const dd = s.flip - s.angle, stp = 2.6 * dt;
+      if (Math.abs(dd) <= stp){ s.angle = s.flip; s.flip = null; } else s.angle += Math.sign(dd) * stp;
+    } else {
+      s.angle = clamp(s.angle + ((i.stbd ? 1 : 0) - (i.port ? 1 : 0)) * 50 * DEG * dt, -lim * DEG, lim * DEG);
+    }
+  }
+  // går vinden over baugen (slag) eller akterover (jibb), flyttes seilene til ny le side
+  const leeNow = Math.abs(aStb) > 0.25 ? Math.sign(aStb) : state.leeSide;
+  if (state.leeSide && leeNow !== state.leeSide){
+    for (const k of ['main', 'jib']){
+      const s = state[k];
+      if (s.hoist > 0.05 && Math.abs(s.angle) > 2 * DEG) s.flip = -s.angle;
+    }
+  }
+  state.leeSide = leeNow;
+
+  // --- seiltrim (kun kjølbåten) ------------------------------------------------
+  // Akterstag: bøyer masta og strammer forstaget, så begge seilene blir flatere (mindre kraft, bedre høyde).
+  // Kicker: holder bommen nede, fjerner twist og flater ut nedre del av storseilet. Teller mest på slør og lens.
+  // Twist: øvre del av storseilet åpner seg. Vinden er sterkere høyere opp, så litt twist er riktig,
+  // mye twist slipper ut kraft (og krengning) i toppen.
+  if (B.sails < 2) state.jib.hoist = 0;
+  const T = state.trim, full = B.trim;
+  const camM = full ? clamp(0.8 - 0.65 * T.backstay - 0.2 * T.kicker, 0.05, 0.8) : 0.55;
+  const camJ = full ? clamp(0.8 - 0.6 * T.backstay, 0.1, 0.8) : 0.55;
+  const eased = smooth(35 * DEG, 75 * DEG, Math.abs(state.main.angle));
+  const twEff = full ? clamp(T.twist * (1 - 0.5 * T.kicker) + 0.25 * T.backstay + (1 - T.kicker) * eased * 0.7, 0, 1.3) : 0;
+  // slakk kicker når seilet er firt: leiken åpner seg og toppen spiller ut kraften
+  const openLoss = full ? (1 - T.kicker) * eased : 0;
+  const sgn = Math.sign(state.main.angle);
+  const flowAtH = g => {                       // tilsynelatende vind i en gitt høyde (sterkere vind høyere opp)
+    const ax = tfx * g - Fx * state.speed, az = tfz * g - Fz * state.speed;
+    const f = ax * Fx + az * Fz, st = ax * Sx + az * Sz;
+    return { a2: f * f + st * st, fa: Math.atan2(st, f) };
+  };
+  const bands = full ? TRIM_BANDS : [ONE_BAND];
+  let fwdM = 0, sideM = 0, momM = 0, fwdMu = 0, sideMu = 0;
+  const bandF = [];
+  for (const bd of bands){
+    const fl = full ? flowAtH(0.80 + 0.40 * bd.h) : { a2: app2, fa: flowAng };
+    const dl = clamp(state.main.angle + sgn * twEff * TWIST_MAX * Math.max(0, (bd.h - 0.18) / 0.64), -88 * DEG, 88 * DEG);
+    const f = sailForce(dl, fl.fa, camM);
+    f.a2 = fl.a2;
+    bandF.push(f);
+    const wE = bd.w * (1 - 0.85 * openLoss * Math.max(0, (bd.h - 0.18) / 0.64));
+    fwdM += wE * f.fwd * fl.a2; sideM += wE * f.side * fl.a2; momM += wE * bd.lever * f.side * fl.a2;
+    fwdMu += wE * f.fwd; sideMu += wE * f.side;
+  }
+  const flJ = full ? flowAtH(0.96) : { a2: app2, fa: flowAng };
+  const fj = sailForce(state.jib.angle, flJ.fa, camJ);
+  const mid = bandF[Math.min(1, bandF.length - 1)];
+  const fm = { fwd: fwdMu, side: sideMu, luff: mid.luff, alpha: mid.alpha, a: mid.a, lowLuff: bandF[0].luff, topLuff: bandF[bandF.length - 1].luff };
+  const flat = full ? clamp(1 - (camM + camJ) / 1.6, 0, 1) : 0.31;     // flate seil pigger høyere
+  const noGo = full ? smooth((24 - 4 * flat) * DEG, (42 - 6 * flat) * DEG, awa) : smooth(22 * DEG, 38 * DEG, awa);
+  const areaM = B.areaM * state.main.hoist, areaJ = B.areaJ * state.jib.hoist;
+  let fwd = areaM * fwdM + areaJ * fj.fwd * flJ.a2;
+  if (fwd > 0) fwd *= noGo;
+  const side = areaM * sideM + areaJ * fj.side * flJ.a2;
+  const momentum = areaM * momM + areaJ * 0.96 * fj.side * flJ.a2;   // krengemoment: toppen av seilet teller mest
+
+  // for mye seil i vindkast: båten krenger og luffer opp
+  const heelForce = Math.abs(momentum);
+  const over = heelForce > B.heelLimit;
+  state.over = over;
+  if (over) fwd *= 0.45;
+
+  const drive = fwd * 0.012 * B.drive;
+  const eye = 1 - smooth(18 * DEG, 45 * DEG, awa);                       // midt i vindøyet
+  const drag = (0.075 * state.speed * Math.abs(state.speed) + 0.05 * state.speed) * (1 - 0.6 * eye);   // fart bæres gjennom slaget
+  state.speed = clamp(state.speed + (drive - drag) * dt, -1, B.maxSpeed);
+
+  // ror
+  const steer = (input.right ? 1 : 0) - (input.left ? 1 : 0);
+  let rate = Math.min(0.12 + Math.abs(state.speed) * 0.13, 0.6) * B.turn;
+  if (steer && awa < 75 * DEG) rate = Math.max(rate, 0.42 * B.turn);          // nok roreffekt til å slå
+  if (steer) rate = Math.max(rate, 0.22);                            // litt styring også i stille
+  let turn = steer * rate;
+  if (over) turn += Math.sign(angDiff(trueDir, h)) * 0.25;          // luffer opp mot vinden
+  state.heading = (h + turn * dt + TAU) % TAU;
+
+  // krengning og stamp
+  const heelTarget = clamp(heelForce / B.heelLimit, 0, 1.3) * B.heelMax * DEG * Math.sign(side || 0);
+  state.heel = lerp(state.heel, heelTarget, dt * 1.5);
+
+  // bevegelse + litt avdrift med vinden
+  let nx = state.x + Fx * state.speed * dt + (side / 1500) * Sx * dt;
+  let nz = state.z + Fz * state.speed * dt + (side / 1500) * Sz * dt;
+  nx += tfx * 0.03 * dt; nz += tfz * 0.03 * dt;
+
+  // grunnstøting
+  for (const is of (mode === 'regatta' ? [] : islands)){
+    const d = Math.hypot(nx - is.x, nz - is.z), min = is.r + 7;
+    if (d < min){
+      const a = Math.atan2(nz - is.z, nx - is.x);
+      nx = is.x + Math.cos(a) * min; nz = is.z + Math.sin(a) * min;
+      if (Math.abs(state.speed) > 1) state.bump = 1;
+      state.speed *= 0.3;
+    }
+  }
+  if (mode !== 'regatta' && Math.abs(nz - (harbor.z + 75)) < 32 && Math.abs(nx - harbor.x) < 92 && nz > harbor.z + 50){ nz = harbor.z + 50; state.speed *= 0.3; }
+  state.x = clamp(nx, 5, WORLD - 5);
+  state.z = clamp(nz, 5, WORLD - 5);
+  state.bump = Math.max(0, state.bump - dt * 1.5);
+
+  // mål
+  if (mode === 'regatta'){ if (state.running) rgUpdate(dt); }
+  else {
+    const tgt = currentTarget();
+    if (Math.hypot(tgt.x - state.x, tgt.z - state.z) < (state.leg < buoys.length ? 12 : 14)){
+      state.leg++;
+      if (state.leg > buoys.length) finish();
+    }
+  }
+
+  const running = awa > 130 * DEG;
+  state.info = { fm, fj, camM, camJ, twEff, eased, openLoss, flowAng, awa, trueSpeed, nearSquall, running, appSpeed: Math.sqrt(app2), inSquall };
+}
+
+function currentTarget(){ if (mode === 'regatta') return rgTarget(); return state.leg < buoys.length ? buoys[state.leg] : harbor; }
+
+// ---------------------------------------------------------------------------
+// Regatta — startfelt, nedtelling, merker som må rundes, mål og to AI-seilere
+// AI-ene seiler etter en polar som er målt i selve fysikken ovenfor (fart per vindstyrke og vindvinkel),
+// ganget med en ferdighet under 1, så de ikke er ideelle.
+// ---------------------------------------------------------------------------
+const POLAR_W = [4, 6, 8, 10, 12.5, 15];
+const POLAR_T = {
+  4: [[30,0.44,8],[36,0.8,12],[42,1.18,12],[50,1.62,16],[60,1.93,22],[75,2.04,28],[90,2.02,36],[105,1.88,46],[120,1.67,68],[135,1.48,80],[150,1.33,80],[165,1.25,80],[178,1.22,80]],
+  6: [[30,0.67,8],[36,1.3,8],[42,1.89,12],[50,2.52,16],[60,2.91,22],[75,3.13,28],[90,3.12,36],[105,2.91,46],[120,2.58,56],[135,2.28,80],[150,2.06,80],[165,1.94,80],[178,1.89,80]],
+  8: [[30,0.92,8],[36,1.79,8],[42,2.58,12],[50,3.44,16],[60,4,16],[75,4.28,28],[90,4.28,36],[105,3.99,46],[120,3.54,56],[135,3.12,80],[150,2.82,80],[165,2.65,80],[178,2.59,80]],
+  10: [[30,1.32,4],[36,2.37,8],[42,3.3,8],[50,4.28,12],[60,4.69,16],[75,5.03,28],[90,5.1,36],[105,4.8,46],[120,4.28,56],[135,3.81,80],[150,3.45,80],[165,3.27,80],[178,3.2,80]],
+  12.5: [[30,1.77,8],[36,2.96,8],[42,3.99,4],[50,4.74,16],[60,5.25,16],[75,5.72,22],[90,5.88,36],[105,5.62,46],[120,5.1,56],[135,4.58,80],[150,4.19,80],[165,3.99,80],[178,3.91,80]],
+  15: [[30,2.16,8],[36,3.6,8],[42,4.58,16],[50,4.83,22],[60,5.6,28],[75,6.26,36],[90,7.12,36],[105,6.81,46],[120,6.18,56],[135,5.54,80],[150,5.07,80],[165,4.83,80],[178,4.73,80]],
+};
+
+function polarRow(row, tw){                         // row: [[vindvinkel, fart, seilvinkel], ...]
+  if (tw < 24) return [0, 8];
+  if (tw < row[0][0]){ const f = (tw - 24) / (row[0][0] - 24); return [row[0][1] * f, row[0][2]]; }
+  for (let i = 1; i < row.length; i++){
+    if (tw <= row[i][0]){
+      const a = row[i - 1], b = row[i], f = (tw - a[0]) / (b[0] - a[0]);
+      return [lerp(a[1], b[1], f), lerp(a[2], b[2], f)];
+    }
+  }
+  const l = row[row.length - 1]; return [l[1], l[2]];
+}
+function polarAt(w, tw){                             // [fart m/s, seilvinkel grader]
+  const n = POLAR_W.length;
+  if (w <= POLAR_W[0]){ const r = polarRow(POLAR_T[POLAR_W[0]], tw); return [r[0] * Math.max(0.25, w / POLAR_W[0]), r[1]]; }
+  if (w >= POLAR_W[n - 1]) return polarRow(POLAR_T[POLAR_W[n - 1]], tw);
+  let i = 1; while (w > POLAR_W[i]) i++;
+  const w0 = POLAR_W[i - 1], w1 = POLAR_W[i], f = (w - w0) / (w1 - w0);
+  const a = polarRow(POLAR_T[w0], tw), b = polarRow(POLAR_T[w1], tw);
+  return [lerp(a[0], b[0], f), lerp(a[1], b[1], f)];
+}
+// beste fart mot et punkt som ligger tw grader fra vinden
+function vmcSpeed(w, tw){
+  let best = 0.1;
+  for (let a = 22; a <= 180; a += 2) for (const sd of [1, -1]){
+    const ang = Math.abs(((sd * a - tw + 540) % 360) - 180);
+    const c = Math.cos(ang * DEG);
+    if (c > 0) best = Math.max(best, polarAt(w, a)[0] * c);
+  }
+  return best;
+}
+
+const RG = {
+  phase: 'idle', u: { x: 0, z: -1 }, r: { x: 1, z: 0 }, D: 380, Wm: 65, Wf: 57, L0: { x: 800, z: 800 }, center: { x: 800, z: 800 },
+  pts: [], marks: [], legLen: [], cum: [], total: 0, hold: [], startPts: [],
+  sp1: null, sp2: null, fp1: null, fp2: null, fin: null, finWp: null, zoneC: null, startC: null, spawn: null, spawnHeading: 0, side: 1,
+  gun: null, deadline: 180, started: false, ocs: false, startT: 0, pen: 0, touchCd: 0, msg: null,
+  prevA: null, prevFa: null, prevC: null, lastBeep: 999, ai: [], obj: null, P: null,
+};
+const rgA = (x, z) => (x - RG.L0.x) * RG.u.x + (z - RG.L0.z) * RG.u.z;     // meter langs mot vinden fra startlinjen
+const rgB = (x, z) => (x - RG.L0.x) * RG.r.x + (z - RG.L0.z) * RG.r.z;     // meter mot styrbord (sett oppover mot vinden)
+const REG_COURSE = [[0, 0], [1, 0], [0.55, 0.65], [0.2, -0.45], [0.8, -0.45]];   // startlinje, merke 1–3, mål (i D)
+
+function rgGeometry(){
+  const R = RG, d0 = WS.dir0;
+  const u = { x: Math.sin(d0), z: -Math.cos(d0) }, rr = { x: Math.cos(d0), z: Math.sin(d0) };
+  R.u = u; R.r = rr;
+  // løypa skaleres så en ideell seilas tar ca. 6,5 minutter i denne vinden
+  const wsp = WIND_LEVELS[windLevel].base;
+  let K = 0;
+  for (let i = 0; i < REG_COURSE.length - 1; i++){
+    const da = REG_COURSE[i + 1][0] - REG_COURSE[i][0], db = REG_COURSE[i + 1][1] - REG_COURSE[i][1], len = Math.hypot(da, db);
+    K += len / vmcSpeed(wsp, Math.acos(clamp(da / len, -1, 1)) / DEG);
+  }
+  const D = R.D = clamp(340 / K, 220, 520);
+  R.Wm = 0.17 * D; R.Wf = 0.15 * D;
+  R.center = { x: WORLD / 2, z: WORLD / 2 };
+  R.L0 = { x: R.center.x - u.x * 0.28 * D, z: R.center.z - u.z * 0.28 * D };
+  const P = R.P = (a, b) => ({ x: R.L0.x + u.x * a * D + rr.x * b * D, z: R.L0.z + u.z * a * D + rr.z * b * D });
+  R.pts = REG_COURSE.map(([a, b]) => P(a, b));
+  R.startC = R.pts[0]; R.fin = R.pts[4];
+  R.sp1 = P(0, -0.17); R.sp2 = P(0, 0.17);
+  R.fp1 = P(0.8, -0.60); R.fp2 = P(0.8, -0.30);
+  R.zoneC = P(-0.2, 0);
+  R.finWp = { x: R.fin.x + u.x * 22, z: R.fin.z + u.z * 22 };
+  const Rt = d => ({ x: -d.z, z: d.x });
+  const unit = (a, b) => { const dx = b.x - a.x, dz = b.z - a.z, l = Math.hypot(dx, dz) || 1; return { x: dx / l, z: dz / l }; };
+  R.marks = [1, 2, 3].map(i => {
+    const M = R.pts[i], d1 = unit(R.pts[i - 1], M), d2 = unit(M, R.pts[i + 1]), r1 = Rt(d1), r2 = Rt(d2);
+    const s = Math.sign(d2.x * r1.x + d2.z * r1.z) || 1;          // +1 = høyresving = merket på styrbord
+    let gx = -s * (r1.x + r2.x), gz = -s * (r1.z + r2.z), gl = Math.hypot(gx, gz);
+    if (gl < 0.35){ gx = -s * r1.x; gz = -s * r1.z; gl = 1; }
+    const g = { x: gx / gl, z: gz / gl };                          // yttersiden av svingen: her skal du passere
+    const sIn = Math.sign(g.x * -d1.z - g.z * -d1.x) || 1;
+    return { x: M.x, z: M.z, d1, d2, s, g, sIn, wp: { x: M.x + g.x * 24, z: M.z + g.z * 24 },
+      wpA: { x: M.x - s * r1.x * 22 - d1.x * 30, z: M.z - s * r1.z * 22 - d1.z * 30 } };       // innseiling: på yttersiden og før merket
+  });
+  R.legLen = []; R.cum = []; let sum = 0;
+  for (let i = 0; i < 4; i++){ const l = Math.hypot(R.pts[i + 1].x - R.pts[i].x, R.pts[i + 1].z - R.pts[i].z); R.cum.push(sum); R.legLen.push(l); sum += l; }
+  R.total = sum;
+  R.hold = [P(-0.13, -0.8 * 0.17), P(-0.13, 0.8 * 0.17)];
+  // startplass: ca. 80 sekunder fra startfeltet ved halvvind, litt kortere enn det en vanlig seiler får til
+  const side = R.side = Math.random() < 0.5 ? -1 : 1;
+  const bw = polarAt(wsp, 90)[0];
+  const bm = R.Wm + 0.14 * D + clamp(80 * bw * 0.8, 160, 380);
+  R.spawn = { x: R.zoneC.x + rr.x * side * bm, z: R.zoneC.z + rr.z * side * bm };
+  R.toward = { x: -side * rr.x, z: -side * rr.z };
+  R.spawnHeading = (Math.atan2(R.toward.x, -R.toward.z) + TAU) % TAU;
+}
+
+// --- 3D: merker, linjer, startfelt og AI-båtene --------------------------------
+function nameSprite(text, token){
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 96;
+  const x = c.getContext('2d');
+  x.fillStyle = 'rgba(255,255,255,.92)';
+  x.beginPath(); x.moveTo(48, 8); x.arcTo(248, 8, 248, 88, 40); x.arcTo(248, 88, 8, 88, 40); x.arcTo(8, 88, 8, 8, 40); x.arcTo(8, 8, 248, 8, 40); x.closePath(); x.fill();
+  x.lineWidth = 6; x.strokeStyle = colors[token] || '#16303f'; x.stroke();
+  x.fillStyle = '#16303f';
+  x.font = '800 52px Nunito, system-ui, sans-serif';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(text, 128, 52);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false }));
+  s.scale.set(10, 3.75, 1);
+  return s;
+}
+// linjer og startfelt bygges av små flottører som følger bølgene, så de syns uansett sjøgang
+function makeFloats(max, size){
+  const m = new THREE.InstancedMesh(new THREE.SphereGeometry(size, 8, 6), new THREE.MeshStandardMaterial({ roughness: 0.6, flatShading: true }), max);
+  m.frustumCulled = false; m.count = 0;
+  return { mesh: m, pts: [] };
+}
+const rgGroup = new THREE.Group();
+rgGroup.visible = false;
+scene.add(rgGroup);
+RG.obj = {
+  marks: [1, 2, 3].map(i => makeBuoy(String(i), 0, 0)),
+  sB: [makeBuoy('S', 0, 0), makeBuoy('S', 0, 0)],
+  fB: [makeBuoy('M', 0, 0), makeBuoy('M', 0, 0)],
+  sF: makeFloats(60, 0.75), fF: makeFloats(60, 0.75), zF: makeFloats(90, 0.55),
+};
+{
+  const O = RG.obj;
+  rgGroup.add(O.sF.mesh, O.fF.mesh, O.zF.mesh);
+  [...O.marks, ...O.sB, ...O.fB].forEach(b => { scene.remove(b.g); rgGroup.add(b.g); });
+}
+const AI_CFG = [
+  { name: 'Mia', hull: 'plum-500', deck: 'sun-300', jib: 'plum-300', skill: 0.86, off: 0.4, sb: 0.55 },
+  { name: 'Jon', hull: 'meadow-700', deck: 'surface-100', jib: 'meadow-300', skill: 0.80, off: 1.4, sb: -0.5 },
+];
+function makeAI(c, k){
+  const g = new THREE.Group(), tl = new THREE.Group(), body = new THREE.Group();
+  g.add(tl); tl.add(body); scene.add(g);
+  buildCruiserBody(body, c.hull, c.deck);
+  const mastM = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, MAST_H + 1.2, 6), inkMat);
+  mastM.position.set(0, BOOM_Y + (MAST_H + 1.2) / 2 - 1.1, MAST_Z);
+  body.add(mastM);
+  const piv = new THREE.Group(); piv.position.set(0, BOOM_Y, MAST_Z); body.add(piv);
+  const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, BOOM_LEN, 6), inkMat);
+  boom.rotation.x = Math.PI / 2; boom.position.z = BOOM_LEN / 2; piv.add(boom);
+  const ms = makeSail('on-ocean', 'ocean-100', tl), js = makeSail(c.jib, c.jib, tl);
+  const tag = nameSprite(c.name, c.hull); tag.position.y = 15; g.add(tag);
+  g.visible = false;
+  return { k, name: c.name, g, tl, piv, ms, js, skill: c.skill, off: c.off, sbF: c.sb, tagTok: c.hull,
+    x: 0, z: 0, h: 0, speed: 0, heel: 0, stage: 'pre', pi: k, wp: null, curWp: null, sx: 0, sz: 0, side: 1, sideT: 99, leg: 0,
+    fin: null, beat: false, prevC: null, sub: 0, adapt: 0, ph: k * 2.1, ma: 0, ja: 0, lee: 1, twa: 60, sheet: 20, wspd: 8, prevFa: null, vexp: 3 };
+}
+RG.ai = AI_CFG.map(makeAI);
+function rgShow(v){
+  rgGroup.visible = v;
+  RG.ai.forEach(a => { a.g.visible = v; });
+}
+
+// --- start/reset ---------------------------------------------------------------
+function rgInit(){
+  const R = RG;
+  Object.assign(R, { phase: 'approach', gun: null, deadline: 180, started: false, ocs: false, startT: 0, pen: 0, touchCd: 0, msg: null,
+    prevA: null, prevFa: null, prevC: null, lastBeep: 999 });
+  const wsp = WIND_LEVELS[windLevel].base;
+  R.startPts = R.ai.map(a => R.P(-8 / R.D, a.sbF * R.Wm / R.D));
+  R.ai.forEach((a, k) => {
+    const back = 70 * (k + 1), lat = k ? -26 : 26;
+    a.x = R.spawn.x + R.toward.x * back + R.u.x * lat; a.z = R.spawn.z + R.toward.z * back + R.u.z * lat;
+    a.h = R.spawnHeading; a.speed = 2.5; a.heel = 0; a.stage = 'pre'; a.pi = k; a.wp = null; a.curWp = null; a.leg = 0; a.fin = null;
+    a.adapt = 0; a.side = 1; a.sideT = 99; a.prevFa = null; a.ma = 0; a.ja = 0;
+    a.vexp = polarAt(wsp, 90)[0] * a.skill;
+  });
+  // geometri til 3D-objektene
+  const O = R.obj, put = (b, p, sc) => { b.g.position.x = p.x; b.g.position.z = p.z; b.big = sc; };
+  R.marks.forEach((m, i) => put(O.marks[i], m, 1.15));
+  put(O.sB[0], R.sp1, 1.5); put(O.sB[1], R.sp2, 1.5); put(O.fB[0], R.fp1, 1.5); put(O.fB[1], R.fp2, 1.5);
+  const fillLine = (g, p, q, step) => {
+    g.pts.length = 0;
+    const L = Math.hypot(q.x - p.x, q.z - p.z), n = Math.max(1, Math.round(L / step));
+    for (let i = 0; i <= n; i++) g.pts.push([lerp(p.x, q.x, i / n), lerp(p.z, q.z, i / n)]);
+  };
+  fillLine(O.sF, R.sp1, R.sp2, 5); fillLine(O.fF, R.fp1, R.fp2, 5);
+  const hw = R.Wm + 0.14 * R.D, hd = 0.2 * R.D, zc = R.zoneC;
+  const cn = (sa, sb) => ({ x: zc.x + R.u.x * sa * hd + R.r.x * sb * hw, z: zc.z + R.u.z * sa * hd + R.r.z * sb * hw });
+  O.zF.pts.length = 0;
+  [[cn(1, -1), cn(1, 1)], [cn(1, 1), cn(-1, 1)], [cn(-1, 1), cn(-1, -1)], [cn(-1, -1), cn(1, -1)]].forEach(([p, q]) => {
+    const L = Math.hypot(q.x - p.x, q.z - p.z), n = Math.max(1, Math.round(L / 16));
+    for (let i = 0; i < n; i++) O.zF.pts.push([lerp(p.x, q.x, i / n), lerp(p.z, q.z, i / n)]);
+  });
+  R.ai.forEach(a => rgAiPose(a));
+  bannerKey = '';
+}
+function rgInZone(a, b){ return a <= 0 && a >= -0.4 * RG.D && Math.abs(b) <= RG.Wm + 0.14 * RG.D; }
+
+// --- AI ------------------------------------------------------------------------
+const AI_TURN = 0.45;
+function aiCands(wspd, wdir, brg, dsd){
+  const out = {};
+  for (const side of [1, -1]){
+    let bs = -1, bh = wdir + side * 45 * DEG;
+    for (let a = 22; a <= 180; a += 3){
+      const h = wdir + side * a * DEG, c = Math.cos(angDiff(h, brg));
+      if (c <= 0) continue;
+      const sc = polarAt(wspd, a)[0] * c;
+      if (sc > bs){ bs = sc; bh = h; }
+    }
+    const tw = Math.abs(dsd) / DEG;
+    if (Math.sign(dsd || 1) === side && tw >= 24){ const sc = polarAt(wspd, tw)[0]; if (sc >= bs){ bs = sc; bh = brg; } }
+    out[side] = { h: bh, score: bs };
+  }
+  return out;
+}
+const _thCache = {};
+function aiUpwindAngle(w){                        // vinkel som gir best fart mot vinden ved denne vindstyrken
+  const key = Math.round(w * 2);
+  if (_thCache[key]) return _thCache[key];
+  let best = 0, th = 44;
+  for (let a = 32; a <= 70; a++){ const v = polarAt(w, a)[0] * Math.cos(a * DEG); if (v > best){ best = v; th = a; } }
+  return (_thCache[key] = th);
+}
+function aiStep(ai, dt, t){
+  const R = RG;
+  const W = windAt(ai.x, ai.z, t), wspd = W.spd, wdir = W.dir;
+  let wp = ai.wp, thr = 1;
+  if (ai.stage === 'pre'){
+    const H = R.hold[ai.pi]; wp = H; thr = 0.7;
+    if (Math.hypot(H.x - ai.x, H.z - ai.z) < 18) ai.pi ^= 1;
+    if (R.gun != null){
+      const sp = R.startPts[ai.k], ts = R.gun + ai.off - t;
+      if (ts < Math.hypot(sp.x - ai.x, sp.z - ai.z) / (0.85 * ai.vexp) + 10) ai.stage = 'run';
+    }
+  }
+  if (ai.stage === 'run'){
+    const sp = R.startPts[ai.k], ts = R.gun + ai.off - t;
+    wp = sp;
+    thr = clamp(ts / Math.max(1, Math.hypot(sp.x - ai.x, sp.z - ai.z) / ai.vexp), 0.35, 1);
+    if (ts <= 0){ ai.stage = 'race'; ai.leg = 0; ai.sub = 0; ai.wp = wp = R.marks[0].wpA; thr = 1; ai.prevFa = null; ai.prevC = null; }
+  } else if (ai.stage === 'race' || ai.stage === 'done'){
+    wp = ai.wp;
+    if (ai.stage === 'done') thr = Math.hypot(wp.x - ai.x, wp.z - ai.z) < 16 ? 0 : 0.3;
+  }
+  if (ai.curWp !== wp){ ai.curWp = wp; ai.sx = ai.x; ai.sz = ai.z; ai.beat = false; }
+
+  const dx = wp.x - ai.x, dz = wp.z - ai.z;
+  const brg = Math.atan2(dx, -dz), dsd = angDiff(brg, wdir), twB = Math.abs(dsd) / DEG;
+  const cand = aiCands(wspd, wdir, brg, dsd);
+  const thUp = aiUpwindAngle(wspd);
+  if (twB >= thUp - 1){ if (twB < 172 || !ai.side) ai.side = Math.sign(dsd) || 1; ai.sideT = 0; ai.beat = false; }      // kan legge merket direkte
+  else {
+    // kryss mot vinden: seil ut mot laylinja til merket, snu der, og seil rett inn. Aldri lenger ut enn 90 m fra vindaksen.
+    const ux = Math.sin(wdir), uz = -Math.cos(wdir), rx = Math.cos(wdir), rz = Math.sin(wdir);
+    const px = ai.x - wp.x, pz = ai.z - wp.z;
+    const pa = px * ux + pz * uz, pb = px * rx + pz * rz;
+    const edge = Math.max(0, -pa) * Math.tan(thUp * DEG);
+    const lim = Math.max(18, Math.min(0.9 * edge, 90));
+    if (!ai.beat){ ai.beat = true; ai.side = pb > 0 ? -1 : 1; ai.sideT = 0; }
+    ai.sideT += dt;
+    if (ai.sideT > 15 && ai.side * pb >= lim){ ai.side = -ai.side; ai.sideT = 0; }
+  }
+  const hd = cand[ai.side].h;
+  ai.h = (ai.h + clamp(angDiff(hd, ai.h), -AI_TURN * dt, AI_TURN * dt) + TAU) % TAU;
+  const twa = Math.abs(angDiff(ai.h, wdir)) / DEG;
+  const [pv, sheet] = polarAt(wspd, twa);
+  const vt = pv * ai.skill * (1 + ai.adapt) * (1 + 0.02 * Math.sin(t / 9 + ai.ph)) * thr;
+  ai.speed += (vt - ai.speed) * (1 - Math.exp(-dt / (vt > ai.speed ? 2.6 : 1.3)));
+  ai.x = clamp(ai.x + Math.sin(ai.h) * ai.speed * dt, 20, WORLD - 20);
+  ai.z = clamp(ai.z - Math.cos(ai.h) * ai.speed * dt, 20, WORLD - 20);
+  ai.twa = twa; ai.sheet = sheet; ai.wspd = wspd;
+  const fx = -Math.sin(wdir) * wspd - Math.sin(ai.h) * ai.speed, fz = Math.cos(wdir) * wspd + Math.cos(ai.h) * ai.speed;
+  const aStb = fx * Math.cos(ai.h) + fz * Math.sin(ai.h);
+  if (Math.abs(aStb) > 0.25) ai.lee = Math.sign(aStb);
+
+  if (ai.stage === 'race'){
+    if (ai.leg < R.marks.length){
+      const mk = R.marks[ai.leg];
+      if (ai.sub === 0 && Math.hypot(mk.wpA.x - ai.x, mk.wpA.z - ai.z) < 12){ ai.sub = 1; ai.wp = mk.wp; }
+      const gt = rgGate(mk, ai.x, ai.z, ai.prevC);
+      ai.prevC = gt.c;
+      if (gt.hit){
+        ai.leg++; ai.prevC = null; ai.sub = 0;
+        ai.wp = ai.leg < R.marks.length ? R.marks[ai.leg].wpA : R.finWp;
+      }
+    } else {
+      const fa = (ai.x - R.fin.x) * R.u.x + (ai.z - R.fin.z) * R.u.z, fb = (ai.x - R.fin.x) * R.r.x + (ai.z - R.fin.z) * R.r.z;
+      if (ai.prevFa != null && ai.prevFa < 0 && fa >= 0 && Math.abs(fb) <= R.Wf){ ai.fin = t - R.gun; ai.stage = 'done'; }
+      ai.prevFa = fa;
+    }
+  }
+}
+const _l0 = new THREE.Vector3(0, BOOM_Y + 0.05, MAST_Z), _l1 = new THREE.Vector3(0, BOOM_Y + 0.05 + MAST_H, MAST_Z);
+const _j1 = TACK.clone().lerp(FORESTAY_TOP, 0.98);
+function rgAiPose(ai){
+  const t = state.clock;
+  ai.g.position.set(ai.x, waveH(ai.x, ai.z, t) * 0.8 + 0.1, ai.z);
+  ai.g.rotation.y = -ai.h;
+}
+function rgAiRender(ai, dt){
+  const t = state.clock;
+  rgAiPose(ai);
+  const luff = ai.twa < 30 || ai.speed < 0.7;
+  const mT = ai.lee * (luff ? 8 : clamp(ai.sheet, 8, 85)) * DEG, jT = ai.lee * (luff ? 6 : clamp(ai.sheet * 0.85 + 4, 6, 76)) * DEG;
+  const st = 2.4 * dt;
+  ai.ma += clamp(mT - ai.ma, -st, st); ai.ja += clamp(jT - ai.ja, -st, st);
+  const mag = clamp(ai.speed / 5, 0, 1) * (6 + ai.wspd * 0.9) * DEG;
+  ai.heel = lerp(ai.heel, ai.lee * Math.min(mag, 24 * DEG), Math.min(1, dt * 1.5));
+  ai.tl.rotation.z = -ai.heel;
+  ai.piv.rotation.y = ai.ma;
+  const cm = ai.lee * clamp(Math.sqrt(ai.wspd) / 2.6, 0.4, 1) * 0.75;
+  buildSail(ai.ms, _l0, _l1, BOOM_LEN * 0.98, 0.93, ai.ma, luff ? 0 : cm, luff ? 1 : 0, t);
+  buildSail(ai.js, TACK, _j1, JIB_FOOT, 0.97, ai.ja, luff ? 0 : ai.lee * 0.8, luff ? 1 : 0, t, { ...NOEX, sag: 0.1 * ai.lee });
+}
+
+// --- fremdrift og plassering -----------------------------------------------------
+function rgProg(x, z, leg){
+  const R = RG, i = clamp(leg, 0, 3), p = R.pts[i + 1];
+  return R.cum[i] + clamp(R.legLen[i] - Math.hypot(p.x - x, p.z - z), 0, R.legLen[i]);
+}
+function rgRanking(){
+  const R = RG, rows = [];
+  rows.push({ me: true, name: 'Du', prog: R.started ? rgProg(state.x, state.z, state.leg) : -Math.hypot(R.startC.x - state.x, R.startC.z - state.z) });
+  for (const a of R.ai){
+    rows.push({ name: a.name, fin: a.fin, prog: a.stage === 'race' ? rgProg(a.x, a.z, a.leg) : a.stage === 'done' ? R.total : -Math.hypot(R.startC.x - a.x, R.startC.z - a.z) });
+  }
+  rows.sort((p, q) => (q.fin != null) - (p.fin != null) || (p.fin != null && q.fin != null ? p.fin - q.fin : q.prog - p.prog));
+  return rows;
+}
+
+function rgMsg(big, sub, cls, secs = 3){ RG.msg = { big, sub, cls: cls || 'small', until: state.t + secs }; }
+function rgTarget(){
+  const R = RG;
+  if (R.phase === 'approach' || R.phase === 'countdown') return R.zoneC;
+  if (!R.started) return R.startC;
+  return state.leg < R.marks.length ? R.marks[state.leg] : R.fin;
+}
+function rgUpcoming(){
+  const R = RG;
+  if (!R.started) return null;
+  if (state.leg < R.marks.length - 1) return R.marks[state.leg + 1];
+  if (state.leg === R.marks.length - 1) return R.fin;
+  return null;
+}
+function rgNearNext(){
+  const R = RG;
+  if (!state.running || !R.started || state.leg >= R.marks.length) return false;
+  const c = R.marks[state.leg];
+  return Math.hypot(c.x - state.x, c.z - state.z) < NEXT_RANGE;
+}
+
+// kryssing av «porten» ved et merke: en stråle fra merket ut på yttersiden av svingen. Man må krysse den fra innseilingssiden.
+function rgGate(m, x, z, prev){
+  const rx = x - m.x, rz = z - m.z;
+  const c = m.g.x * rz - m.g.z * rx;
+  const hit = prev != null && m.g.x * rx + m.g.z * rz > 0 && Math.hypot(rx, rz) < 90 && prev * m.sIn > 0 && c * m.sIn <= 0;
+  return { c, hit };
+}
+function rgUpdate(dt){
+  const R = RG, t = state.t;
+  const pa = rgA(state.x, state.z), pb = rgB(state.x, state.z);
+  if (R.msg && t > R.msg.until) R.msg = null;
+
+  if (R.phase === 'approach'){
+    if (rgInZone(pa, pb)){
+      R.phase = 'countdown'; R.gun = t + 45; R.lastBeep = 999;
+      sound.beep(660, 0.18, 0.25);
+      rgMsg('Nedtelling startet', 'Hold deg bak linjen til startskuddet', 'small', 3);
+    } else if (t >= R.deadline){ rgDns(); return; }
+  }
+  if (R.phase === 'countdown'){
+    const rem = R.gun - t, c = Math.ceil(rem);
+    if (c !== R.lastBeep){
+      R.lastBeep = c;
+      if (c === 30 || c === 20 || c === 10) sound.beep(660, 0.12, 0.25);
+      else if (c <= 5 && c >= 1) sound.beep(c === 1 ? 880 : 740, 0.14, 0.3);
+    }
+    if (rem <= 0){
+      R.phase = 'race';
+      sound.beep(1100, 0.7, 0.35);
+      if (pa > 0 && Math.abs(pb) <= R.Wm + 0.14 * R.D){ R.ocs = true; rgMsg('Tjuvstart!', 'Seil tilbake bak linjen og kryss den på nytt', 'warn', 5); }
+      else rgMsg('Start!', 'Kryss linjen mellom de røde bøyene', 'go', 3);
+    }
+  }
+  if (R.phase === 'race'){
+    if (!R.started){
+      if (R.prevA != null && R.prevA < 0 && pa >= 0){
+        if (Math.abs(pb) <= R.Wm){
+          R.started = true; R.ocs = false; R.startT = t; state.leg = 0; R.prevC = null;
+          const late = t - R.gun;
+          rgMsg('Over linjen', late < 1 ? 'Perfekt start' : `${Math.round(late)} s etter skuddet`, 'go', 3);
+        } else rgMsg('Utenfor linjen', 'Start mellom de to røde bøyene', 'warn', 3);
+      }
+    } else if (state.leg < R.marks.length){
+      const m = R.marks[state.leg], gt = rgGate(m, state.x, state.z, R.prevC);
+      if (gt.hit){
+        state.leg++; R.prevC = null;
+        sound.beep(620, 0.16, 0.25);
+        rgMsg(state.leg < R.marks.length ? `Merke ${state.leg} rundet` : 'Alle merker rundet', state.leg < R.marks.length ? `Videre til merke ${state.leg + 1}` : 'Kryss mållinjen mot vinden', 'go', 2.5);
+      } else R.prevC = gt.c;
+      R.touchCd -= dt;
+      for (const mm of R.marks){
+        if (R.touchCd <= 0 && Math.hypot(state.x - mm.x, state.z - mm.z) < 4.6){
+          R.pen += 10; R.touchCd = 4; state.speed *= 0.5; state.bump = 1;
+          rgMsg('Rørte merket', '+10 sekunder', 'warn', 3);
+        }
+      }
+    } else {
+      const fa = (state.x - R.fin.x) * R.u.x + (state.z - R.fin.z) * R.u.z, fb = (state.x - R.fin.x) * R.r.x + (state.z - R.fin.z) * R.r.z;
+      if (R.prevFa != null && R.prevFa < 0 && fa >= 0){
+        if (Math.abs(fb) <= R.Wf){ rgFinish(); R.prevFa = fa; return; }
+        rgMsg('Utenfor mållinjen', 'Kryss mellom de to grønne bøyene', 'warn', 3);
+      }
+      R.prevFa = fa;
+    }
+    if (t - R.gun > 1500){ rgDns('Tiden gikk ut'); return; }
+  }
+  R.prevA = pa;
+
+  // AI-ene
+  for (const a of R.ai) aiStep(a, dt, t);
+  if (R.started){          // jevner ut feltet litt, så det hverken blir umulig eller for lett
+    const pp = rgProg(state.x, state.z, state.leg);
+    for (const a of R.ai){
+      if (a.stage !== 'race') continue;
+      const dp = rgProg(a.x, a.z, a.leg) - pp;
+      a.adapt += (clamp(-dp / 700, -0.05, 0.05) - a.adapt) * Math.min(1, dt * 0.3);
+    }
+  }
+}
+
+function rgResultRows(el, rows){
+  el.replaceChildren();
+  const ol = document.createElement('ol'); ol.className = 'lb';
+  rows.forEach((r, i) => {
+    const li = document.createElement('li'); if (r.me) li.className = 'me';
+    const mk = (cls, txt) => { const s = document.createElement('span'); s.className = cls; s.textContent = txt; return s; };
+    li.append(mk('lb__rank', String(i + 1)), mk('lb__name', r.name), mk('lb__time', r.time < 99999 ? fmtMs(r.time * 1000) : '–'));
+    ol.append(li);
+  });
+  el.append(ol);
+}
+function rgFinish(){
+  const R = RG;
+  state.running = false; state.finished = true; R.phase = 'done';
+  sound.beep(900, 0.5, 0.35);
+  R.finT = state.t - R.gun;
+  const tm = R.finT + R.pen;
+  let tt = state.t;
+  for (let n = 0; n < 4800 && R.ai.some(a => a.fin == null); n++){ tt += 0.25; for (const a of R.ai) if (a.fin == null) aiStep(a, 0.25, tt); }
+  const rows = [{ me: true, name: 'Du', time: tm }, ...R.ai.map(a => ({ name: a.name, time: a.fin != null ? a.fin : 99999 }))].sort((p, q) => p.time - q.time);
+  const place = rows.findIndex(r => r.me) + 1;
+  $('finishEyebrow').textContent = 'Regatta · i mål';
+  $('finishTitle').textContent = place === 1 ? 'Du vant!' : place === 2 ? 'Andreplass' : 'Tredjeplass';
+  $('finalTime').hidden = false;
+  $('finalTime').textContent = fmtTime(tm);
+  let best = null;
+  try { best = parseFloat(localStorage.getItem('seilsim-rg-best')); } catch (e) {}
+  const isBest = !best || tm < best;
+  if (isBest){ try { localStorage.setItem('seilsim-rg-best', String(tm)); } catch (e) {} }
+  $('bestTime').hidden = !isBest;
+  $('finishText').textContent = `Plass ${place} av 3 i regattaen.` + (R.pen ? ` Tiden inkluderer ${R.pen} s straff for å ha rørt merker.` : '') +
+    (isBest ? ' Det er din raskeste regatta så langt.' : ` Din beste regatta er ${fmtTime(best)}.`);
+  $('rgResBox').hidden = false; rgResultRows($('rgRes'), rows);
+  $('lbBox').hidden = false; $('lbBoxTitle').textContent = 'Regatta · topp 5';
+  $('finishOverlay').hidden = false;
+  lbShowFinish(Math.round(tm * 1000), { boat: 'kjol', wind: state.runInfo ? state.runInfo.wind : windLevel, place }, 'regatta');
+}
+function rgDns(reason){
+  const R = RG;
+  state.running = false; state.finished = true; R.phase = 'dns';
+  $('finishEyebrow').textContent = 'Regatta';
+  $('finishTitle').textContent = reason || 'Du rakk ikke starten';
+  $('finalTime').hidden = true; $('bestTime').hidden = true;
+  $('finishText').textContent = reason ? 'Seilasen ble avbrutt.' : 'Du var ikke i startfeltet innen 3 minutter. Sett kursen rett mot det røde feltet og trim seilene tidlig, så rekker du det med god margin.';
+  $('rgResBox').hidden = true; $('lbBox').hidden = true;
+  $('finishOverlay').hidden = false;
+}
+
+// --- HUD og banner ---------------------------------------------------------------
+let bannerKey = '';
+function rgBannerUpdate(){
+  const R = RG, el = $('rgBanner'), t = state.t;
+  let big = '', sub = '', cls = 'small';
+  if (mode !== 'regatta' || !state.running) big = '';
+  else if (R.msg && t < R.msg.until){ big = R.msg.big; sub = R.msg.sub || ''; cls = R.msg.cls; }
+  else if (R.phase === 'approach'){ big = 'Seil til startfeltet'; sub = `Inn i det røde feltet bak startlinjen. Frist ${fmtTime(Math.max(0, R.deadline - t))}`; }
+  else if (R.phase === 'countdown'){
+    const over = rgA(state.x, state.z) > 0;
+    big = String(Math.max(0, Math.ceil(R.gun - t))); cls = over ? 'warn' : '';
+    sub = over ? 'Du er over linjen. Gå tilbake før skuddet!' : 'Hold deg bak linjen til startskuddet';
+  } else if (R.phase === 'race' && !R.started){
+    big = R.ocs ? 'Tjuvstart' : 'Kryss startlinjen'; cls = R.ocs ? 'warn' : 'small';
+    sub = R.ocs ? 'Seil tilbake bak linjen og start på nytt' : 'Mellom de to røde bøyene';
+  }
+  const key = big + '|' + sub + '|' + cls;
+  if (key === bannerKey) return;
+  bannerKey = key;
+  el.hidden = !big;
+  el.className = 'rgbanner ' + cls;
+  $('rgBig').textContent = big; $('rgSub').textContent = sub;
+}
+function rgHud(){
+  const R = RG, t = state.t;
+  const tgt = currentTarget();
+  $('distBadge').textContent = Math.round(Math.hypot(tgt.x - state.x, tgt.z - state.z)) + ' m';
+  let txt = '', tone = 'info', time = '';
+  if (R.phase === 'approach'){ txt = 'Til startfeltet'; time = 'Frist ' + fmtTime(Math.max(0, R.deadline - t)); }
+  else if (R.phase === 'countdown'){ txt = 'Nedtelling'; time = 'Start ' + fmtTime(Math.max(0, R.gun - t)); }
+  else if (R.phase === 'race'){
+    time = fmtTime(Math.max(0, t - R.gun) + R.pen);
+    if (!R.started){ txt = 'Kryss startlinjen'; tone = 'warning'; }
+    else if (state.leg < R.marks.length) txt = `Merke ${state.leg + 1} av ${R.marks.length}`;
+    else { txt = 'Seil i mål'; tone = 'success'; }
+  }
+  if (R.phase === 'done' || R.phase === 'dns'){ txt = R.phase === 'done' ? 'I mål' : 'Ikke i mål'; tone = R.phase === 'done' ? 'success' : 'danger'; time = R.phase === 'done' ? fmtTime(Math.max(0, R.finT) + R.pen) : ''; }
+  const tb = $('targetBadge'); tb.textContent = txt; tb.className = 'hb-badge hb-badge--' + tone;
+  $('timeBadge').textContent = time;
+  const pb = $('posBadge');
+  pb.hidden = !(R.phase === 'race' && R.started);
+  if (!pb.hidden) pb.textContent = `Plass ${rgRanking().findIndex(r => r.me) + 1} av 3`;
+  const nb = $('nextBadge'), up = rgUpcoming();
+  nb.hidden = !(up && rgNearNext());
+  if (!nb.hidden){
+    const d = Math.round(Math.hypot(up.x - state.x, up.z - state.z));
+    nb.textContent = state.leg < R.marks.length - 1 ? `Neste: merke ${state.leg + 2} · ${d} m` : `Neste: mål · ${d} m`;
+  }
+  rgBannerUpdate();
+}
+
+// --- tegning ---------------------------------------------------------------------
+function rgRender(t, dt){
+  const R = RG, O = R.obj;
+  const setCol = (m, tok) => m.color.set(colors[tok]);
+  const floats = (g, tok, sc, show) => {
+    g.mesh.visible = show;
+    if (!show) return;
+    g.mesh.material.color.set(colors[tok]);
+    g.mesh.count = g.pts.length;
+    for (let i = 0; i < g.pts.length; i++){
+      const [x, z] = g.pts[i];
+      tmpV.set(x, waveH(x, z, t) * 0.85 + 0.15, z); tmpS.set(sc, sc, sc);
+      tmpM.compose(tmpV, tmpQ, tmpS);
+      g.mesh.setMatrixAt(i, tmpM);
+    }
+    g.mesh.instanceMatrix.needsUpdate = true;
+  };
+  floats(O.sF, 'coral-500', 1, true); floats(O.fF, 'meadow-700', 1, true);
+  floats(O.zF, 'coral-500', 1, R.phase === 'approach' || R.phase === 'countdown');
+  const cur = R.started ? state.leg : -1, nearN = rgNearNext();
+  O.marks.forEach((b, i) => {
+    const done = i < cur, next = i === cur, nextUp = i === cur + 1 && nearN;
+    setCol(b.m, done ? 'meadow-500' : nextUp ? 'plum-500' : 'sun-500');
+    b.g.position.y = waveH(b.g.position.x, b.g.position.z, t) * 0.8;
+    b.g.rotation.z = Math.sin(t * 1.3 + i) * 0.06;
+    b.ring.visible = (next || nextUp) && state.running;
+    if (next || nextUp){
+      const p = (t * (nextUp ? 1.0 : 0.7)) % 1;
+      b.ring.scale.setScalar((nextUp ? 3 : 2) + p * (nextUp ? 14 : 10));
+      setCol(b.ring.material, nextUp ? 'plum-500' : 'sun-500');
+      b.ring.material.opacity = 1 - p;
+    }
+    b.g.scale.setScalar(b.big * (nextUp ? 1.25 + Math.sin(t * 5) * 0.06 : 1));
+    b.label.scale.setScalar(nextUp ? 4.6 : 3.2);
+    b.label.visible = !done;
+  });
+  const finishing = R.started && state.leg >= R.marks.length;
+  [...O.sB, ...O.fB].forEach((b, i) => {
+    const isFin = i >= 2;
+    setCol(b.m, isFin ? 'meadow-700' : 'coral-500');
+    b.g.position.y = waveH(b.g.position.x, b.g.position.z, t) * 0.8;
+    b.g.rotation.z = Math.sin(t * 1.1 + i) * 0.05;
+    b.g.scale.setScalar(b.big);
+    b.label.scale.setScalar(3.4);
+    b.ring.visible = isFin && finishing && state.running;
+    if (b.ring.visible){
+      const p = (t * 0.8) % 1;
+      b.ring.scale.setScalar(2 + p * 12); setCol(b.ring.material, 'meadow-700'); b.ring.material.opacity = 1 - p;
+    }
+  });
+  R.ai.forEach(a => rgAiRender(a, dt));
+}
+function rgDrawMap(ctx, k, sc){
+  const R = RG;
+  const line = (a, b, tok, w) => { ctx.beginPath(); ctx.moveTo(a.x * k, a.z * k); ctx.lineTo(b.x * k, b.z * k); ctx.lineWidth = w; ctx.strokeStyle = colors[tok]; ctx.lineCap = 'round'; ctx.stroke(); };
+  // startfelt
+  if (R.phase === 'approach' || R.phase === 'countdown'){
+    const zw = R.Wm + 0.14 * R.D, zd = 0.4 * R.D, c = R.zoneC, u = R.u, r = R.r;
+    const corner = (sa, sb) => ({ x: (c.x + r.x * sb * zw - u.x * sa * zd / 2) * k, z: (c.z + r.z * sb * zw - u.z * sa * zd / 2) * k });
+    const q = [corner(1, -1), corner(1, 1), corner(-1, 1), corner(-1, -1)];
+    ctx.beginPath(); q.forEach((p, i) => i ? ctx.lineTo(p.x, p.z) : ctx.moveTo(p.x, p.z)); ctx.closePath();
+    ctx.fillStyle = 'rgba(232,102,92,.25)'; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = colors['coral-500']; ctx.stroke();
+  }
+  line(R.sp1, R.sp2, 'coral-500', 3.5);
+  line(R.fp1, R.fp2, 'meadow-700', 3.5);
+  ctx.font = `800 ${Math.round(9 * Math.min(sc, 1.5))}px Nunito, system-ui, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = INK_FIXED;
+  const lab = Math.round(14 * Math.min(sc, 1.5));
+  ctx.fillText('Start', ((R.sp1.x + R.sp2.x) / 2 - R.u.x * 0) * k, ((R.sp1.z + R.sp2.z) / 2) * k + lab);
+  ctx.fillText('Mål', ((R.fp1.x + R.fp2.x) / 2) * k, ((R.fp1.z + R.fp2.z) / 2) * k - lab);
+  const br = 8 * Math.min(sc, 1.6);
+  R.marks.forEach((m, i) => {
+    const cur = R.started ? state.leg : -1, done = i < cur, next = i === cur;
+    const bx = m.x * k, bz = m.z * k;
+    if (next){ ctx.beginPath(); ctx.arc(bx, bz, br + 4, 0, TAU); ctx.fillStyle = colors['plum-300']; ctx.fill(); }
+    ctx.beginPath(); ctx.arc(bx, bz, br, 0, TAU);
+    ctx.fillStyle = next ? colors['plum-500'] : done ? colors['meadow-700'] : colors['sun-300']; ctx.fill();
+    ctx.lineWidth = next ? 2.2 : 1.4; ctx.strokeStyle = INK_FIXED; ctx.stroke();
+    ctx.font = `800 ${Math.round(br * 1.35)}px Nunito, system-ui, sans-serif`;
+    ctx.fillStyle = (next || done) ? '#ffffff' : INK_FIXED;
+    ctx.fillText(String(i + 1), bx, bz + 0.5);
+  });
+  // AI-seilerne
+  R.ai.forEach(a => {
+    ctx.save();
+    ctx.translate(a.x * k, a.z * k); ctx.rotate(a.h);
+    ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(4.5, 5); ctx.lineTo(0, 2.5); ctx.lineTo(-4.5, 5); ctx.closePath();
+    ctx.fillStyle = colors[a.tagTok]; ctx.strokeStyle = INK_FIXED; ctx.lineWidth = 1.5; ctx.fill(); ctx.stroke();
+    ctx.restore();
+    ctx.font = `800 ${Math.round(9 * Math.min(sc, 1.5))}px Nunito, system-ui, sans-serif`;
+    ctx.fillStyle = INK_FIXED; ctx.fillText(a.name, a.x * k, a.z * k - 12);
+  });
+}
+
+
+// ---------------------------------------------------------------------------
+// HUD
+// ---------------------------------------------------------------------------
+const panels = {};
+document.querySelectorAll('[data-sail]').forEach(el => {
+  panels[el.dataset.sail] = {
+    status: el.querySelector('[data-status]'),
+    meter: el.querySelector('[data-meter]'),
+    meta: el.querySelector('[data-meta]'),
+  };
+});
+function sideText(a){
+  const d = Math.round(Math.abs(a) / DEG);
+  if (d < 3) return 'midt';
+  return `${d}° ${a < 0 ? 'babord' : 'styrbord'}`;
+}
+let hudTick = 0;
+function updateHud(){
+  const { fm, fj, flowAng, awa, trueSpeed, nearSquall, running } = state.info;
+  if (!fm) return;
+  // trimpanel
+  const wFrom = flowAng + Math.PI;
+  $('windMark').setAttribute('transform', `rotate(${wFrom / DEG})`);
+  const ml = $('mainLine'), jl = $('jibLine');
+  ml.setAttribute('x2', Math.sin(state.main.angle) * 34); ml.setAttribute('y2', -10 + Math.cos(state.main.angle) * 34);
+  jl.setAttribute('x2', Math.sin(state.jib.angle) * 34); jl.setAttribute('y2', -38 + Math.cos(state.jib.angle) * 34);
+  ml.style.opacity = 0.25 + state.main.hoist * 0.75;
+  jl.style.opacity = 0.25 + state.jib.hoist * 0.75;
+
+  if (++hudTick % 6) return;
+  $('windValue').textContent = `${Math.round(trueSpeed)} m/s`;
+  $('pointOfSail').textContent = pointOfSail(awa / DEG);
+  if (mode === 'regatta') rgHud();
+  else {
+    const tgt = currentTarget();
+    const tb = $('targetBadge');
+    tb.textContent = state.leg < buoys.length ? `Bøye ${state.leg + 1} av ${buoys.length}` : 'Seil i havn';
+    tb.className = 'hb-badge ' + (state.leg < buoys.length ? 'hb-badge--info' : 'hb-badge--success');
+    $('distBadge').textContent = `${Math.round(Math.hypot(tgt.x - state.x, tgt.z - state.z))} m`;
+    const nb = $('nextBadge'), up = upcomingTarget();
+    nb.hidden = !(up && nearNext());
+    if (!nb.hidden) nb.textContent = state.leg < buoys.length - 1
+      ? `Neste: bøye ${state.leg + 2} · ${Math.round(Math.hypot(up.x - state.x, up.z - state.z))} m`
+      : `Neste: havna · ${Math.round(Math.hypot(up.x - state.x, up.z - state.z))} m`;
+  }
+  $('squallBadge').hidden = !nearSquall;
+  $('overBadge').hidden = !state.over;
+  $('hoistBadge').hidden = state.main.hoist + state.jib.hoist > 0.3;
+  if (mode !== 'regatta') $('timeBadge').textContent = fmtTime(state.t);
+
+  for (const [k, f] of [['main', fm], ['jib', fj]]){
+    const s = state[k], p = panels[k];
+    const [txt, tone] = sailStatus(s, f, running);
+    p.status.textContent = txt;
+    p.status.className = 'hb-badge hb-badge--' + tone;
+    p.meter.style.width = (s.hoist * 100).toFixed(0) + '%';
+    p.meta.textContent = `${s.hoist < 0.02 ? 'Nede' : s.hoist > 0.98 ? 'Helt oppe' : Math.round(s.hoist * 100) + ' % oppe'} · ${sideText(s.angle)}`;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Fartsmåler
+// ---------------------------------------------------------------------------
+const speedoEl = $('speedo'), speedoArc = $('speedoArc'), speedoNum = $('speedoNum');
+const SPEEDO_MAX = 20;
+let speedoTxt = '';
+function updateSpeedo(){
+  const kn = Math.abs(state.speed) * 1.944;
+  const pct = clamp(kn / SPEEDO_MAX, 0, 1) * 100;
+  speedoArc.style.strokeDasharray = pct.toFixed(2) + ' 100';
+  speedoArc.style.opacity = pct < 0.8 ? 0 : 1;
+  speedoEl.classList.toggle('hot', state.over);
+  const txt = kn.toFixed(1);
+  if (txt !== speedoTxt){
+    speedoTxt = txt;
+    speedoNum.textContent = txt;
+    speedoEl.setAttribute('aria-label', 'Fart ' + txt + ' knop');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Værkart — vindfelt, byger og tidslinje, i stil med Windy
+// ---------------------------------------------------------------------------
+const INK_FIXED = '#16303f';                 // kartet har egne pastellfarger i begge temaer
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const GRID = 24, ARROWS = 7;
+const heat = document.createElement('canvas'); heat.width = heat.height = GRID;
+const heatCtx = heat.getContext('2d');
+const heatImg = heatCtx.createImageData(GRID, GRID);
+
+const wx = {
+  open: false, off: 0, probe: null, dirty: true, acc: 0,
+  size: 0, mw: 0, mh: 0,
+  base: $('wxBase'), flow: $('wxFlow'), meteo: $('wxMeteo'),
+};
+wx.baseCtx = wx.base.getContext('2d');
+wx.flowCtx = wx.flow.getContext('2d');
+wx.meteoCtx = wx.meteo.getContext('2d');
+
+// fargerampe for vindstyrke (m/s)
+const RAMP_DEF = [[3, 'ocean-100'], [6, 'ocean-300'], [9, 'ocean-500'], [12, 'meadow-500'], [15, 'sun-500'], [18, 'coral-500'], [22, 'coral-700']];
+let ramp = [];
+function hex2rgb(h){
+  h = h.trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  const n = parseInt(h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function buildRamp(){
+  ramp = RAMP_DEF.map(([v, t]) => [v, hex2rgb(colors[t])]);
+  $('wxRamp').style.background = 'linear-gradient(90deg,' +
+    ramp.map(([v, c]) => `rgb(${c}) ${((v - 3) / 19 * 100).toFixed(0)}%`).join(',') + ')';
+}
+function rampColor(v){
+  if (v <= ramp[0][0]) return ramp[0][1];
+  for (let i = 1; i < ramp.length; i++){
+    if (v <= ramp[i][0]){
+      const [v0, c0] = ramp[i - 1], [v1, c1] = ramp[i], f = (v - v0) / (v1 - v0);
+      return [c0[0] + (c1[0] - c0[0]) * f, c0[1] + (c1[1] - c0[1]) * f, c0[2] + (c1[2] - c0[2]) * f];
+    }
+  }
+  return ramp[ramp.length - 1][1];
+}
+const COMPASS = ['N', 'NØ', 'Ø', 'SØ', 'S', 'SV', 'V', 'NV'];
+const compass = dir => COMPASS[Math.round(mod(dir / TAU, 1) * 8) % 8];
+
+function wxResize(){
+  const s = $('wxStack').clientWidth;
+  if (!s) return;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  wx.size = s;
+  for (const c of [wx.base, wx.flow]) c.width = c.height = Math.round(s * dpr);
+  wx.baseCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  wx.flowCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const box = wx.meteo.parentElement, mw = box.clientWidth, mh = box.clientHeight;
+  wx.mw = mw; wx.mh = mh;
+  if (mw && mh){
+    wx.meteo.width = Math.round(mw * dpr); wx.meteo.height = Math.round(mh * dpr);
+    wx.meteoCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  wx.dirty = true;
+}
+
+function drawWxBase(){
+  const S = wx.size;
+  if (!S) return;
+  const ctx = wx.baseCtx, k = S / WORLD, tf = state.t + wx.off, sc = S / 168;
+
+  // vindfelt: lav oppløsning som skaleres opp, så fargene flyter jevnt
+  const d = heatImg.data;
+  for (let gz = 0; gz < GRID; gz++) for (let gx = 0; gx < GRID; gx++){
+    const a = windAt((gx + 0.5) / GRID * WORLD, (gz + 0.5) / GRID * WORLD, tf);
+    const c = rampColor(a.spd), i = (gz * GRID + gx) * 4;
+    d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+  }
+  heatCtx.putImageData(heatImg, 0, 0);
+  ctx.clearRect(0, 0, S, S);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(heat, 0, 0, S, S);
+
+  // øyer: små uregelmessige holmer med sandkant
+  const blob = (cx, cz, r, seed) => {
+    const n = 14;
+    ctx.beginPath();
+    for (let j = 0; j <= n; j++){
+      const a = j / n * TAU;
+      const rr = r * (0.82 + 0.14 * Math.sin(a * 2 + seed) + 0.09 * Math.sin(a * 3 + seed * 1.7) + 0.05 * Math.sin(a * 5 + seed * 2.9));
+      const x = cx + Math.cos(a) * rr * 1.08, z = cz + Math.sin(a) * rr * 0.92;
+      j ? ctx.lineTo(x, z) : ctx.moveTo(x, z);
+    }
+    ctx.closePath();
+  };
+  ctx.lineWidth = 1; ctx.lineJoin = 'round';
+  (mode === 'regatta' ? [] : islands).forEach((is, i) => {
+    const seed = i * 2.17 + 0.6;
+    blob(is.x * k, is.z * k, is.r * k, seed);
+    ctx.fillStyle = colors['sun-300']; ctx.fill();
+    ctx.strokeStyle = 'rgba(22,48,63,.45)'; ctx.stroke();
+    blob(is.x * k + 0.6, is.z * k - 0.4, is.r * k * 0.7, seed + 1.3);
+    ctx.fillStyle = colors['meadow-500']; ctx.fill();
+  });
+
+  // vindpiler
+  ctx.beginPath();
+  for (let gz = 0; gz < ARROWS; gz++) for (let gx = 0; gx < ARROWS; gx++){
+    const x = (gx + 0.5) / ARROWS * WORLD, z = (gz + 0.5) / ARROWS * WORLD;
+    const a = windAt(x, z, tf), fx = -Math.sin(a.dir), fz = Math.cos(a.dir);
+    const L = (5 + a.spd * 0.6) * sc, cx = x * k, cz = z * k;
+    const x1 = cx + fx * L / 2, z1 = cz + fz * L / 2;
+    ctx.moveTo(cx - fx * L / 2, cz - fz * L / 2); ctx.lineTo(x1, z1);
+    const ang = Math.atan2(fz, fx), h = 3.4 * sc;
+    ctx.moveTo(x1 + Math.cos(ang + 2.6) * h, z1 + Math.sin(ang + 2.6) * h);
+    ctx.lineTo(x1, z1);
+    ctx.lineTo(x1 + Math.cos(ang - 2.6) * h, z1 + Math.sin(ang - 2.6) * h);
+  }
+  ctx.strokeStyle = 'rgba(22,48,63,.8)'; ctx.lineWidth = 1.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // byger: bane de neste 5 minuttene og posisjon på valgt tidspunkt
+  ctx.font = '700 9px Nunito, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  SQ.forEach((q, i) => {
+    ctx.fillStyle = INK_FIXED;
+    for (let s = 0; s <= FORECAST; s += 20){
+      const p = squallPos(i, state.t + s);
+      ctx.beginPath(); ctx.arc(p.x * k, p.z * k, 1.5, 0, TAU); ctx.fill();
+    }
+    const p = squallPos(i, tf), cx = p.x * k, cz = p.z * k, R = q.r * k;
+    // sky: flere overlappende pufter med skygge under, og regnstreker
+    const puffs = [[-0.5, 0.12, 0.48], [-0.15, -0.22, 0.6], [0.32, -0.12, 0.52], [0.55, 0.14, 0.4], [0.05, 0.2, 0.5]];
+    ctx.save();
+    ctx.strokeStyle = 'rgba(22,48,63,.45)'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (let j = -2; j <= 2; j++){ const rx = cx + j * R * 0.28; ctx.moveTo(rx, cz + R * 0.55); ctx.lineTo(rx - R * 0.07, cz + R * 0.8 - Math.abs(j) * R * 0.08); }
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(96,118,138,.85)';
+    ctx.beginPath(); puffs.forEach(([ox, oz, pr]) => { ctx.moveTo(cx + ox * R + pr * R, cz + oz * R + R * 0.1); ctx.arc(cx + ox * R, cz + oz * R + R * 0.1, pr * R, 0, TAU); }); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); puffs.forEach(([ox, oz, pr]) => { ctx.moveTo(cx + ox * R + pr * R, cz + oz * R); ctx.arc(cx + ox * R, cz + oz * R, pr * R, 0, TAU); }); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = INK_FIXED; ctx.font = `800 ${Math.round(10 * Math.min(sc, 1.5))}px Nunito, system-ui, sans-serif`;
+    ctx.fillText('B' + (i + 1), cx, cz + 1);
+  });
+
+  // havn og bøyer
+  const reg = mode === 'regatta';
+  const hx = harbor.x * k, hz = harbor.z * k;
+  ctx.fillStyle = INK_FIXED;
+  if (!reg){
+    ctx.fillRect(hx - 5, hz - 4, 10, 8);
+    ctx.beginPath(); ctx.moveTo(hx - 7, hz - 4); ctx.lineTo(hx, hz - 10); ctx.lineTo(hx + 7, hz - 4); ctx.closePath(); ctx.fill();
+  }
+  // linje fra båten til neste mål
+  ctx.save();
+  const tg = currentTarget();
+  ctx.lineWidth = 2; ctx.strokeStyle = colors['plum-500'];
+  ctx.beginPath(); ctx.moveTo(state.x * k, state.z * k); ctx.lineTo(tg.x * k, tg.z * k); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = INK_FIXED; ctx.font = `700 ${Math.round(9 * Math.min(sc, 1.5))}px Nunito, system-ui, sans-serif`;
+  if (!reg) ctx.fillText('Havn', hx, hz + 15 * Math.min(sc, 1.5));
+  // bøyer som nummererte sirkler
+  const br = 8 * Math.min(sc, 1.6);
+  if (reg) rgDrawMap(ctx, k, sc);
+  else buoys.forEach((b, i) => {
+    const done = i < state.leg, next = i === state.leg;
+    const bx = b.x * k, bz = b.z * k;
+    if (next){ ctx.beginPath(); ctx.arc(bx, bz, br + 4, 0, TAU); ctx.fillStyle = colors['plum-300']; ctx.fill(); }
+    ctx.beginPath(); ctx.arc(bx, bz, br, 0, TAU);
+    ctx.fillStyle = next ? colors['plum-500'] : done ? colors['meadow-700'] : colors['sun-300']; ctx.fill();
+    ctx.lineWidth = next ? 2.2 : 1.4; ctx.strokeStyle = INK_FIXED; ctx.stroke();
+    ctx.font = `800 ${Math.round(br * 1.35)}px Nunito, system-ui, sans-serif`;
+    ctx.fillStyle = (next || done) ? '#ffffff' : INK_FIXED;
+    ctx.fillText(String(i + 1), bx, bz + 0.5);
+  });
+
+  // båten
+  ctx.save();
+  ctx.translate(state.x * k, state.z * k); ctx.rotate(state.heading);
+  ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(4.5, 5); ctx.lineTo(0, 2.5); ctx.lineTo(-4.5, 5); ctx.closePath();
+  ctx.fillStyle = '#ffffff'; ctx.strokeStyle = INK_FIXED; ctx.lineWidth = 1.5; ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  // valgt punkt
+  if (wx.probe){
+    const px = wx.probe.x * k, pz = wx.probe.z * k;
+    ctx.beginPath(); ctx.arc(px, pz, 5, 0, TAU);
+    ctx.lineWidth = 3.5; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = INK_FIXED; ctx.stroke();
+  }
+}
+
+// partikler som følger vinden, som i Windy
+const PN = 110;
+const flowParts = Array.from({ length: PN }, () => ({ x: Math.random() * WORLD, z: Math.random() * WORLD, age: Math.random() * 2 }));
+function stepParticles(dt){
+  if (!wx.size || reduceMotion || dt <= 0) return;
+  const ctx = wx.flowCtx, S = wx.size, k = S / WORLD, tf = state.t + wx.off;
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = 'rgba(0,0,0,0.09)'; ctx.fillRect(0, 0, S, S);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = 'rgba(22,48,63,.55)'; ctx.lineWidth = 1.3; ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (const p of flowParts){
+    const a = windAt(p.x, p.z, tf), sp = a.spd * 16 * dt;
+    ctx.moveTo(p.x * k, p.z * k);
+    p.x += -Math.sin(a.dir) * sp; p.z += Math.cos(a.dir) * sp; p.age += dt;
+    ctx.lineTo(p.x * k, p.z * k);
+    if (p.age > 2.5 || p.x < 0 || p.x > WORLD || p.z < 0 || p.z > WORLD){
+      p.x = Math.random() * WORLD; p.z = Math.random() * WORLD; p.age = Math.random() * 1.2;
+    }
+  }
+  ctx.stroke();
+}
+
+// meteogram: vindstyrke ved båten de neste fem minuttene
+function drawMeteo(){
+  if (!wx.mw || !wx.mh) return;
+  const ctx = wx.meteoCtx, W = wx.mw, H = wx.mh, N = FORECAST / 5, padX = 6, top = 8, bot = H - 4;
+  const X = i => padX + i / N * (W - 2 * padX), Y = v => bot - clamp(v / 24, 0, 1) * (bot - top);
+  const dark = isDark();
+  ctx.clearRect(0, 0, W, H);
+  const pts = [];
+  for (let i = 0; i <= N; i++) pts.push(windAt(state.x, state.z, state.t + i * 5));
+
+  ctx.fillStyle = colors['coral-300']; ctx.globalAlpha = dark ? 0.35 : 0.9;
+  for (let i = 0; i < N; i++) if (pts[i].q > 0.25) ctx.fillRect(X(i), 0, X(i + 1) - X(i) + 0.5, H);
+
+  ctx.beginPath(); ctx.moveTo(X(0), bot);
+  pts.forEach((a, i) => ctx.lineTo(X(i), Y(a.spd)));
+  ctx.lineTo(X(N), bot); ctx.closePath();
+  ctx.fillStyle = colors['ocean-300']; ctx.globalAlpha = dark ? 0.35 : 0.8; ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.setLineDash([3, 3]); ctx.lineWidth = 1; ctx.strokeStyle = colors['surface-400'];
+  ctx.beginPath(); ctx.moveTo(padX, Y(10)); ctx.lineTo(W - padX, Y(10)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = '700 10px Nunito, system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = colors['ink-muted']; ctx.fillText('10 m/s', padX + 2, Y(10) - 1);
+
+  ctx.beginPath();
+  pts.forEach((a, i) => i ? ctx.lineTo(X(i), Y(a.spd)) : ctx.moveTo(X(i), Y(a.spd)));
+  ctx.strokeStyle = colors['ink']; ctx.lineWidth = 1.75; ctx.lineJoin = 'round'; ctx.stroke();
+
+  const mi = clamp(wx.off / 5, 0, N), mx = X(mi), my = Y(pts[Math.round(mi)].spd);
+  ctx.strokeStyle = colors['ui-accent']; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(mx, 0); ctx.lineTo(mx, H); ctx.stroke();
+  ctx.beginPath(); ctx.arc(mx, my, 3.5, 0, TAU);
+  ctx.fillStyle = colors['ui-accent']; ctx.fill();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = colors['surface-100']; ctx.stroke();
+}
+
+function updateWxText(){
+  const t0 = state.t, tf = t0 + wx.off;
+  const pt = wx.probe || { x: state.x, z: state.z };
+  const here = windAt(pt.x, pt.z, tf);
+  const rows = [];
+  { const tg = currentTarget(), dd = Math.round(Math.hypot(tg.x - state.x, tg.z - state.z));
+    rows.push(`<div><b>Neste: ${mode === 'regatta' ? (RG.phase === 'approach' || RG.phase === 'countdown' ? 'startfeltet' : !RG.started ? 'startlinjen' : state.leg < RG.marks.length ? 'merke ' + (state.leg + 1) : 'mål') : state.leg < buoys.length ? 'bøye ' + (state.leg + 1) : 'havna'}</b><br>${dd} m unna</div>`); }
+  rows.push(`<div><b>${wx.probe ? 'Valgt punkt' : 'Ved båten'}${wx.off ? ' om ' + fmtTime(wx.off) : ''}</b><br>${Math.round(here.spd)} m/s fra ${compass(here.dir)}</div>`);
+
+  // første byge som treffer deg dersom du blir liggende
+  let first = null;
+  for (let i = 0; i < SQ.length; i++){
+    for (let s = 0; s <= FORECAST; s += 2){
+      const p = squallPos(i, t0 + s);
+      if (Math.hypot(p.x - state.x, p.z - state.z) < SQ[i].r * 0.9){
+        if (!first || s < first.s) first = { s, i };
+        break;
+      }
+    }
+  }
+  rows.push(first
+    ? `<div>${first.s === 0 ? 'Du er i byge ' + (first.i + 1) : 'Byge ' + (first.i + 1) + ' treffer om ' + fmtTime(first.s)}</div>`
+    : '<div class="muted">Ingen byger mot deg på 5 min</div>');
+
+  let top = 0, topT = 0;
+  for (let s = 0; s <= FORECAST; s += 5){
+    const a = windAt(state.x, state.z, t0 + s);
+    if (a.spd > top + 0.01){ top = a.spd; topT = s; }
+  }
+  rows.push(`<div class="muted">Topp ${Math.round(top)} m/s ${topT ? 'om ' + fmtTime(topT) : 'nå'}</div>`);
+  $('wxText').innerHTML = rows.join('');
+  $('wxWhen').textContent = wx.off ? '+' + fmtTime(wx.off) : 'Nå';
+}
+
+function updateWx(dt){
+  if (!wx.open) return;
+  if (!wx.size) wxResize();
+  wx.acc += dt;
+  if (wx.dirty || wx.acc > 0.25){
+    wx.acc = 0; wx.dirty = false;
+    drawWxBase(); drawMeteo(); updateWxText();
+  }
+  stepParticles(state.paused ? 0 : dt);
+}
+
+function setWx(open){
+  wx.open = open;
+  $('wxPanel').hidden = !open;
+  $('wxBtn').setAttribute('aria-pressed', String(open));
+  $('wxBtn').classList.toggle('active', open);
+  stage.classList.toggle('wx-open', open);
+  try { localStorage.setItem('seilsim-wx', open ? 'on' : 'off'); } catch (e) {}
+  if (open){ wxResize(); wx.dirty = true; }
+}
+$('wxBtn').addEventListener('click', () => setWx(!wx.open));
+new ResizeObserver(wxResize).observe($('wxPanel'));
+$('wxSlider').addEventListener('input', e => { wx.off = +e.target.value; wx.dirty = true; });
+$('wxNow').addEventListener('click', () => { wx.off = 0; wx.probe = null; $('wxSlider').value = 0; wx.dirty = true; });
+function setWxBig(b){
+  wx.big = b;
+  $('wxPanel').classList.toggle('big', b);
+  requestAnimationFrame(() => { wxResize(); wx.dirty = true; });
+}
+$('wxStack').addEventListener('pointerdown', e => {
+  const r = e.currentTarget.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * WORLD, z = (e.clientY - r.top) / r.height * WORLD;
+  wx.probe = (wx.probe && Math.hypot(wx.probe.x - x, wx.probe.z - z) < 40) ? null : { x, z };
+  wx.dirty = true;
+});
+
+let focusMode = false;
+function setFocus(on){
+  focusMode = on;
+  $('focusBtn').setAttribute('aria-pressed', String(on));
+  $('focusBtn').classList.toggle('active', on);
+  $('focusBtn').textContent = on ? 'Se båt' : 'Se mål';
+}
+$('focusBtn').addEventListener('click', () => setFocus(!focusMode));
+// pil mot gjeldende mål, og en ny pil i annen farge mot målet etter det når man er nær nok
+const NEXT_RANGE = 75;
+const pointer = $('pointer'), pointerNext = $('pointerNext');
+const projV = new THREE.Vector3();
+function upcomingTarget(){
+  if (mode === 'regatta') return rgUpcoming();
+  if (state.leg < buoys.length - 1) return buoys[state.leg + 1];
+  if (state.leg === buoys.length - 1) return harbor;
+  return null;
+}
+function nearNext(){
+  if (mode === 'regatta') return rgNearNext();
+  if (!state.running || state.leg >= buoys.length) return false;
+  const c = buoys[state.leg];
+  return Math.hypot(c.x - state.x, c.z - state.z) < NEXT_RANGE;
+}
+let uiBottom = 0;
+function placePointer(el, tgt, W, H, show, markOnScreen){
+  projV.set(tgt.x, 3, tgt.z).project(camera);
+  const sx = (projV.x * 0.5 + 0.5) * W, sy = (-projV.y * 0.5 + 0.5) * H;
+  const behind = projV.z > 1, m = 34;
+  H = H - uiBottom;                                  // kontrollene dekker nederste del
+  const onScreen = !behind && sx > m && sx < W - m && sy > m && sy < H - m;
+  if (!show || (onScreen && !markOnScreen)){ el.hidden = true; return; }
+  el.hidden = false;
+  if (onScreen){                                   // på skjermen: pil som peker ned mot bøyen
+    el.style.left = sx + 'px';
+    el.style.top = Math.max(m, sy - 64) + 'px';
+    el.firstElementChild.style.transform = 'rotate(90deg)';
+    return;
+  }
+  let dx = sx - W / 2, dy = sy - H / 2;
+  if (behind){ dx = -dx; dy = Math.abs(dy) + H; }
+  const a = Math.atan2(dy, dx);
+  const k = Math.min((W / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (H / 2 - m) / Math.abs(Math.sin(a) || 1e-6));
+  el.style.left = (W / 2 + Math.cos(a) * k) + 'px';
+  el.style.top = (H / 2 + Math.sin(a) * k) + 'px';
+  el.firstElementChild.style.transform = `rotate(${a}rad)`;
+}
+function updatePointer(W, H){
+  const tgt = currentTarget();
+  pointer.classList.toggle('home', mode === 'regatta' ? (RG.started && state.leg >= RG.marks.length) : state.leg >= buoys.length);
+  placePointer(pointer, tgt, W, H, state.running, false);
+  const up = upcomingTarget();
+  placePointer(pointerNext, up || tgt, W, H, !!up && nearNext(), true);
+  // unngå at de to pilene ligger oppå hverandre ved kanten
+  if (!pointer.hidden && !pointerNext.hidden){
+    const ax = parseFloat(pointer.style.left), ay = parseFloat(pointer.style.top);
+    const bx = parseFloat(pointerNext.style.left), by = parseFloat(pointerNext.style.top);
+    if (Math.hypot(ax - bx, ay - by) < 46){
+      const ang = Math.atan2(by - H / 2, bx - W / 2) + Math.PI / 2;
+      pointerNext.style.left = (bx + Math.cos(ang) * 48) + 'px';
+      pointerNext.style.top = (by + Math.sin(ang) * 48) + 'px';
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tegning
+// ---------------------------------------------------------------------------
+function respawnStreak(s, anywhere){
+  const a = Math.random() * TAU, d = 10 + Math.random() * 90;
+  s.x = state.x + Math.cos(a) * d; s.z = state.z + Math.sin(a) * d;
+  s.y = 1 + Math.random() * 7;
+  s.life = anywhere ? Math.random() : 0;
+}
+
+const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
+let camInit = false, camSide = 0;
+
+function render(dt){
+  const t = state.clock;
+  const w = state.wind;
+  waveAmp = 0.2 + w.strength * 0.045;
+  updateSea(state.x, state.z, t);
+
+  // båt
+  const bob = waveH(state.x, state.z, t);
+  const Fx = Math.sin(state.heading), Fz = -Math.cos(state.heading);
+  const pitch = (waveH(state.x + Fx * 4, state.z + Fz * 4, t) - waveH(state.x - Fx * 4, state.z - Fz * 4, t)) / 8;
+  state.pitch = lerp(state.pitch, pitch, dt * 4);
+  const shake = state.bump * Math.sin(t * 50) * 0.04;
+  boat.position.set(state.x, bob * B.bobK + 0.1 + B.lift, state.z);
+  boat.rotation.y = -state.heading;
+  tilt.rotation.set(state.pitch, 0, -state.heel + shake);
+
+  // seil
+  const info = state.info;
+  const flowAng = info.flowAng ?? 0;
+  const fm = info.fm, fj = info.fj;
+  // krumming mot le: fortegnet til flyten langs seilets normal
+  const lee = delta => Math.sign(Math.sin(flowAng + delta)) || 1;
+  const T = state.trim, full = B.trim;
+  const leeJ = lee(state.jib.angle);
+  B.pivot.rotation.order = 'YXZ';
+  const kLift = full ? (1 - T.kicker) * (info.eased ?? 0) * 0.13 : 0;       // slakk kicker: bommen løfter seg når seilet fires
+  B.pivot.rotation.y = state.main.angle;
+  B.pivot.rotation.x = -kLift;
+  if (full){ setMastBend(T.backstay); updateStays(T.backstay, leeJ); }
+  const mh = state.main.hoist;
+  mainSailMesh.mesh.visible = mh > 0.02;
+  B.bag.scale.set(1, 0.2 + (1 - mh) * 1.2, 1);
+  if (mh > 0.02){
+    const l0 = new THREE.Vector3(0, B.boomY + 0.05, B.mastZ);
+    const l1 = new THREE.Vector3(0, B.boomY + 0.05 + B.luff * mh, B.mastZ);
+    const lowFlap = fm && (fm.lowLuff || fm.fwd < -0.02) ? 1 : 0;
+    const topFlap = fm && (fm.topLuff || fm.fwd < -0.02 || (info.openLoss ?? 0) > 0.55) ? 1 : 0;
+    // fyldigere seil ved lite akterstag og kicker, flatere ved mye
+    const fullness = full ? 0.3 + 1.1 * (info.camM ?? 0.55) : 1;
+    const camber = fm && !fm.luff ? lee(state.main.angle) * clamp(Math.sqrt(state.info.trueSpeed || 5) / 2.6, 0.4, 1) * fullness : 0;
+    const ex = full ? { tw: (info.twEff ?? 0) * TWIST_MAX, sgn: Math.sign(state.main.angle), bend: -T.backstay * BEND_MAX * 0.9, sag: 0, lift: kLift, flapTop: topFlap } : NOEX;
+    buildSail(mainSailMesh, l0, l1, B.boomLen * 0.98, B.topFrac, state.main.angle, camber, lowFlap, t, ex);
+  }
+  if (B.sails === 1){
+    const sp = spritGeo.attributes.position, pa = mainSailMesh.geo.attributes.position.array, n = pa.length;
+    sp.setXYZ(0, 0, B.boomY + 0.7, B.mastZ);
+    if (mh > 0.02) sp.setXYZ(1, pa[n - 3], pa[n - 2], pa[n - 1]); else sp.setXYZ(1, 0, B.boomY + 0.7, B.mastZ);
+    sp.needsUpdate = true;
+  }
+  const jh = state.jib.hoist;
+  jibSailMesh.mesh.visible = jh > 0.02 && B.sails > 1;
+  if (jh > 0.02 && B.sails > 1){
+    const l1 = TACK.clone().lerp(FORESTAY_TOP, jh * 0.98);
+    const flap = fj && (fj.luff || fj.fwd < -0.02) ? 1 : 0;
+    const jf = 0.3 + 1.1 * (info.camJ ?? 0.55);
+    const camber = fj && !fj.luff ? leeJ * 0.9 * (full ? jf / 0.95 : 1) : 0;
+    buildSail(jibSailMesh, TACK, l1, JIB_FOOT, 0.97, state.jib.angle, camber, flap, t, { ...NOEX, sag: (1 - T.backstay) * 0.32 * leeJ });
+  }
+  // vimpel viser tilsynelatende vind
+  vane.rotation.y = -(flowAng) + Math.PI;
+  optVane.rotation.y = -(flowAng) + Math.PI;
+
+  // bøyer
+  const nearN = nearNext();
+  if (mode === 'regatta') rgRender(t, dt);
+  else buoyObjs.forEach((b, i) => {
+    const done = i < state.leg, next = i === state.leg;
+    const nextUp = i === state.leg + 1 && nearN;           // bøyen etter denne: ny farge og kraftigere markering
+    b.m.color.set(done ? colors['meadow-500'] : nextUp ? colors['plum-500'] : colors['sun-500']);
+    b.g.position.y = waveH(buoys[i].x, buoys[i].z, t) * 0.8;
+    b.g.rotation.z = Math.sin(t * 1.3 + i) * 0.06;
+    b.ring.visible = (next || nextUp) && state.running;
+    if (next || nextUp){
+      const p = (t * (nextUp ? 1.0 : 0.7)) % 1;
+      b.ring.scale.setScalar((nextUp ? 3 : 2) + p * (nextUp ? 14 : 10));
+      b.ring.material.color.set(nextUp ? colors['plum-500'] : colors['sun-500']);
+      b.ring.material.opacity = 1 - p;
+    }
+    b.g.scale.setScalar(nextUp ? 1.3 + Math.sin(t * 5) * 0.06 : 1);
+    b.label.scale.setScalar(nextUp ? 4.6 : 3.2);
+    b.label.visible = !done;
+  });
+  const homeNext = nearN && state.leg === buoys.length - 1;
+  if (mode !== 'regatta') homeRingMat.color.set(state.leg >= buoys.length ? colors['meadow-700'] : homeNext ? colors['plum-500'] : colors['surface-400']);
+  if (mode !== 'regatta') homeRing.scale.setScalar(1 + (state.leg >= buoys.length ? Math.sin(t * 3) * 0.05 : homeNext ? Math.sin(t * 5) * 0.08 : 0));
+
+  // byger
+  for (const s of squallObjs){
+    s.g.position.set(s.x, 0, s.z);
+    const rp = s.rain.geometry.attributes.position.array;
+    for (let i = 0; i < rp.length; i += 6){
+      let y = rp[i + 1] - dt * 22;
+      if (y < 0) y += 30;
+      rp[i + 1] = y; rp[i + 4] = y - 3;
+    }
+    s.rain.geometry.attributes.position.needsUpdate = true;
+  }
+
+  // vindstriper
+  const sp = streakGeo.attributes.position.array;
+  const ts = info.trueSpeed || w.strength;
+  const fx = -Math.sin(w.dir), fz = Math.cos(w.dir);
+  streaks.forEach((s, i) => {
+    if (state.running && !state.paused){ s.x += fx * ts * 2 * dt; s.z += fz * ts * 2 * dt; }
+    s.life += dt * 0.4;
+    if (s.life > 1 || Math.hypot(s.x - state.x, s.z - state.z) > 110) respawnStreak(s, false);
+    const len = 1.5 + ts * 0.35 * Math.sin(s.life * Math.PI);
+    sp.set([s.x, s.y, s.z, s.x - fx * len, s.y, s.z - fz * len], i * 6);
+  });
+  streakGeo.attributes.position.needsUpdate = true;
+
+  // kjølvann
+  if (state.running && !state.paused){
+    wakeTimer -= dt;
+    if (wakeTimer <= 0 && Math.abs(state.speed) > 0.5){
+      wakeTimer = 0.06;
+      const wk = wake[wakeIdx = (wakeIdx + 1) % WAKE];
+      wk.x = state.x - Fx * B.wakeBack + (Math.random() - 0.5) * 0.6;
+      wk.z = state.z - Fz * B.wakeBack + (Math.random() - 0.5) * 0.6;
+      wk.age = 0;
+    }
+  }
+  wake.forEach((wk, i) => {
+    if (!state.paused) wk.age += dt;
+    const k = wk.age / 3;
+    const s = k >= 1 ? 0 : (0.4 + k * 1.6) * (1 - k);
+    tmpV.set(wk.x, waveH(wk.x, wk.z, t) + 0.15, wk.z);
+    tmpS.set(s, s, s);
+    tmpM.compose(tmpV, tmpQ, tmpS);
+    wakeMesh.setMatrixAt(i, tmpM);
+  });
+  wakeMesh.instanceMatrix.needsUpdate = true;
+
+  // kamera bak båten
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const narrow = W < 560;
+  const back = (narrow ? 18 : 16) * B.cam, up = (narrow ? 9 : 8) * B.cam;
+  // kameraet glir litt ut mot le, så begge seilene synes
+  const leeSide = Math.abs(state.main.angle) > 5 * DEG ? Math.sign(state.main.angle) : 0;
+  camSide = lerp(camSide, leeSide * (narrow ? 3.5 : 4.5) * B.cam, 1 - Math.exp(-dt * 0.8));
+  let Sx = Math.cos(state.heading), Sz = Math.sin(state.heading), cfx = Fx, cfz = Fz, cback = back, cup = up, cdist = 10;
+  if (focusMode){                                    // kameraet ser mot neste mål i stedet for langs båten
+    const tg = currentTarget();
+    let dx = tg.x - state.x, dz = tg.z - state.z; const dd = Math.hypot(dx, dz) || 1;
+    cfx = dx / dd; cfz = dz / dd; Sx = 0; Sz = 0;
+    cback = back * 1.15; cup = up * 1.5; cdist = Math.min(dd, 70);
+  }
+  const desired = new THREE.Vector3(state.x - cfx * cback + Sx * camSide, cup + bob * 0.3, state.z - cfz * cback + Sz * camSide);
+  const look = new THREE.Vector3(state.x + cfx * cdist, 2.4, state.z + cfz * cdist);
+  look.y = B.lookY;
+  if (!camInit){ camPos.copy(desired); camLook.copy(look); camInit = true; }
+  const k = 1 - Math.exp(-dt * 2.5);
+  camPos.lerp(desired, k); camLook.lerp(look, k);
+  camera.position.copy(camPos);
+  camera.lookAt(camLook);
+
+  renderer.render(scene, camera);
+  updatePointer(W, H);
+}
+
+function resize(){
+  const W = stage.clientWidth, H = stage.clientHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W / Math.max(H, 1);
+  camera.fov = W < 560 ? 62 : 55;
+  // skyv bildet opp, så båten havner midt i det som ikke dekkes av kontrollene
+  const sh = Math.round(Math.min(uiBottom, H * 0.5) / 2);
+  if (sh > 0) camera.setViewOffset(W, H, 0, sh, W, H); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+new ResizeObserver(() => {
+  const c = $('controls'); if (!c) return;
+  uiBottom = c.offsetHeight + 8;
+  stage.style.setProperty('--ctl-h', uiBottom + 'px');
+  resize();
+}).observe($('controls'));
+
+
+// ---------------------------------------------------------------------------
+// Lyd — vind og bølger laget av filtrert støy, ingen lydfiler
+// ---------------------------------------------------------------------------
+const sound = (() => {
+  let ctx = null, master = null, nodes = null, analyser = null;
+  const MASTER = 3.2;
+  let enabled = true;
+  try { enabled = localStorage.getItem('seilsim-sound') !== 'off'; } catch (e) {}
+
+  function noiseBuffer(kind){
+    const len = ctx.sampleRate * 4;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++){
+      const w = Math.random() * 2 - 1;
+      if (kind === 'brown'){ last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }
+      else d[i] = w;
+    }
+    return buf;
+  }
+  function loop(buf){
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    src.loopStart = 0; src.loopEnd = buf.duration;
+    src.start(0, Math.random() * buf.duration);
+    return src;
+  }
+  function chain(src, ...rest){
+    let n = src;
+    for (const r of rest){ n.connect(r); n = r; }
+    return n;
+  }
+  function filter(type, freq, q = 0.7){
+    const f = ctx.createBiquadFilter();
+    f.type = type; f.frequency.value = freq; f.Q.value = q;
+    return f;
+  }
+  function gain(v = 0){ const g = ctx.createGain(); g.gain.value = v; return g; }
+
+  function init(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    ctx = new AC();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -8; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
+    master = gain(enabled ? MASTER : 0);
+    master.connect(comp); comp.connect(ctx.destination);
+    analyser = ctx.createAnalyser(); analyser.fftSize = 2048; comp.connect(analyser);
+    const white = noiseBuffer('white'), brown = noiseBuffer('brown');
+
+    // vind: bred sus + en svak plystring i riggen
+    const windF = filter('bandpass', 500, 0.6), windG = gain();
+    chain(loop(white), windF, windG, master);
+    const whistleF = filter('bandpass', 1100, 9), whistleG = gain();
+    chain(loop(white), whistleF, whistleG, master);
+
+    // bølger: dyp dønning som går opp og ned
+    const swellF = filter('lowpass', 420), swellG = gain();
+    chain(loop(brown), swellF, swellG, master);
+    // vann som skvalper mot skroget, øker med farten
+    const washF = filter('bandpass', 900, 0.5), washG = gain();
+    chain(loop(white), filter('lowpass', 2500), washF, washG, master);
+
+    // seil som blafrer
+    const flapF = filter('bandpass', 1600, 1.2), flapG = gain();
+    chain(loop(white), flapF, flapG, master);
+
+    // regn i bygene
+    const rainF = filter('highpass', 3500), rainG = gain();
+    chain(loop(white), rainF, rainG, master);
+
+    nodes = { windF, windG, whistleF, whistleG, swellF, swellG, washF, washG, flapF, flapG, rainG };
+  }
+
+  function set(param, v, tc = 0.15){ param.setTargetAtTime(v, ctx.currentTime, tc); }
+
+  function update(st, clock, paused){
+    if (!ctx || !nodes) return;
+    const n = nodes, i = st.info;
+    const wind = i.appSpeed ?? st.wind.strength;
+    const quiet = paused ? 0.25 : 1;
+
+    // vind
+    const gustWobble = 0.85 + 0.15 * Math.sin(clock * 0.7) * Math.sin(clock * 0.23 + 1);
+    set(n.windG.gain, clamp(0.015 * wind * gustWobble, 0, 0.26) * quiet, 0.3);
+    set(n.windF.frequency, 280 + wind * 55 * gustWobble, 0.3);
+    set(n.whistleG.gain, clamp((wind - 5) * 0.004, 0, 0.035) * quiet, 0.4);
+    set(n.whistleF.frequency, 900 + wind * 45 + Math.sin(clock * 0.5) * 60, 0.4);
+
+    // dønning: to langsomme bølgetog som møtes
+    const swell = 0.55 + 0.3 * Math.sin(clock * TAU / 7.5) + 0.15 * Math.sin(clock * TAU / 3.1 + 2);
+    set(n.swellG.gain, (0.1 + st.wind.strength * 0.012) * swell * quiet, 0.25);
+    set(n.swellF.frequency, 260 + swell * 260, 0.25);
+
+    // skvulp mot skroget
+    const spd = Math.abs(st.speed);
+    const slap = 0.7 + 0.3 * Math.sin(clock * 2.1 + Math.sin(clock * 0.9) * 2);
+    set(n.washG.gain, clamp(spd * 0.028, 0, 0.2) * slap * (paused ? 0 : 1), 0.12);
+    set(n.washF.frequency, 500 + spd * 160, 0.3);
+
+    // blafring — raske støt når et heist seil står og slår
+    const luffing = i.fm ? Math.max(
+      (i.fm.luff || i.fm.fwd < -0.02) ? st.main.hoist : 0,
+      (i.fj.luff || i.fj.fwd < -0.02) ? st.jib.hoist * 0.8 : 0) : 0;
+    const beat = Math.pow(Math.max(0, Math.sin(clock * 21)), 6);
+    const flap = st.running && !paused ? luffing * clamp(wind / 7, 0.3, 1.2) : 0;
+    set(n.flapG.gain, flap * (0.03 + beat * 0.16), 0.01);
+
+    // regn
+    set(n.rainG.gain, (i.inSquall || 0) * 0.07 * quiet, 0.5);
+  }
+
+  // iOS/Safari: lyd spilles bare etter klikk/berøring, og stille-bryteren dempes ikke av "playback"
+  let primed = false;
+  function prime(){
+    if (primed || !ctx) return;
+    primed = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    try {                                            // et lydløst buffer låser opp Web Audio på iOS
+      const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
+      s.buffer = b; s.connect(ctx.destination); s.start(0);
+    } catch (e) {}
+  }
+  function resume(){
+    if (!ctx) init();
+    if (!ctx) return;
+    prime();
+    if (ctx.state !== 'running') { try { const p = ctx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }
+  }
+  function toggle(){
+    enabled = !enabled;
+    try { localStorage.setItem('seilsim-sound', enabled ? 'on' : 'off'); } catch (e) {}
+    resume();
+    if (master) set(master.gain, enabled ? MASTER : 0, 0.05);
+    render();
+  }
+  function render(){
+    const b = $('soundBtn');
+    b.setAttribute('aria-pressed', String(enabled));
+    b.setAttribute('aria-label', enabled ? 'Slå av lyd' : 'Slå på lyd');
+    b.querySelector('[data-on]').style.display = enabled ? '' : 'none';
+    b.querySelector('[data-off]').style.display = enabled ? 'none' : '';
+  }
+  render();
+  const buf = new Float32Array(2048);
+  function level(){
+    if (!analyser) return { state: ctx ? ctx.state : 'none', rms: 0 };
+    analyser.getFloatTimeDomainData(buf);
+    let sum = 0; for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+    return { state: ctx.state, rms: Math.sqrt(sum / buf.length) };
+  }
+  function beep(freq, dur = 0.14, vol = 0.3){
+    if (!ctx || !enabled || !master || ctx.state !== 'running') return;
+    try {
+      const o = ctx.createOscillator(), g = ctx.createGain(), t0 = ctx.currentTime;
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(master);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+    } catch (e) {}
+  }
+  return { resume, toggle, update, level, beep };
+})();
+
+// nettlesere krever et klikk eller tastetrykk før lyd kan spilles
+['pointerdown', 'pointerup', 'touchstart', 'touchend', 'click', 'keydown'].forEach(ev =>
+  addEventListener(ev, sound.resume, { passive: true, capture: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sound.resume(); });
+$('soundBtn').addEventListener('click', sound.toggle);
+addEventListener('keydown', e => { if (e.code === 'KeyM' && !(e.target && e.target.tagName === 'INPUT')) sound.toggle(); });
+
+// ---------------------------------------------------------------------------
+// Valg av vindstyrke — gjelder fra neste start
+// ---------------------------------------------------------------------------
+function pickOn(attr, cur){
+  document.querySelectorAll(`[data-${attr}]`).forEach(b => {
+    const on = b.dataset[attr] === cur;
+    b.setAttribute('aria-checked', String(on));
+    b.tabIndex = on ? 0 : -1;
+  });
+}
+function renderPicks(){
+  const reg = pickMode === 'regatta';
+  pickOn('wind', pickWind); pickOn('boat', reg ? 'kjol' : pickBoat); pickOn('mode', pickMode);
+  document.querySelectorAll('[data-boat="opti"]').forEach(b => { b.disabled = reg; });
+  const t = document.querySelector('#startOverlay .hb-card__title');
+  if (t) t.textContent = WIND_LEVELS[pickWind].title;
+  const e = document.querySelector('#startOverlay .hb-card__eyebrow');
+  if (e) e.textContent = reg ? 'Regatta · du mot Mia og Jon' : 'Dagens seilas';
+  $('introK').hidden = reg; $('introR').hidden = !reg;
+  $('startBtn').textContent = reg ? 'Til startlinjen' : 'Sett seil';
+}
+function setMode(k){
+  if (k !== 'klassisk' && k !== 'regatta') return;
+  pickMode = k;
+  try { localStorage.setItem('seilsim-mode', k); } catch (e) {}
+  renderPicks();
+  if (!state.running && !state.finished) reset();          // startskjermen viser valgt område med en gang
+}
+function setWindLevel(k){
+  if (!WIND_LEVELS[k]) return;
+  pickWind = k;
+  if (!state.running) windLevel = k;
+  try { localStorage.setItem('seilsim-wind', k); } catch (e) {}
+  renderPicks();
+}
+function setBoat(k){
+  if (!BOATS[k]) return;
+  pickBoat = k;
+  try { localStorage.setItem('seilsim-boat', k); } catch (e) {}
+  if (!state.running){ boatKey = k; applyBoat(); }
+  renderPicks();
+}
+document.querySelectorAll('.seg').forEach(g => {
+  const attr = g.querySelector('[data-boat]') ? 'boat' : g.querySelector('[data-mode]') ? 'mode' : g.querySelector('[data-wind]') ? 'wind' : null;
+  if (!attr) return;
+  const keys = attr === 'mode' ? ['klassisk', 'regatta'] : Object.keys(attr === 'boat' ? BOATS : WIND_LEVELS);
+  const cur = () => attr === 'boat' ? pickBoat : attr === 'mode' ? pickMode : pickWind;
+  const set = k => attr === 'boat' ? setBoat(k) : attr === 'mode' ? setMode(k) : setWindLevel(k);
+  g.addEventListener('click', e => { const b = e.target.closest('.seg__btn'); if (b && !b.disabled) set(b.dataset[attr]); });
+  g.addEventListener('keydown', e => {
+    const i = keys.indexOf(cur()), n = keys.length;
+    let k = null;
+    if (e.code === 'ArrowRight' || e.code === 'ArrowDown') k = keys[(i + 1) % n];
+    if (e.code === 'ArrowLeft' || e.code === 'ArrowUp') k = keys[(i + n - 1) % n];
+    if (k){ e.preventDefault(); e.stopPropagation(); set(k); g.querySelector(`[data-${attr}="${k}"]`).focus(); }
+  });
+});
+applyBoat();
+renderPicks();
+
+// seiltrim: tre glidere som endrer fysikken og seilets form med en gang
+function setTrimOpen(o){
+  trimOpen = o;
+  $('trimPanel').hidden = !o;
+  $('trimToggle').setAttribute('aria-expanded', String(o));
+}
+$('trimToggle').addEventListener('click', () => setTrimOpen(!trimOpen));
+const trimUI = [['twIn', 'twVal', 'twist'], ['kiIn', 'kiVal', 'kicker'], ['bsIn', 'bsVal', 'backstay']];
+function syncTrimUI(){
+  for (const [i, o, k] of trimUI){
+    $(i).value = Math.round(state.trim[k] * 100);
+    $(o).textContent = Math.round(state.trim[k] * 100) + ' %';
+  }
+}
+for (const [i, o, k] of trimUI){
+  $(i).addEventListener('input', () => { state.trim[k] = $(i).value / 100; $(o).textContent = $(i).value + ' %'; });
+}
+syncTrimUI();
+
+// ---------------------------------------------------------------------------
+// Spillflyt
+// ---------------------------------------------------------------------------
+function start(){
+  sound.resume();
+  reset();
+  setFocus(false);
+  state.running = true;
+  state.runInfo = { boat: boatKey, wind: windLevel, mode };
+  lbSeq++; menuBoardAt = 0;
+  $('startOverlay').hidden = true; $('finishOverlay').hidden = true; $('pauseOverlay').hidden = true; $('menuOverlay').hidden = true;
+  update(0.001);
+}
+// ---------------------------------------------------------------------------
+// Ledertavle — felles for alle via en liten Firebase-database (se LEDERTAVLE.md).
+// Uten oppsett i config.js lagres tidene bare på denne enheten.
+// ---------------------------------------------------------------------------
+const LB_URL = String((window.SEILSIM_CONFIG && window.SEILSIM_CONFIG.leaderboardURL) || '').trim().replace(/\/+$/, '');
+let menuBoardAt = 0;
+const LB_N = 5;
+const LB_KEYS = { scores: 'seilsim-lb-local', regatta: 'seilsim-lb-regatta' };
+const fmtMs = ms => { const t = ms / 1000, m = Math.floor(t / 60); return `${m}:${(t - m * 60).toFixed(1).padStart(4, '0')}`; };
+const lbValid = r => r && typeof r.name === 'string' && typeof r.time === 'number' && BOATS[r.boat] && WIND_LEVELS[r.wind];
+const lbClean = n => String(n || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+
+function lbLocalGet(path = 'scores'){
+  try { const a = JSON.parse(localStorage.getItem(LB_KEYS[path]) || '[]'); return Array.isArray(a) ? a.filter(lbValid) : []; } catch (e) { return []; }
+}
+function lbLocalAdd(e, path = 'scores'){
+  const a = lbLocalGet(path); a.push(e); a.sort((x, y) => x.time - y.time);
+  try { localStorage.setItem(LB_KEYS[path], JSON.stringify(a.slice(0, LB_N))); } catch (err) {}
+}
+async function lbFetch(path = 'scores'){
+  if (!LB_URL) return { rows: lbLocalGet(path), local: true };
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(`${LB_URL}/${path}.json?orderBy=%22time%22&limitToFirst=${LB_N}`, { signal: ctl.signal, cache: 'no-store' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    const d = (await r.json()) || {};
+    const rows = Object.entries(d).map(([id, v]) => ({ id, ...v })).filter(lbValid).sort((x, y) => x.time - y.time).slice(0, LB_N);
+    return { rows, local: false };
+  } catch (e) {
+    return { rows: lbLocalGet(path), local: true, failed: true };
+  } finally { clearTimeout(to); }
+}
+async function lbSubmit(entry, path = 'scores'){
+  if (!LB_URL){ lbLocalAdd(entry, path); return { id: null, local: true }; }
+  const body = { name: entry.name, time: entry.time, boat: entry.boat, wind: entry.wind, ts: { '.sv': 'timestamp' } };
+  if (path === 'regatta' && entry.place) body.place = entry.place;
+  const r = await fetch(`${LB_URL}/${path}.json`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error('http ' + r.status);
+  const d = await r.json();
+  return { id: d && d.name, local: false };
+}
+function renderBoard(el, res, hiId){
+  el.replaceChildren();
+  if (!res.rows.length){
+    const p = document.createElement('p'); p.className = 'lbnote'; p.textContent = 'Ingen tider ennå. Bli den første!'; el.append(p);
+  } else {
+    const ol = document.createElement('ol'); ol.className = 'lb';
+    res.rows.forEach((r, i) => {
+      const li = document.createElement('li');
+      if (hiId && r.id === hiId) li.className = 'me';
+      const mk = (cls, txt) => { const s = document.createElement('span'); s.className = cls; s.textContent = txt; return s; };
+      li.append(mk('lb__rank', String(i + 1)), mk('lb__name', r.name), mk('lb__time', fmtMs(r.time)),
+                mk('lb__meta', `${BOATS[r.boat].name} · ${WIND_LEVELS[r.wind].label} vind${r.place ? ' · plass ' + r.place : ''}`));
+      ol.append(li);
+    });
+    el.append(ol);
+  }
+  const note = document.createElement('p'); note.className = 'lbnote';
+  if (res.failed) note.textContent = 'Fikk ikke kontakt med ledertavlen. Viser tider lagret på denne enheten.';
+  else if (res.local) note.textContent = 'Ledertavlen er ikke koblet til nett ennå. Tidene lagres bare på denne enheten.';
+  if (note.textContent) el.append(note);
+}
+let lbSeq = 0, lbPending = null;
+async function lbShowFinish(ms, info, path = 'scores'){
+  const seq = ++lbSeq;
+  const form = $('lbForm'), msg = $('lbMsg'), box = $('lbFinish');
+  form.hidden = true; msg.textContent = ''; lbPending = null;
+  box.textContent = 'Henter ledertavlen …';
+  const res = await lbFetch(path);
+  if (seq !== lbSeq || !state.finished) return;
+  renderBoard(box, res);
+  const qualifies = res.rows.length < LB_N || ms < res.rows[res.rows.length - 1].time;
+  if (qualifies){
+    lbPending = { time: ms, boat: info.boat, wind: info.wind, path, place: info.place };
+    form.hidden = false;
+    $('lbSave').disabled = false;
+    $('lbName').focus();
+  } else {
+    msg.textContent = `Ikke inn på topp ${LB_N} denne gangen (${fmtMs(ms)}). Nummer ${LB_N} har ${fmtMs(res.rows[res.rows.length - 1].time)}.`;
+  }
+}
+$('lbForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!lbPending) return;
+  const name = lbClean($('lbName').value);
+  if (!name){ $('lbMsg').textContent = 'Skriv inn et navn først.'; $('lbName').focus(); return; }
+  const entry = { ...lbPending, name };
+  const seq = lbSeq;
+  $('lbSave').disabled = true; $('lbMsg').textContent = 'Lagrer …';
+  try {
+    const out = await lbSubmit(entry, entry.path);
+    try { localStorage.setItem('seilsim-name', name); } catch (err) {}
+    if (seq !== lbSeq) return;
+    lbPending = null; $('lbForm').hidden = true; $('lbMsg').textContent = 'Tiden er lagret.';
+    const res = await lbFetch(entry.path);
+    if (res.local && !res.failed && !LB_URL) out.id = null;
+    // lokal liste har ingen id; marker raden som samsvarer med tiden vi nettopp la inn
+    if (res.local) { const hit = res.rows.find(r => r.time === entry.time && r.name === entry.name); if (hit) hit.id = out.id = 'local'; }
+    renderBoard($('lbFinish'), res, out.id);
+  } catch (err) {
+    $('lbSave').disabled = false;
+    $('lbMsg').textContent = 'Fikk ikke lagret tiden. Sjekk nettforbindelsen og prøv igjen.';
+  }
+});
+try { const n = localStorage.getItem('seilsim-name'); if (n) $('lbName').value = lbClean(n); } catch (e) {}
+
+function finish(){
+  state.running = false; state.finished = true;
+  const t = state.t;
+  $('finishEyebrow').textContent = 'I havn'; $('finishTitle').textContent = 'Fin seilas';
+  $('rgResBox').hidden = true; $('lbBox').hidden = false; $('lbBoxTitle').textContent = 'Ledertavle · topp 5';
+  $('finalTime').hidden = false;
+  $('finalTime').textContent = fmtTime(t);
+  let best = null;
+  try { best = parseFloat(localStorage.getItem('seilsim-best')); } catch (e) {}
+  const isBest = !best || t < best;
+  if (isBest){ try { localStorage.setItem('seilsim-best', String(t)); } catch (e) {} }
+  $('bestTime').hidden = !isBest;
+  const info = state.runInfo || { boat: boatKey, wind: windLevel };
+  $('finishText').textContent = isBest
+    ? `Du rundet alle bøyene og kom trygt i havn. Det er din raskeste seilas så langt. (${BOATS[info.boat].name}, ${WIND_LEVELS[info.wind].label.toLowerCase()} vind)`
+    : `Du rundet alle bøyene og kom trygt i havn. Beste tid er ${fmtTime(best)}.`;
+  $('finishOverlay').hidden = false;
+  lbShowFinish(Math.round(t * 1000), info);
+}
+function setPaused(p){
+  if (!state.running) return;
+  state.paused = p;
+  $('pauseOverlay').hidden = !p;
+  if (!p) $('menuOverlay').hidden = true;
+  if (p) $('resumeBtn').focus();
+}
+$('startBtn').addEventListener('click', start);
+$('againBtn').addEventListener('click', start);
+$('restartBtn').addEventListener('click', start);
+$('resumeBtn').addEventListener('click', () => setPaused(false));
+let menuOpener = null;
+function menuTab(name){
+  document.querySelectorAll('.menutabs [role=tab]').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+  $('paneLaer').hidden = name !== 'laer'; $('paneTavle').hidden = name !== 'tavle'; $('paneKontr').hidden = name !== 'kontr';
+  if (name === 'tavle') loadMenuBoard(false);
+}
+let menuBoardKind = 'scores', menuBoardFor = '';
+function loadMenuBoard(force){
+  const box = $('lbMenu');
+  if (!force && menuBoardFor === menuBoardKind && Date.now() - menuBoardAt <= 10000) return;
+  box.textContent = 'Henter ledertavlen …';
+  menuBoardAt = Date.now(); menuBoardFor = menuBoardKind;
+  const kind = menuBoardKind;
+  lbFetch(kind).then(res => { if (kind === menuBoardKind) renderBoard(box, res); });
+}
+function setMenuBoard(kind){
+  menuBoardKind = kind;
+  document.querySelectorAll('[data-lbk]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.lbk === kind)));
+  $('lbMenuNote').textContent = kind === 'regatta' ? 'De 5 beste regattatidene (fra startskuddet til mål), med vind og plassering.' : 'De 5 beste tidene, med båt og vind for hver tid.';
+  loadMenuBoard(true);
+}
+document.querySelectorAll('[data-lbk]').forEach(b => b.addEventListener('click', () => setMenuBoard(b.dataset.lbk)));
+function openMenu(opener, tab){
+  menuOpener = opener || null;
+  $('menuRestart').hidden = !state.running;
+  menuBoardKind = mode === 'regatta' && state.running || (!state.running && pickMode === 'regatta') ? 'regatta' : 'scores';
+  document.querySelectorAll('[data-lbk]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.lbk === menuBoardKind)));
+  $('lbMenuNote').textContent = menuBoardKind === 'regatta' ? 'De 5 beste regattatidene (fra startskuddet til mål), med vind og plassering.' : 'De 5 beste tidene, med båt og vind for hver tid.';
+  menuTab(tab || 'laer');
+  $('menuOverlay').hidden = false;
+  $('menuBack').focus();
+}
+function closeMenu(){
+  $('menuOverlay').hidden = true;
+  if (menuOpener && !menuOpener.closest('[hidden]')) menuOpener.focus();
+}
+document.querySelectorAll('.menutabs [role=tab]').forEach(t => t.addEventListener('click', () => menuTab(t.dataset.tab)));
+$('menuBtnStart').addEventListener('click', e => openMenu(e.currentTarget));
+$('menuBtnPause').addEventListener('click', e => openMenu(e.currentTarget));
+$('menuBack').addEventListener('click', closeMenu);
+$('menuRestart').addEventListener('click', () => { $('menuOverlay').hidden = true; start(); });
+$('pauseBtn').addEventListener('click', () => setPaused(!state.paused));
+
+// tastatur
+const keyMap = {
+  ArrowLeft: ['left'], ArrowRight: ['right'],
+  KeyW: ['main', 'up'], KeyS: ['main', 'down'], KeyA: ['main', 'port'], KeyD: ['main', 'stbd'],
+  KeyI: ['jib', 'up'], KeyK: ['jib', 'down'], KeyJ: ['jib', 'port'], KeyL: ['jib', 'stbd'],
+};
+function setInput(path, v){ if (path.length === 1) input[path[0]] = v; else input[path[0]][path[1]] = v; }
+addEventListener('keydown', e => {
+  if (!$('menuOverlay').hidden){ if (e.code === 'Escape'){ closeMenu(); e.preventDefault(); } return; }
+  const inField = e.target && e.target.tagName === 'INPUT';
+  if (!inField && keyMap[e.code]){ setInput(keyMap[e.code], true); e.preventDefault(); }
+  if (inField && e.code !== 'Escape') return;
+  if (e.code === 'KeyP' || e.code === 'Escape') setPaused(!state.paused);
+  if (e.code === 'KeyV' && !e.repeat) setWx(!wx.open);
+});
+addEventListener('keyup', e => { if (keyMap[e.code]) setInput(keyMap[e.code], false); });
+addEventListener('blur', () => { for (const p of Object.values(keyMap)) setInput(p, false); });
+
+// knapper — hold inne
+function holdButton(el, path){
+  const on = e => { e.preventDefault(); setInput(path, true); el.classList.add('active'); el.setPointerCapture?.(e.pointerId); };
+  const off = () => { setInput(path, false); el.classList.remove('active'); };
+  el.addEventListener('pointerdown', on);
+  el.addEventListener('pointerup', off);
+  el.addEventListener('pointercancel', off);
+  el.addEventListener('lostpointercapture', off);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+holdButton($('leftBtn'), ['left']);
+holdButton($('rightBtn'), ['right']);
+document.querySelectorAll('[data-sail]').forEach(p => {
+  p.querySelectorAll('[data-act]').forEach(b => holdButton(b, [p.dataset.sail, b.dataset.act]));
+});
+
+// ---------------------------------------------------------------------------
+reset();
+applyTheme();
+resize();
+let wxStart = false;                     // kartet åpnes med Kart-knappen; husker siste valg
+try { const v = localStorage.getItem('seilsim-wx'); if (v) wxStart = v === 'on'; } catch (e) {}
+setWx(wxStart);
+let last = performance.now();
+function frame(now){
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (!state.paused) state.clock += dt;
+  if (state.running && !state.paused) update(dt);
+  else if (!state.running && !state.finished) state.heading += Math.sin(state.clock * 0.4) * 0.0004;
+  if (!state.info.fm) update(0);
+  render(state.paused ? 0 : dt);
+  updateHud();
+  updateSpeedo();
+  updateWx(dt);
+  sound.update(state, state.clock, state.paused);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+window.__seilsim = { state, input, update, reset, sound, finish, buoys, WS, SQ, clampWorld: () => WORLD, setBoat: k => setBoat(k), setMode: k => setMode(k), setWind: k => setWindLevel(k), start: () => start(), RG, polarAt, aiStep, rgProg, rgRanking, rgUpdate, WIND_LEVELS, getMode: () => mode };
+</script>
+
+</body>
+</html>

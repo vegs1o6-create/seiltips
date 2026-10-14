@@ -454,3 +454,9 @@ worker/             Cloudflare Worker: index.js ruter forespørsler,
                     weather.js er værproxyen mot MET Norway
 wrangler.jsonc      Deploy-konfigurasjon (Worker-entry + assets-mappe)
 ```
+
+## SeilSim (spillet)
+
+Spillet ligger som ferdige statiske filer i `public/seilsim/` og vises på `https://seiltips.no/seilsim/`. Astro kopierer mappen uendret til `dist/`, og Cloudflare-workeren sender den videre til `ASSETS`.
+
+Kildekoden ligger i repoet `vegs1o6-create/havbris` (kopien her er kjøretidsfilene: `index.html`, `config.js`, `sw.js`, `manifest.webmanifest`, `icons/`, `vendor/`). Ved ny versjon: kopier filene over på nytt, og øk `VERSION` i `sw.js` slik at spillernes lagrede kopi byttes ut.
