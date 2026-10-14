@@ -2,7 +2,7 @@
 title: "Lær å seile - spill seil simulatoren"
 description: "SeilSim er et gratis seilspill i nettleseren der du lærer vind, seiltrim og regatta uten å bli våt. Prøv det på mobil, nettbrett eller PC."
 pubDate: 2026-10-14T08:00:00.000Z
-image: "/artikler/seilsim-skjermbilde.png"
+image: "/instagram/laer-a-seile-spill-seil-simulatoren.png"
 tags: ["seilsim", "lær å seile", "spill", "seilteknikk"]
 ---
 
