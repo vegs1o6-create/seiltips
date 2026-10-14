@@ -6,6 +6,7 @@ const navLinks = [
   { href: '/seilvarsel', label: 'Seilruteplan' },
   { href: '/seiling-1-2-3', label: 'Seiling 1-2-3' },
   { href: '/baater', label: 'Båter' },
+  { href: '/seilsim/', label: 'SeilSim' },
 ];
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -20,7 +21,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
       <span>Seiltips<span class="text-mint">.no</span></span>
     </a>
 
-    <nav aria-label="Hovedmeny" class="hidden md:block">
+    <nav aria-label="Hovedmeny" class="hidden lg:block">
       <ul class="flex items-center gap-1">
         {
           navLinks.map((link) => {
@@ -32,7 +33,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
                   href={link.href}
                   aria-current={isActive ? 'page' : undefined}
                   class:list={[
-                    'block rounded-full px-4 py-2 text-sm font-semibold transition-colors',
+                    'block rounded-full px-3 py-2 text-sm font-semibold transition-colors xl:px-4',
                     isActive
                       ? 'bg-white text-navy'
                       : 'text-white/90 hover:bg-white/10 hover:text-white',
@@ -47,7 +48,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
       </ul>
     </nav>
 
-    <details class="relative md:hidden">
+    <details class="relative lg:hidden">
       <summary
         class="flex cursor-pointer list-none items-center justify-center rounded-full bg-white/10 p-2"
         aria-label="Åpne meny"
