@@ -2,6 +2,7 @@
 title: "Fast eller foldepropell? Slik påvirker propellen seilingen"
 description: "En fast propell gir enkel og robust fremdrift. En foldepropell kan redusere motstanden under seil – men valget har flere sider."
 pubDate: 2026-10-16T11:12:49.303Z
+image: "/instagram/fast-eller-foldepropell-slik-pavirker-propellen-seilingen.png"
 tags: ["propell", "seilbåt", "saildrive", "båtteknikk"]
 sources: ["https://www.volvopenta.com/marine/parts/propellers/folding-propellers-for-saildrive-and-shaft/", "https://www.volvopenta.com/-/media/volvopenta/parts/propellers/documents/propeller-guide.pdf", "https://www.yanmar.com/marine/about-us/yanmar-marine-international/news/yanmar-offers-largest-saildrive-line-up-with-launch-of-new-sd15-systems/"]
 ---
