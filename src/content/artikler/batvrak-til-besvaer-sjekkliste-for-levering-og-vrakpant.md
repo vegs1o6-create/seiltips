@@ -2,6 +2,7 @@
 title: "Båtvrak til besvær? Sjekkliste for levering og vrakpant"
 description: "Slik leverer du en kassert fritidsbåt riktig, unngår ekstra kostnader og søker om vrakpant."
 pubDate: 2026-10-18T10:52:30.879Z
+image: "/instagram/batvrak-til-besvaer-sjekkliste-for-levering-og-vrakpant.png"
 tags: ["bærekraft", "økonomi"]
 sources: ["https://www.miljodirektoratet.no/ansvarsomrader/avfall/for-myndigheter/mottak-av-kasserte-fritidsbater/", "https://sortere.no/fritidsbater", "https://soknadssenter.miljodirektoratet.no/TilskuddKasserteFritidsb%C3%A5terSkjema/Startside/Index", "https://sortere.no/produkttype/Fritidsb%C3%A5ter/533", "https://www.bergen.kommune.no/innbyggerhjelpen/natur-klima-miljo/miljo-/miljoforurensning/forsopling"]
 ---
