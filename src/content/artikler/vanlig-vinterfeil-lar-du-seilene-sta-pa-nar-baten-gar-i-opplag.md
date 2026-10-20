@@ -2,6 +2,7 @@
 title: "Vanlig vinterfeil: Lar du seilene stå på når båten går i opplag?"
 description: "Seilene tåler mye, men ikke måneder med blafring, fukt og uvær. Slik gjør du seilbåten klar før vinteren."
 pubDate: 2026-10-20T11:22:55.793Z
+image: "/instagram/vanlig-vinterfeil-lar-du-seilene-sta-pa-nar-baten-gar-i-opplag.png"
 tags: ["vinteropplag", "seil", "vedlikehold"]
 sources: ["https://www.seilmagasinet.no/sikkerhet-tips-vinterseilasen/gjor-baten-klar-for-vinterseiling/990104", "https://rs.no/sikker-til-sjos/tips-for-vinteropplag/", "https://www.seilmagasinet.no/host-seil-sm2016-5/ta-vare-p-seilene/604219", "https://www.if.no/magasinet/bat/vinteropplag-av-baten"]
 ---
