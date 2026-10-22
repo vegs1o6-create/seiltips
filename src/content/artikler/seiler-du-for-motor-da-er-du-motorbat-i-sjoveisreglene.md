@@ -2,6 +2,7 @@
 title: "Seiler du for motor? Da er du motorbåt i sjøveisreglene"
 description: "En seilbåt med motoren i gang skal følge reglene for motorbåter. Slik unngår du vanlige misforståelser om vikeplikt."
 pubDate: 2026-10-22T11:38:06.351Z
+image: "/instagram/seiler-du-for-motor-da-er-du-motorbat-i-sjoveisreglene.png"
 tags: ["sjøveisregler", "sjømannskap"]
 sources: ["https://www.sdir.no/fritidsbat/regelverk-for-fritidsbat/Sjoveisreglene/", "https://lovdata.no/dokument/SF/forskrift/1975-12-01-5/", "https://rs.no/sikker-til-sjos/sjoveisreglene-du-bor-kunne/"]
 ---
