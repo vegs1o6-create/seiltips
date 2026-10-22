@@ -689,6 +689,15 @@
           <li><b>Akterstag:</b> Masta bøyer seg forover og forstaget strammes, så seilene blir flatere. I mye vind gir det mindre krengning og bedre høyde. Skarpt mot vind i 15 m/s gikk båten 5,8 mot 4,9 knop. I lite vind og på slør taper du fart, for eksempel 4,1 mot 5,1 knop ved 5 m/s på halvvind, så akterstaget bør være slakt der.</li>
         </ul>
       </details>
+      <details><summary>Bølger</summary>
+        <ul>
+          <li>Bølgene kommer fra samme kant som vinden. Mer vind gir høyere sjø, men sjøen trenger et halvt minutt eller mer på å bygge seg opp og legge seg.</li>
+          <li>Mot sjøen bremser bølgene mest. Kjølbåten mister rundt 3 % fart på kryss i 9 m/s og 7–12 % i 12–15 m/s. Med vinden fra siden er tapet under halvparten, og på lens nesten ingenting.</li>
+          <li>Optimisten er kort og lett og mister omtrent dobbelt så mye. Å slå i grov sjø koster ekstra, fordi bølgene bremser mens du står i vindøyet.</li>
+          <li>Med vinden bakfra kan båten surfe nedover bølgene og få et kort fartsløft.</li>
+          <li>Skumtopper begynner rundt 6 m/s. Mørkere, krusete flekker på vannet betyr mer vind.</li>
+        </ul>
+      </details>
       <details><summary>Bøyer og mål</summary>
         <ul>
           <li>Rund alle fire bøyene i rekkefølge og seil i havn. Tiden går mens du seiler.</li>
@@ -880,6 +889,7 @@ function applyTheme(){
   sunLight.intensity = dark ? 0.7 : 1.6;
   sunLight.color.set(dark ? colors['ocean-300'] : '#ffffff');
   streakMat.color.set(dark ? colors['ocean-300'] : '#ffffff');
+  seaTheme(dark);
   rainMat.color.set(colors['coral-700']);
   buildRamp(); wx.dirty = true;
 }
@@ -892,28 +902,188 @@ $('themeBtn').addEventListener('click', () => {
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
 
 // --- Hav ---------------------------------------------------------------------
-const SEA_SIZE = 420, SEA_SEG = 84, CELL = SEA_SIZE / SEA_SEG;
+const SEA_SIZE = 420, SEA_SEG = 220, CELL = SEA_SIZE / SEA_SEG;
 const seaGeo = new THREE.PlaneGeometry(SEA_SIZE, SEA_SIZE, SEA_SEG, SEA_SEG);
 seaGeo.rotateX(-Math.PI / 2);
-const seaBase = Float32Array.from(seaGeo.attributes.position.array);
-const sea = new THREE.Mesh(seaGeo, mat('ocean-300', { roughness: 0.6 }, 'surface-300'));
+const seaMat = mat('ocean-300', { roughness: 0.55, flatShading: false }, 'surface-300');
+const sea = new THREE.Mesh(seaGeo, seaMat);
+sea.frustumCulled = false;                         // høyden legges på i skyggeleggeren
 scene.add(sea);
 
-let waveAmp = 0.4;
+// Bølgene går med middelvinden for dagen. Bølgelengden settes av vindnivået og ligger fast
+// gjennom seilasen (ellers hopper fasen), mens høyden bygger seg opp og legger seg sakte etter vinden.
+// Fart og periode følger dypvannsrelasjonen: ω = √(g·k).
+const WAVE_MIX = [ // vinkel fra vindretningen, relativ lengde, relativ høyde
+  { da: 0, l: 1, a: 1 }, { da: 0.45, l: 0.8, a: 0.55 }, { da: -0.6, l: 0.65, a: 0.4 },
+];
+// krusninger som bare tegnes (påvirker ikke båten): korte bølger som kommer og går med vinden
+const RIPPLE_MIX = [
+  { da: -0.9, l: 7.3, s: 0.5 }, { da: 0.35, l: 4.9, s: 0.45 }, { da: -0.2, l: 3.6, s: 0.4 },
+  { da: 0.95, l: 2.7, s: 0.35 }, { da: -0.55, l: 1.9, s: 0.3 }, { da: 0.6, l: 1.3, s: 0.25 },
+];
+const MIN_WAVE = 15;                               // meter
+const HS_PER_AMP = 4 * Math.sqrt(WAVE_MIX.reduce((s, m) => s + m.a * m.a, 0) / 2);   // amplitude → signifikant bølgehøyde
+const CREST = WAVE_MIX.reduce((s, m) => s + m.a, 0);
+const waves = WAVE_MIX.map(() => ({ kx: 0, kz: 0, w: 0, ph: 0, a: 0 }));
+const ripples = RIPPLE_MIX.map(() => ({ kx: 0, kz: 0, w: 0, ph: 0, s: 0 }));
+const SEA_BUILD = 40;                              // sekunder for sjøen å følge vinden
+let seaHs = 0.4, waveAmp = seaHs / HS_PER_AMP, seaDX = 0, seaDZ = 1, rippleS = 0.1;
+function hsFor(v){ return 0.12 + 0.012 * Math.pow(Math.max(v, 0), 1.6); }   // ~0,3 m i 5 m/s, ~1,5 m i 19 m/s
+function setupWaves(dir, base, r){
+  const lp = 8 + 1.8 * base;                      // dominerende bølgelengde, meter
+  seaDX = -Math.sin(dir); seaDZ = Math.cos(dir);   // samme vei som vinden blåser
+  const comp = (wv, L, a) => {
+    const k = TAU / L;
+    wv.kx = -Math.sin(a) * k; wv.kz = Math.cos(a) * k;
+    wv.w = Math.sqrt(9.81 * k); wv.ph = r() * TAU;
+  };
+  WAVE_MIX.forEach((m, i) => { comp(waves[i], Math.max(lp * m.l, MIN_WAVE), dir + m.da); waves[i].a = m.a; });
+  RIPPLE_MIX.forEach((m, i) => { comp(ripples[i], m.l, dir + m.da); ripples[i].s = m.s; });
+}
+function setSeaState(v, dt){                       // dt = null setter sjøen rett på
+  if (dt === 0) return;
+  const tgt = hsFor(v);
+  seaHs = dt === null ? tgt : seaHs + (tgt - seaHs) * Math.min(1, dt / SEA_BUILD);
+  waveAmp = seaHs / HS_PER_AMP;
+  // krusningene svarer på vinden i løpet av sekunder, så kast og byger syns som mørkere vann
+  const rt = clamp(0.02 + 0.014 * v, 0.02, 0.32);
+  rippleS = dt === null ? rt : rippleS + (rt - rippleS) * Math.min(1, dt / 3);
+}
 function waveH(x, z, t){
-  return waveAmp * (
-    Math.sin(x * 0.09 + t * 1.1) * 0.55 +
-    Math.sin(z * 0.12 - t * 0.9) * 0.45 +
-    Math.sin((x + z) * 0.05 + t * 0.6) * 0.5);
+  let h = 0;
+  for (let i = 0; i < waves.length; i++){
+    const wv = waves[i];
+    h += wv.a * Math.cos(wv.kx * x + wv.kz * z - wv.w * t + wv.ph);
+  }
+  return waveAmp * h;
+}
+
+// Høyden regnes i skyggeleggeren med samme formel som waveH. Normalen regnes per piksel
+// fra de deriverte, med krusninger, skumtopper, mørkere bølgedaler og himmelrefleks mot horisonten.
+const seaU = {
+  uAmp: { value: 0 }, uW: { value: waves.map(() => new THREE.Vector4()) }, uA: { value: WAVE_MIX.map(m => m.a) },
+  uR: { value: ripples.map(() => new THREE.Vector4()) }, uRS: { value: 0 }, uCrest: { value: CREST },
+  uFoam: { value: 0 }, uWind: { value: new THREE.Vector2(0, 1) }, uT: { value: 0 },
+  uSky: { value: new THREE.Color() }, uDeep: { value: new THREE.Color() }, uFoamCol: { value: new THREE.Color() },
+};
+const SEA_GLSL = `
+uniform float uAmp, uRS, uCrest, uFoam, uT;
+uniform vec4 uW[${WAVE_MIX.length}];
+uniform float uA[${WAVE_MIX.length}];
+uniform vec4 uR[${RIPPLE_MIX.length}];
+uniform vec2 uWind;
+uniform vec3 uSky, uDeep, uFoamCol;
+varying vec2 vSeaP;
+float seaHeight(vec2 p){
+  float h = 0.0;
+  for (int i = 0; i < ${WAVE_MIX.length}; i++) h += uA[i] * cos(dot(uW[i].xy, p) + uW[i].w);
+  return uAmp * h;
+}
+`;
+const SEA_FRAG = `
+float seaHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float seaNoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(seaHash(i), seaHash(i + vec2(1, 0)), f.x), mix(seaHash(i + vec2(0, 1)), seaHash(i + vec2(1, 1)), f.x), f.y);
+}
+`;
+seaMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, seaU);
+  sh.vertexShader = SEA_GLSL + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+    vSeaP = (modelMatrix * vec4(transformed, 1.0)).xz;
+    transformed.y += seaHeight(vSeaP);`);
+  sh.fragmentShader = SEA_GLSL + SEA_FRAG + sh.fragmentShader
+    .replace('#include <color_fragment>', `#include <color_fragment>
+    vec2 sg = vec2(0.0); float sH = 0.0;
+    for (int i = 0; i < ${WAVE_MIX.length}; i++){
+      float ph = dot(uW[i].xy, vSeaP) + uW[i].w;
+      sH += uA[i] * cos(ph); sg -= uA[i] * sin(ph) * uW[i].xy;
+    }
+    sH *= uAmp; sg *= uAmp;
+    float sDist = length(vViewPosition);
+    float sNear = 1.0 - smoothstep(25.0, 150.0, sDist);
+    vec2 rg = vec2(0.0);
+    for (int i = 0; i < ${RIPPLE_MIX.length}; i++){
+      float ph = dot(uR[i].xy, vSeaP) + uR[i].w;
+      rg -= uR[i].z * sin(ph) * normalize(uR[i].xy);
+    }
+    // kastene kommer i flekker: krusningene varierer over flaten og driver med vinden
+    vec2 sDrift = vSeaP * 0.045 - uWind * uT * 0.12;
+    float sPatch = 0.55 + 0.9 * seaNoise(sDrift);
+    sg += rg * uRS * sPatch * mix(0.35, 1.0, sNear);
+    float sHn = sH / max(uAmp * uCrest, 0.001);            // -1 i bunnen av dalen, 1 på toppen
+    diffuseColor.rgb = mix(uDeep, diffuseColor.rgb, 0.2 + 0.8 * smoothstep(-0.9, 0.8, sHn));
+    // sida som vender mot vinden er brattere og mørkere, lesida lysere
+    diffuseColor.rgb *= 1.0 - 0.6 * clamp(dot(sg, -uWind), -0.25, 0.5);
+    // skumtopper: der bølgen er høyest, brutt opp av støy og strukket ut med vinden
+    vec2 sAl = vec2(dot(vSeaP, uWind), dot(vSeaP, vec2(-uWind.y, uWind.x)));
+    float sN = seaNoise(sAl * vec2(0.5, 1.1) - vec2(uT * 0.7, 0.0)) * 0.55 + seaNoise(vSeaP * 2.2) * 0.45;
+    float sCrest = smoothstep(0.62 - 0.25 * uFoam, 0.9 - 0.25 * uFoam, sHn);
+    float sCap = sCrest * smoothstep(0.62 - 0.2 * uFoam, 0.72 - 0.2 * uFoam, sN) * smoothstep(0.0, 0.15, uFoam);
+    float sLane = smoothstep(0.75, 0.9, seaNoise(sAl * vec2(0.05, 0.7))) * smoothstep(0.55, 1.0, uFoam) * 0.45 * smoothstep(0.45, 0.7, sN);
+    float sFoam = clamp(sCap + sLane, 0.0, 1.0) * 0.9;
+    diffuseColor.rgb = mix(diffuseColor.rgb, uFoamCol, sFoam);`)
+    .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+    roughnessFactor = mix(roughnessFactor, 0.9, sFoam);`)
+    .replace('#include <normal_fragment_begin>', `#include <normal_fragment_begin>
+    normal = normalize((viewMatrix * vec4(normalize(vec3(-sg.x, 1.0, -sg.y)), 0.0)).xyz);`)
+    .replace('#include <opaque_fragment>', `float sFr = pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 5.0);
+    outgoingLight = mix(outgoingLight, uSky, sFr * 0.3 * (1.0 - sFoam));
+    #include <opaque_fragment>`);
+};
+function seaTheme(dark){
+  seaU.uSky.value.set(colors['surface-100']);
+  seaU.uDeep.value.set(dark ? colors['surface-100'] : colors['ocean-500']);
+  seaU.uFoamCol.value.set(dark ? new THREE.Color(colors['ocean-300']).lerp(new THREE.Color(colors['surface-400']), 0.4) : '#ffffff');
 }
 function updateSea(cx, cz, t){
-  const sx = Math.round(cx / CELL) * CELL, sz = Math.round(cz / CELL) * CELL;
-  sea.position.set(sx, 0, sz);
-  const p = seaGeo.attributes.position.array;
-  for (let i = 0; i < p.length; i += 3){
-    p[i + 1] = waveH(seaBase[i] + sx, seaBase[i + 2] + sz, t);
-  }
-  seaGeo.attributes.position.needsUpdate = true;
+  sea.position.set(Math.round(cx / CELL) * CELL, 0, Math.round(cz / CELL) * CELL);
+  seaU.uAmp.value = waveAmp; seaU.uRS.value = rippleS; seaU.uT.value = t;
+  seaU.uFoam.value = clamp((seaHs - 0.35) / 0.9, 0, 1);       // skumtopper fra ca. 6 m/s, mye fra 16–17 m/s
+  seaU.uWind.value.set(seaDX, seaDZ);
+  waves.forEach((wv, i) => seaU.uW.value[i].set(wv.kx, wv.kz, 0, mod(wv.ph - wv.w * t, TAU)));
+  ripples.forEach((rp, i) => seaU.uR.value[i].set(rp.kx, rp.kz, rp.s, mod(rp.ph - rp.w * t, TAU)));
+}
+
+// Båten flyter på et snitt av sjøen under skroget, så korte bølger dempes og lange bølger løfter.
+// Hiv, stamp og rull er hver en dempet fjær mot vannflaten, med båtens egen periode.
+function makeMotion(){ return { y: 0, vy: 0, p: 0, vp: 0, r: 0, vr: 0 }; }
+function seaMotion(m, x, z, h, M, t, dt){       // dt = null setter båten rett på vannet, dt = 0 står stille (pause)
+  if (dt === 0) return m;
+  const Fx = Math.sin(h), Fz = -Math.cos(h), Sx = Math.cos(h), Sz = Math.sin(h);
+  const hl = M.len / 2, hb = M.beam / 2;
+  const c = waveH(x, z, t);
+  const bow = waveH(x + Fx * hl, z + Fz * hl, t), stern = waveH(x - Fx * hl, z - Fz * hl, t);
+  const stb = waveH(x + Sx * hb, z + Sz * hb, t), port = waveH(x - Sx * hb, z - Sz * hb, t);
+  const ty = (2 * c + bow + stern + stb + port) / 6;
+  const tp = Math.atan2(bow - stern, M.len), tr = Math.atan2(stb - port, M.beam);
+  if (dt === null){ Object.assign(m, { y: ty, vy: 0, p: tp, vp: 0, r: tr, vr: 0 }); return m; }
+  const spring = (x0, v, tgt, T) => {
+    const wn = TAU / T, a = wn * wn * (tgt - x0) - 2 * M.damp * wn * v;
+    v += a * dt; return [x0 + v * dt, v];
+  };
+  [m.y, m.vy] = spring(m.y, m.vy, ty, M.heave);
+  [m.p, m.vp] = spring(m.p, m.vp, tp, M.pitch);
+  [m.r, m.vr] = spring(m.r, m.vr, tr, M.roll);
+  return m;
+}
+
+// Sjøen bremser på to måter:
+// 1) Tilleggsmotstand: vokser med bølgehøyden i annen, er størst rett mot sjøen og liten med sjøen,
+//    og er relativt større for korte, brede båter (B²/L). Øker med farten.
+// 2) Bølgeskråningen: tyngdekraften langs vannflaten under skroget bremser i oppoverbakke og skyver
+//    i nedoverbakke. I snitt null, men følger båten bølgen nedover, surfer den.
+const WAVE_DRAG = 0.096, SURGE = 0.5;
+function waveDrag(h, v, M){
+  if (v <= 0) return 0;
+  const head = -(Math.sin(h) * seaDX - Math.cos(h) * seaDZ);   // 1 = rett mot sjøen, -1 = med sjøen
+  const dirF = 0.1 + 0.9 * Math.pow((1 + head) / 2, 1.5);
+  return WAVE_DRAG * seaHs * seaHs * dirF * (M.beam * M.beam / M.len) * v;
+}
+function waveSurge(x, z, h, M, t){
+  const Fx = Math.sin(h), Fz = -Math.cos(h), hl = M.len / 2;
+  const slope = (waveH(x + Fx * hl, z + Fz * hl, t) - waveH(x - Fx * hl, z - Fz * hl, t)) / M.len;
+  return -9.81 * SURGE * slope;
 }
 
 // --- Verden ----------------------------------------------------------------
@@ -1322,10 +1492,12 @@ function buildSail(s, luff0, luff1, footLen, topFrac, delta, camber, flap, t, ex
 
 const BOATS = {
   kjol: { name: 'Kjølbåt', sails: 2, group: cruiserG, pivot: boomPivot, bag: sailBag, mastZ: MAST_Z, boomY: BOOM_Y, luff: MAST_H, boomLen: BOOM_LEN,
-          topFrac: 0.93, areaM: 1.0, areaJ: 0.65, heelLimit: 380, heelMax: 22, bobK: 0.8, lift: 0, maxSpeed: 11, drive: 1, turn: 1, cam: 1, lookY: 2.4, wakeBack: 4.2,
+          topFrac: 0.93, areaM: 1.0, areaJ: 0.65, heelLimit: 380, heelMax: 22, lift: 0, maxSpeed: 11, drive: 1, turn: 1, cam: 1, lookY: 2.4, wakeBack: 4.2,
+          sea: { len: 8, beam: 2.8, heave: 2.4, pitch: 2.8, roll: 3.4, damp: 0.35 },
           trim: true, trimHull: 'M0 -40 C10 -28 12 -4 9 30 L-9 30 C-12 -4 -10 -28 0 -40 Z' },
   opti: { name: 'Optimist', sails: 1, group: optG, pivot: optPivot, bag: optBag, mastZ: OPT.mastZ, boomY: OPT.boomY, luff: OPT.luff, boomLen: OPT.boomLen,
-          topFrac: 0.55, areaM: 0.9, areaJ: 0, heelLimit: 170, heelMax: 28, bobK: 1, lift: 0.4, maxSpeed: 4.1, drive: 1, turn: 1.4, cam: 0.68, lookY: 1.7, wakeBack: 2.8,
+          topFrac: 0.55, areaM: 0.9, areaJ: 0, heelLimit: 170, heelMax: 28, lift: 0.4, maxSpeed: 4.1, drive: 1, turn: 1.4, cam: 0.68, lookY: 1.7, wakeBack: 2.8,
+          sea: { len: 4.6, beam: 2.4, heave: 1.2, pitch: 1.3, roll: 1.6, damp: 0.45 },
           trim: false, trimHull: 'M-10 -34 L10 -34 C14 -20 16 10 15 30 L-15 30 C-16 10 -14 -20 -10 -34 Z' },
 };
 let boatKey = 'kjol';
@@ -1461,8 +1633,11 @@ function reset(){
   }
   state.x = sp.x; state.z = sp.z;
   const wb = windBase(state.x, state.z, 0);
-  state.wind.dir = wb.dir; state.wind.strength = wb.spd;
+  state.wind.dir = wb.dir; state.wind.strength = wb.spd; state.tws = wb.spd;
+  setupWaves(WS.dir0, WIND_LEVELS[windLevel].base, r);
+  setSeaState(wb.spd, null);
   state.heading = reg ? RG.spawnHeading : (wb.dir + Math.PI / 2 + TAU) % TAU;   // klassisk: start på halvvind
+  seaMotion(boatSea, state.x, state.z, state.heading, B.sea, state.clock, null);
   Object.assign(state.main, { hoist: 0, angle: 0, flip: null });
   Object.assign(state.jib, { hoist: 0, angle: 0, flip: null });
   state.leeSide = 0;
@@ -1545,6 +1720,7 @@ function update(dt){
   });
   const gust = inSquall * (WIND_LEVELS[windLevel].sq + Math.sin(state.t * 2.3) * 0.12);
   const trueSpeed = Math.min(w.strength * (1 + gust), 22);
+  state.tws = trueSpeed;
   const trueDir = w.dir + inSquall * Math.sin(state.t * 0.9) * 0.25;
 
   // tilsynelatende vind i båtens ramme
@@ -1632,7 +1808,8 @@ function update(dt){
   const drive = fwd * 0.012 * B.drive;
   const eye = 1 - smooth(18 * DEG, 45 * DEG, awa);                       // midt i vindøyet
   const drag = (0.075 * state.speed * Math.abs(state.speed) + 0.05 * state.speed) * (1 - 0.6 * eye);   // fart bæres gjennom slaget
-  state.speed = clamp(state.speed + (drive - drag) * dt, -1, B.maxSpeed);
+  const sea = waveSurge(state.x, state.z, h, B.sea, state.clock) - waveDrag(h, state.speed, B.sea);
+  state.speed = clamp(state.speed + (drive - drag + sea) * dt, -1, B.maxSpeed);
 
   // ror
   const steer = (input.right ? 1 : 0) - (input.left ? 1 : 0);
@@ -1843,7 +2020,7 @@ function makeAI(c, k){
   const tag = nameSprite(c.name, c.hull); tag.position.y = 15; g.add(tag);
   g.visible = false;
   return { k, name: c.name, g, tl, piv, ms, js, skill: c.skill, off: c.off, sbF: c.sb, tagTok: c.hull,
-    x: 0, z: 0, h: 0, speed: 0, heel: 0, stage: 'pre', pi: k, wp: null, curWp: null, sx: 0, sz: 0, side: 1, sideT: 99, leg: 0,
+    x: 0, z: 0, h: 0, speed: 0, heel: 0, sea: makeMotion(), stage: 'pre', pi: k, wp: null, curWp: null, sx: 0, sz: 0, side: 1, sideT: 99, leg: 0,
     fin: null, beat: false, prevC: null, sub: 0, adapt: 0, ph: k * 2.1, ma: 0, ja: 0, lee: 1, twa: 60, sheet: 20, wspd: 8, prevFa: null, vexp: 3 };
 }
 RG.ai = AI_CFG.map(makeAI);
@@ -1957,8 +2134,12 @@ function aiStep(ai, dt, t){
   ai.h = (ai.h + clamp(angDiff(hd, ai.h), -AI_TURN * dt, AI_TURN * dt) + TAU) % TAU;
   const twa = Math.abs(angDiff(ai.h, wdir)) / DEG;
   const [pv, sheet] = polarAt(wspd, twa);
-  const vt = pv * ai.skill * (1 + ai.adapt) * (1 + 0.02 * Math.sin(t / 9 + ai.ph)) * thr;
+  const v0 = pv * ai.skill * (1 + ai.adapt) * (1 + 0.02 * Math.sin(t / 9 + ai.ph)) * thr;
+  // polaren gjelder flatt vann: finn farten der samme drivkraft også dekker motstanden fra sjøen
+  const dr = 0.075 * v0 * v0 + 0.05 * v0 - waveDrag(ai.h, v0, BOATS.kjol.sea);
+  const vt = dr > 0 ? (-0.05 + Math.sqrt(0.0025 + 0.3 * dr)) / 0.15 : 0;
   ai.speed += (vt - ai.speed) * (1 - Math.exp(-dt / (vt > ai.speed ? 2.6 : 1.3)));
+  ai.speed = Math.max(0, ai.speed + waveSurge(ai.x, ai.z, ai.h, BOATS.kjol.sea, state.clock) * dt);
   ai.x = clamp(ai.x + Math.sin(ai.h) * ai.speed * dt, 20, WORLD - 20);
   ai.z = clamp(ai.z - Math.cos(ai.h) * ai.speed * dt, 20, WORLD - 20);
   ai.twa = twa; ai.sheet = sheet; ai.wspd = wspd;
@@ -1985,21 +2166,21 @@ function aiStep(ai, dt, t){
 }
 const _l0 = new THREE.Vector3(0, BOOM_Y + 0.05, MAST_Z), _l1 = new THREE.Vector3(0, BOOM_Y + 0.05 + MAST_H, MAST_Z);
 const _j1 = TACK.clone().lerp(FORESTAY_TOP, 0.98);
-function rgAiPose(ai){
-  const t = state.clock;
-  ai.g.position.set(ai.x, waveH(ai.x, ai.z, t) * 0.8 + 0.1, ai.z);
+function rgAiPose(ai, dt = null){
+  const sm = seaMotion(ai.sea, ai.x, ai.z, ai.h, BOATS.kjol.sea, state.clock, dt);
+  ai.g.position.set(ai.x, sm.y + 0.1, ai.z);
   ai.g.rotation.y = -ai.h;
 }
 function rgAiRender(ai, dt){
   const t = state.clock;
-  rgAiPose(ai);
+  rgAiPose(ai, dt);
   const luff = ai.twa < 30 || ai.speed < 0.7;
   const mT = ai.lee * (luff ? 8 : clamp(ai.sheet, 8, 85)) * DEG, jT = ai.lee * (luff ? 6 : clamp(ai.sheet * 0.85 + 4, 6, 76)) * DEG;
   const st = 2.4 * dt;
   ai.ma += clamp(mT - ai.ma, -st, st); ai.ja += clamp(jT - ai.ja, -st, st);
   const mag = clamp(ai.speed / 5, 0, 1) * (6 + ai.wspd * 0.9) * DEG;
   ai.heel = lerp(ai.heel, ai.lee * Math.min(mag, 24 * DEG), Math.min(1, dt * 1.5));
-  ai.tl.rotation.z = -ai.heel;
+  ai.tl.rotation.set(ai.sea.p, 0, -ai.heel + ai.sea.r);
   ai.piv.rotation.y = ai.ma;
   const cm = ai.lee * clamp(Math.sqrt(ai.wspd) / 2.6, 0.4, 1) * 0.75;
   buildSail(ai.ms, _l0, _l1, BOOM_LEN * 0.98, 0.93, ai.ma, luff ? 0 : cm, luff ? 1 : 0, t);
@@ -2793,22 +2974,22 @@ function respawnStreak(s, anywhere){
 
 const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
 let camInit = false, camSide = 0;
+const boatSea = makeMotion();
 
 function render(dt){
   const t = state.clock;
   const w = state.wind;
-  waveAmp = 0.2 + w.strength * 0.045;
+  setSeaState(state.tws ?? w.strength, dt);
   updateSea(state.x, state.z, t);
 
   // båt
-  const bob = waveH(state.x, state.z, t);
   const Fx = Math.sin(state.heading), Fz = -Math.cos(state.heading);
-  const pitch = (waveH(state.x + Fx * 4, state.z + Fz * 4, t) - waveH(state.x - Fx * 4, state.z - Fz * 4, t)) / 8;
-  state.pitch = lerp(state.pitch, pitch, dt * 4);
+  const sm = seaMotion(boatSea, state.x, state.z, state.heading, B.sea, t, dt);
+  state.pitch = sm.p;
   const shake = state.bump * Math.sin(t * 50) * 0.04;
-  boat.position.set(state.x, bob * B.bobK + 0.1 + B.lift, state.z);
+  boat.position.set(state.x, sm.y + 0.1 + B.lift, state.z);
   boat.rotation.y = -state.heading;
-  tilt.rotation.set(state.pitch, 0, -state.heel + shake);
+  tilt.rotation.set(sm.p, 0, -state.heel + sm.r + shake);
 
   // seil
   const info = state.info;
@@ -2941,7 +3122,7 @@ function render(dt){
     cfx = dx / dd; cfz = dz / dd; Sx = 0; Sz = 0;
     cback = back * 1.15; cup = up * 1.5; cdist = Math.min(dd, 70);
   }
-  const desired = new THREE.Vector3(state.x - cfx * cback + Sx * camSide, cup + bob * 0.3, state.z - cfz * cback + Sz * camSide);
+  const desired = new THREE.Vector3(state.x - cfx * cback + Sx * camSide, cup + sm.y * 0.3, state.z - cfz * cback + Sz * camSide);
   const look = new THREE.Vector3(state.x + cfx * cdist, 2.4, state.z + cfz * cdist);
   look.y = B.lookY;
   if (!camInit){ camPos.copy(desired); camLook.copy(look); camInit = true; }
