@@ -1217,29 +1217,37 @@ const rainMat = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.45 }
 const squallObjs = [0, 1].map(() => {
   const g = new THREE.Group();
   const cloudMat = mat('coral-300', { transparent: true, opacity: 0.92 }, 'coral-500');
-  for (let i = 0; i < 7; i++){
-    const puff = new THREE.Mesh(new THREE.SphereGeometry(10 + Math.random() * 8, 8, 6), cloudMat);
-    const a = i / 7 * TAU;
-    puff.position.set(Math.cos(a) * 22, 32 + Math.random() * 5, Math.sin(a) * 22);
+  for (let i = 0; i < 9; i++){
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(8 + Math.random() * 11, 8, 6), cloudMat);
+    const a = (i + Math.random() * 0.7) / 9 * TAU, d = 8 + Math.random() * 26;
+    puff.position.set(Math.cos(a) * d, 30 + Math.random() * 8, Math.sin(a) * d);
     puff.scale.y = 0.55;
     g.add(puff);
   }
-  const patch = new THREE.Mesh(new THREE.CircleGeometry(50, 32), mat('coral-500', { transparent: true, opacity: 0.22 }));
+  // nedbørsfeltet på sjøen: en ytre, lys flekk og en tettere kjerne. Kantene formes hvert bilde av squallShape.
+  const patch = new THREE.Mesh(new THREE.CircleGeometry(50, 64), mat('coral-500', { transparent: true, opacity: 0.18 }));
   patch.rotation.x = -Math.PI / 2;
   patch.position.y = 0.9;
-  g.add(patch);
-  const pts = [];
-  for (let i = 0; i < 160; i++){
-    const a = Math.random() * TAU, d = Math.sqrt(Math.random()) * 42;
-    const x = Math.cos(a) * d, z = Math.sin(a) * d, y = Math.random() * 30;
-    pts.push(x, y, z, x - 0.6, y - 3, z);
+  const core = new THREE.Mesh(new THREE.CircleGeometry(50, 64), mat('coral-500', { transparent: true, opacity: 0.16 }));
+  core.rotation.x = -Math.PI / 2;
+  core.position.y = 0.95;
+  g.add(patch, core);
+  // regnet faller i noen klumper, ikke jevnt over en sirkel
+  const cells = Array.from({ length: 4 }, () => ({ a: Math.random() * TAU, d: Math.random() * 0.55, s: 0.2 + Math.random() * 0.25 }));
+  const pts = [], drops = [];
+  for (let i = 0; i < 200; i++){
+    const c = cells[i % cells.length], aa = Math.random() * TAU, rr = Math.sqrt(Math.random()) * c.s;
+    const ux = Math.cos(c.a) * c.d + Math.cos(aa) * rr, uz = Math.sin(c.a) * c.d + Math.sin(aa) * rr;
+    drops.push({ a: Math.atan2(uz, ux), d: Math.min(Math.hypot(ux, uz), 0.92) });
+    const y = Math.random() * 30;
+    pts.push(0, y, 0, 0, y - 3, 0);
   }
   const rg = new THREE.BufferGeometry();
   rg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
   const rain = new THREE.LineSegments(rg, rainMat);
   g.add(rain);
   scene.add(g);
-  return { g, rain, x: 0, z: 0, r: 50 };
+  return { g, rain, patch, core, drops, x: 0, z: 0, r: 50 };
 });
 
 // vindstriper
@@ -1542,7 +1550,7 @@ let mode = 'klassisk';
 try { const m = localStorage.getItem('seilsim-mode'); if (m === 'regatta' || m === 'klassisk') mode = m; } catch (e) {}
 let pickMode = mode;
 const WS = { dir0: 0, base: 9, ph: [0, 0, 0, 0, 0, 0], band: [0, 0], period: 900 };
-const SQ = [ { x0: 0, z0: 0, vx: 0, vz: 0, r: 50 }, { x0: 0, z0: 0, vx: 0, vz: 0, r: 50 } ];
+const SQ = [ { x0: 0, z0: 0, vx: 0, vz: 0, r: 50, h: [] }, { x0: 0, z0: 0, vx: 0, vz: 0, r: 50, h: [] } ];
 const FORECAST = 300;                       // sekunder fram i tid
 const mod = (a, n) => ((a % n) + n) % n;
 
@@ -1567,12 +1575,20 @@ function squallPos(i, t){
   const q = SQ[i];
   return { x: mod(q.x0 + q.vx * t, WORLD), z: mod(q.z0 + q.vz * t, WORLD) };
 }
+// bygens omriss: radius som varierer med retningen (noen få bølger rundt kanten) og endrer seg sakte over tid
+function squallShape(i, a, t){
+  let f = 1;
+  for (const [k, amp, ph, drift] of SQ[i].h) f += amp * Math.sin(k * a + ph + drift * t);
+  return f;
+}
+// avstand fra bygens sentrum, delt på omrisset i den retningen, så vinden følger formen
+function squallDist(i, x, z, t){
+  const p = squallPos(i, t), dx = x - p.x, dz = z - p.z;
+  return Math.hypot(dx, dz) / squallShape(i, Math.atan2(dz, dx), t);
+}
 function squallInfl(x, z, t){
   let m = 0;
-  for (let i = 0; i < SQ.length; i++){
-    const p = squallPos(i, t);
-    m = Math.max(m, 1 - smooth(SQ[i].r * 0.7, SQ[i].r, Math.hypot(p.x - x, p.z - z)));
-  }
+  for (let i = 0; i < SQ.length; i++) m = Math.max(m, 1 - smooth(SQ[i].r * 0.7, SQ[i].r, squallDist(i, x, z, t)));
   return m;
 }
 // middelvind inkludert byger, brukt av kartet
@@ -1621,6 +1637,7 @@ function reset(){
   SQ.forEach(q => {
     const a = WS.dir0 + (r() - 0.5) * 0.5, sp2 = 1.7 + r() * 0.8;
     q.vx = -Math.sin(a) * sp2; q.vz = Math.cos(a) * sp2;
+    q.h = [[2, 0.16], [3, 0.11], [4, 0.07], [5, 0.05]].map(([k, amp]) => [k, amp * (0.6 + r() * 0.8), r() * TAU, (r() - 0.5) * 0.04]);
   });
   if (reg){                                           // byger som passerer området mens seilasen pågår
     SQ.forEach((q, i) => {
@@ -1715,7 +1732,7 @@ function update(dt){
     const p = squallPos(i, state.t);
     o.x = p.x; o.z = p.z;
     const d = Math.hypot(o.x - state.x, o.z - state.z);
-    inSquall = Math.max(inSquall, 1 - smooth(o.r * 0.7, o.r, d));
+    inSquall = Math.max(inSquall, 1 - smooth(o.r * 0.7, o.r, squallDist(i, state.x, state.z, state.t)));
     if (d < o.r + 70) nearSquall = true;
   });
   const gust = inSquall * (WIND_LEVELS[windLevel].sq + Math.sin(state.t * 2.3) * 0.12);
@@ -1848,7 +1865,7 @@ function update(dt){
   if (mode === 'regatta'){ if (state.running) rgUpdate(dt); }
   else {
     const tgt = currentTarget();
-    if (Math.hypot(tgt.x - state.x, tgt.z - state.z) < (state.leg < buoys.length ? 12 : 14)){
+    if (Math.hypot(tgt.x - state.x, tgt.z - state.z) < (state.leg < buoys.length ? BUOY_PASS : 14)){
       state.leg++;
       if (state.leg > buoys.length) finish();
     }
@@ -1858,6 +1875,7 @@ function update(dt){
   state.info = { fm, fj, camM, camJ, twEff, eased, openLoss, flowAng, awa, trueSpeed, nearSquall, running, appSpeed: Math.sqrt(app2), inSquall };
 }
 
+const BUOY_PASS = 36;                       // passering registreres innen 36 m, tre ganger den gule ringen
 function currentTarget(){ if (mode === 'regatta') return rgTarget(); return state.leg < buoys.length ? buoys[state.leg] : harbor; }
 
 // ---------------------------------------------------------------------------
@@ -2708,6 +2726,10 @@ function drawWxBase(){
     // sky: flere overlappende pufter med skygge under, og regnstreker
     const puffs = [[-0.5, 0.12, 0.48], [-0.15, -0.22, 0.6], [0.32, -0.12, 0.52], [0.55, 0.14, 0.4], [0.05, 0.2, 0.5]];
     ctx.save();
+    ctx.fillStyle = 'rgba(96,118,138,.22)';
+    ctx.beginPath();
+    for (let j = 0; j <= 48; j++){ const a = j / 48 * TAU, rr = R * squallShape(i, a, tf); ctx.lineTo(cx + Math.cos(a) * rr, cz + Math.sin(a) * rr); }
+    ctx.fill();
     ctx.strokeStyle = 'rgba(22,48,63,.45)'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
     ctx.beginPath();
     for (let j = -2; j <= 2; j++){ const rx = cx + j * R * 0.28; ctx.moveTo(rx, cz + R * 0.55); ctx.lineTo(rx - R * 0.07, cz + R * 0.8 - Math.abs(j) * R * 0.08); }
@@ -2841,7 +2863,7 @@ function updateWxText(){
   for (let i = 0; i < SQ.length; i++){
     for (let s = 0; s <= FORECAST; s += 2){
       const p = squallPos(i, t0 + s);
-      if (Math.hypot(p.x - state.x, p.z - state.z) < SQ[i].r * 0.9){
+      if (squallDist(i, state.x, state.z, t0 + s) < SQ[i].r * 0.9){
         if (!first || s < first.s) first = { s, i };
         break;
       }
@@ -3062,16 +3084,27 @@ function render(dt){
   if (mode !== 'regatta') homeRing.scale.setScalar(1 + (state.leg >= buoys.length ? Math.sin(t * 3) * 0.05 : homeNext ? Math.sin(t * 5) * 0.08 : 0));
 
   // byger
-  for (const s of squallObjs){
+  squallObjs.forEach((s, si) => {
     s.g.position.set(s.x, 0, s.z);
+    // omrisset på sjøen: ytre flekk og kjerne (med forskjøvet tid, så kjernen ikke er en kopi av kanten)
+    for (const [m, sc, dt0] of [[s.patch, 1, 0], [s.core, 0.55, 37]]){
+      const pp = m.geometry.attributes.position, n = pp.count;
+      for (let v = 1; v < n; v++){
+        const a = (v - 1) / (n - 2) * TAU, R = s.r * sc * squallShape(si, -a, state.t + dt0);
+        pp.setXY(v, Math.cos(a) * R, Math.sin(a) * R);
+      }
+      pp.needsUpdate = true;
+    }
     const rp = s.rain.geometry.attributes.position.array;
-    for (let i = 0; i < rp.length; i += 6){
+    for (let i = 0, j = 0; i < rp.length; i += 6, j++){
       let y = rp[i + 1] - dt * 22;
       if (y < 0) y += 30;
-      rp[i + 1] = y; rp[i + 4] = y - 3;
+      const dr = s.drops[j], R = dr.d * s.r * squallShape(si, dr.a, state.t);
+      const x = Math.cos(dr.a) * R, z = Math.sin(dr.a) * R;
+      rp[i] = x; rp[i + 1] = y; rp[i + 2] = z; rp[i + 3] = x - 0.6; rp[i + 4] = y - 3; rp[i + 5] = z;
     }
     s.rain.geometry.attributes.position.needsUpdate = true;
-  }
+  });
 
   // vindstriper
   const sp = streakGeo.attributes.position.array;
