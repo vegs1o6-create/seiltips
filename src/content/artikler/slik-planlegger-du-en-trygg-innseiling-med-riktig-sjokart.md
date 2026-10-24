@@ -2,6 +2,7 @@
 title: "Slik planlegger du en trygg innseiling med riktig sjøkart"
 description: "Lær å velge riktig målestokk, kontrollere kartet og lage en enkel plan før du går inn i ukjent farvann."
 pubDate: 2026-10-24T10:46:22.619Z
+image: "/instagram/slik-planlegger-du-en-trygg-innseiling-med-riktig-sjokart.png"
 tags: ["navigasjon", "sjøkart", "sikkerhet"]
 sources: ["https://www.kartverket.no/til-sjos/kart/norskesjokart", "https://www.kartverket.no/til-sjos/sjokart/korleis-forsta-sjokartet", "https://www.kartverket.no/til-sjos/sjokart/oppdatere-sjokart", "https://dnl.kartverket.no/", "https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/"]
 ---
