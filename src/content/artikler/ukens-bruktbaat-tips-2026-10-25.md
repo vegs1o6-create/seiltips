@@ -2,6 +2,7 @@
 title: "Tre gode bruktbåtkjøp på Finn.no akkurat nå"
 description: "Vi har sammenlignet tre interessante bruktbåter på Finn.no – fra kompakt turseiler til romslig familiebåt."
 pubDate: 2026-10-25T18:51:17.487Z
+image: "/instagram/ukens-bruktbaat-tips-2026-10-25.png"
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
 sources: ["https://www.finn.no/mobility/item/479395735", "https://www.finn.no/mobility/item/400739920", "https://www.finn.no/mobility/item/466340038"]
 ---
