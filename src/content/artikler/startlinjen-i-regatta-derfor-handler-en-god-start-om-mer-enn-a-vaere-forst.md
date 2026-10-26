@@ -2,6 +2,7 @@
 title: "Startlinjen i regatta: Derfor handler en god start om mer enn å være først"
 description: "Lær hvordan startlinje, fart, plass og signaler henger sammen – og hvorfor en kontrollert start ofte slår et desperat rykk."
 pubDate: 2026-10-26T12:45:59.728Z
+image: "/instagram/startlinjen-i-regatta-derfor-handler-en-god-start-om-mer-enn-a-vaere-forst.png"
 tags: ["kappseilas", "regatta", "seilforening"]
 sources: ["https://media.sailing.org/sailing/wp-content/uploads/2025/10/22135647/Start-Tactics.pdf", "https://www.norgesseilforbund.org/dokumenter/kappseilingsreglene", "https://www.sailing.org/racingrules", "https://www.kns.no/kurs-og-seiltilbud/laer-aa-seile/voksne/kjolbat-regattakurs/"]
 ---
