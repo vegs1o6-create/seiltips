@@ -11,18 +11,19 @@ name: Seilruteplanlegger
 #
 # Som i daglig-seilartikkel.yml kjører GitHub Actions cron alltid i UTC og
 # følger ikke sommertid, så vi legger inn to cron-tidspunkter (ett for
-# vintertid CET, ett for sommertid CEST) og lar et vaktbikkje-steg avgjøre
-# hvilken kjøring som faktisk skal gjøre jobben: den må komme mellom 07:00 og
-# 07:45 norsk tid (romslig nok for vanlig forsinkelse fra GitHub), og den
-# hopper over hvis ruteplanen allerede er oppdatert i dag.
+# vintertid CET, ett for sommertid CEST). GitHub sin schedule-trigger kan komme
+# mange timer for sent (her observert 09:30–14:00 UTC i stedet for 05:07/06:07),
+# så vi krever IKKE et smalt klokkeslett-vindu – et slikt vindu gjorde at alle
+# kjøringer etter 7. oktober 2026 i stillhet hoppet over jobben.
 #
-# "*/3" i dag-i-måneden-feltet gir ikke matematisk nøyaktig "hver 3. dag"
-# rundt månedsskifter (avstanden blir kortere der), men det er nøyaktig nok
-# for en værbasert ruteplan som uansett blir foreldet etter noen dager.
+# I stedet trigges workflowen hver dag, og et vaktbikkje-steg hopper over hvis
+# ruteplanen er oppdatert i dag, i går eller i forgårs (norsk dato). Det gir
+# en ny ruteplan hver 3. dag, uten "*/3"-skjevheten rundt månedsskifter, og en
+# dag der GitHub dropper begge cron-kjøringene tas igjen dagen etter.
 on:
   schedule:
-    - cron: '7 6 */3 * *' # 07:07 CET (vintertid, UTC+1)
-    - cron: '7 5 */3 * *' # 07:07 CEST (sommertid, UTC+2)
+    - cron: '7 6 * * *' # 07:07 CET (vintertid, UTC+1)
+    - cron: '7 5 * * *' # 07:07 CEST (sommertid, UTC+2)
   workflow_dispatch: {} # for å kunne kjøre den manuelt ved test/feilsøking
 
 permissions:
@@ -42,7 +43,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sjekk tidsvindu og om dagens ruteplan allerede er laget
+      - name: Sjekk om ruteplanen er oppdatert de siste tre dagene
         id: tidssjekk
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -50,22 +51,16 @@ jobs:
             echo "Manuelt trigget (workflow_dispatch) – kjører uansett."
             exit 0
           fi
-          now_oslo=$(TZ="Europe/Oslo" date +%H:%M)
-          echo "Klokken er $now_oslo i Norge akkurat nå."
-          if [[ "$now_oslo" < "07:00" || ! "$now_oslo" < "07:45" ]]; then
-            echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Utenfor tidsvinduet (07:00–07:45 norsk tid), denne av de to cron-kjøringene gjør ingenting."
-            exit 0
-          fi
           oslo_i_dag=$(TZ="Europe/Oslo" date +%F)
-          siden=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
+          oslo_forgars=$(TZ="Europe/Oslo" date -d "${oslo_i_dag} -2 days" +%F)
+          siden=$(TZ="Europe/Oslo" date -d "${oslo_forgars} 00:00:00" -u +"%Y-%m-%dT%H:%M:%SZ")
           allerede=$(git log --since="$siden" --grep='^Oppdater seilruteplan' --oneline -- src/content/seilvarsel)
           if [[ -n "$allerede" ]]; then
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Seilruteplanen er allerede oppdatert i dag (norsk dato ${oslo_i_dag}) – hopper over."
+            echo "Seilruteplanen er allerede oppdatert siden ${oslo_forgars} – hopper over (hver 3. dag)."
           else
             echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "Seilruteplanen er ikke oppdatert i dag ennå – kjører."
+            echo "Seilruteplanen er ikke oppdatert siden ${oslo_forgars} – kjører uansett klokkeslett."
           fi
 
       - name: Sett opp Node.js

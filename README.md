@@ -287,8 +287,9 @@ En egen samling `seilvarsel` i `src/content/seilvarsel/` (skjema i `src/content.
 vises på `/seilvarsel`) inneholder seilruteplaner for strekningen Oslo–Drøbak–Færder–
 Hvaler–Kosterøyene.
 
-En GitHub Action (`.github/workflows/seilruteplanlegger.yml`) kjører hver 3. dag rundt
-kl. 07:00 norsk tid og bruker `scripts/seilruteplanlegger.mjs` (ren Node.js, ingen
+En GitHub Action (`.github/workflows/seilruteplanlegger.yml`) kjører hver 3. dag (cron
+rundt kl. 07:00 norsk tid, men GitHub kan forsinke kjøringen flere timer – workflowen
+trigges daglig og hopper over hvis ruteplanen er yngre enn tre dager) og bruker `scripts/seilruteplanlegger.mjs` (ren Node.js, ingen
 ekstra npm-avhengigheter) til å:
 
 1. Hente værdata (vind, kast, bølgehøyde, nedbør) direkte fra MET Norways
