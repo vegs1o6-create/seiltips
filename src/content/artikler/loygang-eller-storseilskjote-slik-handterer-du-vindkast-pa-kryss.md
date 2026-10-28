@@ -2,6 +2,7 @@
 title: "Løygang eller storseilskjøte? Slik håndterer du vindkast på kryss"
 description: "En enkel sjekkliste for når du bør bruke løygangen, skjøtet eller kicken for å holde båten balansert på kryss."
 pubDate: 2026-10-28T12:39:10.972Z
+image: "/instagram/loygang-eller-storseilskjote-slik-handterer-du-vindkast-pa-kryss.png"
 tags: ["seiltrim", "kryss", "storseil"]
 sources: ["https://www.seilmagasinet.no/seiltrim-trimmetips/kick-og-loygang/930215", "https://www.seilmagasinet.no/seiltrim-sm202504-tips/trimguide-for-dummies/925830", "https://www.quantumsails.com/QuantumSails/media/Whitepapers/QuantumSails_TrimGuide_Mainsail.pdf", "https://www.seilmagasinet.no/praktisk-stoff-seiltrim-ukens-seilertips/seiltrim-i-hard-vind/592140"]
 ---
