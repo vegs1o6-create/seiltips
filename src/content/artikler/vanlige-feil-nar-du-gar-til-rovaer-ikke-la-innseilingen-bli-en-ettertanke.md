@@ -2,6 +2,7 @@
 title: "Vanlige feil når du går til Røvær: Ikke la innseilingen bli en ettertanke"
 description: "Røvær er en fin stopp utenfor Haugesund, men krever mer enn et raskt blikk på kartplotteren. Slik unngår du de vanligste feilene."
 pubDate: 2026-10-30T12:40:44.187Z
+image: "/instagram/vanlige-feil-nar-du-gar-til-rovaer-ikke-la-innseilingen-bli-en-ettertanke.png"
 tags: ["Røvær", "gjestehavner", "innseiling", "destinasjoner"]
 sources: ["https://www.fjordnorway.com/no/overnatting/rovaer-gjestehavn", "https://rovar.no/", "https://rovar.no/rutebaten/", "https://www.haugesund.kommune.no/natur-og-miljo/tur-og-friluftsliv/", "https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/fyrlykter/"]
 ---
