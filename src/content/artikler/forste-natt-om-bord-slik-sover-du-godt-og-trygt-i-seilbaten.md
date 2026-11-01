@@ -2,6 +2,7 @@
 title: "Første natt om bord: Slik sover du godt og trygt i seilbåten"
 description: "Skal du overnatte i seilbåten for første gang? Med noen enkle grep blir køya tørrere, lufta bedre og natta roligere."
 pubDate: 2026-11-01T13:09:24.982Z
+image: "/instagram/forste-natt-om-bord-slik-sover-du-godt-og-trygt-i-seilbaten.png"
 tags: ["livet om bord", "overnatting", "nybegynner"]
 sources: ["https://www.batmagasinet.no/bedflex-komfort-madrass/slik-sover-du-godt-om-bord/975215", "https://www.watski.no/ventilasjon-i-bat-11Tcs", "https://www.sdir.no/laring-av-hendelser/co-gass-arsak-til-flere-ulykker-om-bord-i-fritidsfartoy--laring-av-hendelse/", "https://nettbutikk.rs.no/sikkerhetstips/dette-trenger-du-til-batferien/"]
 ---
