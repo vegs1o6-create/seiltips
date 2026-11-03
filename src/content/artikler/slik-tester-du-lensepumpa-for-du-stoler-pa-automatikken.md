@@ -2,6 +2,7 @@
 title: "Slik tester du lensepumpa – før du stoler på automatikken"
 description: "En lensepumpe som virker på bryteren, er ikke nødvendigvis klar for en lekkasje. Slik tester og vedlikeholder du hele systemet."
 pubDate: 2026-11-03T14:00:18.165Z
+image: "/instagram/slik-tester-du-lensepumpa-for-du-stoler-pa-automatikken.png"
 tags: ["lensepumpe", "båtutstyr"]
 sources: ["https://www.sdir.no/fritidsbat/vis-sjovett/bat-og-utstyr/", "https://seatronic.no/magasinet/lensepumpe-til-bat", "https://www.westmarine.com/spring-maintenance/how-to-test-bilge-pumps.html", "https://www.dsb.no/elsikkerhet/maritime-elektriske-anlegg/"]
 ---
