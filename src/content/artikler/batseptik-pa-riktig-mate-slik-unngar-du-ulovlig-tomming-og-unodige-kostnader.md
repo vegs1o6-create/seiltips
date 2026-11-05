@@ -2,6 +2,7 @@
 title: "Båtseptik på riktig måte: Slik unngår du ulovlig tømming og unødige kostnader"
 description: "Septiktanken er mer enn en komfortdetalj. Slik fungerer reglene, tømmestasjonene og planleggingen som gjør båtlivet enklere."
 pubDate: 2026-11-05T14:29:25.676Z
+image: "/instagram/batseptik-pa-riktig-mate-slik-unngar-du-ulovlig-tomming-og-unodige-kostnader.png"
 tags: ["bærekraft", "septik", "miljø", "regler"]
 sources: ["https://www.sdir.no/fritidsbat/oslofjorden", "https://lovdata.no/dokument/SF/forskrift/2024-05-31-886/KAPITTEL_1", "https://www.sdir.no/miljo-og-ny-teknologi/miljo/utslipp-fra-skip/utslipp-til-sjo/utslipp-av-kloakk/", "https://www.regjeringen.no/no/aktuelt/batseptik-i-oslofjorden/id3041276/"]
 ---
