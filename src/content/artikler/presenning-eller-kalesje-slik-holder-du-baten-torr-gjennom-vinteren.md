@@ -2,6 +2,7 @@
 title: "Presenning eller kalesje? Slik holder du båten tørr gjennom vinteren"
 description: "Riktig vintertrekk handler om mer enn å holde snøen ute. Slik unngår du kondens, mugg og skader på båten."
 pubDate: 2026-11-07T12:50:52.514Z
+image: "/instagram/presenning-eller-kalesje-slik-holder-du-baten-torr-gjennom-vinteren.png"
 tags: ["vinteropplag", "båtpleie"]
 sources: ["https://rs.no/sikker-til-sjos/holder-baten-torr/", "https://www.batmagasinet.no/presenning-toppsak-vinteropplag/slik-sikrer-du-baten-for-vinteren/706448", "https://www.if.no/magasinet/bat/vinterpass-av-baten"]
 ---
