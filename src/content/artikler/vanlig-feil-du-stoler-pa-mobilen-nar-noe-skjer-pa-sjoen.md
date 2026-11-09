@@ -2,6 +2,7 @@
 title: "Vanlig feil: Du stoler på mobilen når noe skjer på sjøen"
 description: "Mobilen er praktisk, men kan være et dårlig eneste nødverktøy. Slik bruker du VHF og mobil riktig når hjelpen haster."
 pubDate: 2026-11-09T15:58:21.869Z
+image: "/instagram/vanlig-feil-du-stoler-pa-mobilen-nar-noe-skjer-pa-sjoen.png"
 tags: ["sikkerhet", "VHF", "sjømannskap"]
 sources: ["https://www.sdir.no/fritidsbat/maritim-radio-for-fritidsbatbrukere/dette-trenger-du-vhf-pa-1-2-3/", "https://rs.no/sikker-til-sjos/nodkommunikasjon-til-sjos/", "https://www.sdir.no/sjofolk/sertifikater/Informasjon_om_maritime_sertifikater_og_kvalifikasjoner/radiosertifikat-for-vhf/", "https://www.sdir.no/fritidsbat/maritim-radio-for-fritidsbatbrukere/fritidsbat-radiolisens/", "https://www.kystradio.no/"]
 ---
