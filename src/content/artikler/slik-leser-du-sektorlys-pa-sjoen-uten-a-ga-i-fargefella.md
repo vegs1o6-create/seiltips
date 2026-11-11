@@ -2,6 +2,7 @@
 title: "Slik leser du sektorlys på sjøen – uten å gå i fargefella"
 description: "Rødt, grønt og hvitt lys forteller ikke hele historien. Slik bruker du sektorlys sammen med kartet."
 pubDate: 2026-11-11T14:00:06.266Z
+image: "/instagram/slik-leser-du-sektorlys-pa-sjoen-uten-a-ga-i-fargefella.png"
 tags: ["navigasjon", "sektorlys"]
 sources: ["https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/fyrlykter/", "https://www.kystverket.no/sjovegen/fyr-lykter-og-sjomerker/norsk-fyrliste/", "https://www.kartverket.no/til-sjos/nautiske-publikasjoner/symboler-og-forkortelser-i-norske-sjokart", "https://www.kartverket.no/til-sjos/sjokart/korleis-forsta-sjokartet"]
 ---
