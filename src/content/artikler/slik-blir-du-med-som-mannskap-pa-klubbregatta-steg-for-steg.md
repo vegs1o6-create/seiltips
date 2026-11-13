@@ -2,6 +2,7 @@
 title: "Slik blir du med som mannskap på klubbregatta – steg for steg"
 description: "Har du lyst til å prøve kappseiling? Slik finner du en båt, møter forberedt og får en trygg start som regattamannskap."
 pubDate: 2026-11-13T14:26:50.369Z
+image: "/instagram/slik-blir-du-med-som-mannskap-pa-klubbregatta-steg-for-steg.png"
 tags: ["kappseilas", "seilforening"]
 sources: ["https://www.mss-seil.no/p/82492/regatta", "https://www.kns.no/kurs-og-seiltilbud/laer-aa-seile/voksne/", "https://www.grimstad.seilforening.no/?pageID=50", "https://www.norgesseilforbund.org/akademiet/regattasjef-2026", "https://www.manage2sail.com/no"]
 ---
