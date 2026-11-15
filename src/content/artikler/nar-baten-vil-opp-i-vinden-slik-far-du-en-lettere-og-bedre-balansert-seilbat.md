@@ -2,6 +2,7 @@
 title: "Når båten vil opp i vinden: Slik får du en lettere og bedre balansert seilbåt"
 description: "Båten skal ikke kjempe mot roret. Lær hvorfor den dreier mot vinden, og hvordan seiltrim gir bedre fart, kontroll og komfort."
 pubDate: 2026-11-15T13:49:43.619Z
+image: "/instagram/nar-baten-vil-opp-i-vinden-slik-far-du-en-lettere-og-bedre-balansert-seilbat.png"
 tags: ["seiltrim", "seilteknikk"]
 sources: ["https://www.seilmagasinet.no/batfart-boker-peer-moberg/balanse-i-bten-gir-fart/426123", "https://www.seilmagasinet.no/balanse-i-baten-gode-grunner-for-a-ta-batforerkurs-icc-utsjekk/riktig-seiltrim-gjr-bten-mer-komfortabel/585476", "https://www.seilmagasinet.no/seiltrim-tips-trimmetips/skjotet-er-gasspedalen/930138", "https://www.seilmagasinet.no/seiltrim-trimmetips/forseilstrim/930169"]
 ---
