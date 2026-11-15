@@ -2,6 +2,7 @@
 title: "Tre gode bruktbåtkjøp på Finn.no akkurat nå"
 description: "Vi har sammenlignet aktuelle seilbåter på Finn.no og plukket ut tre kjøp som gir mye båt, utstyr og bruksmuligheter for pengene."
 pubDate: 2026-11-15T20:56:57.923Z
+image: "/instagram/ukens-bruktbaat-tips-2026-11-15.png"
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
 sources: ["https://www.finn.no/mobility/item/470413350", "https://www.finn.no/mobility/item/463686342", "https://www.finn.no/mobility/item/478955971"]
 ---
