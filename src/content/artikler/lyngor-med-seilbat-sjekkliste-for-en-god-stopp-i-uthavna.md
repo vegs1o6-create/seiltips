@@ -2,6 +2,7 @@
 title: "Lyngør med seilbåt: Sjekkliste for en god stopp i uthavna"
 description: "Planlegger du Lyngør? Her er en praktisk sjekkliste for innseiling, gjestebrygge, turmuligheter og det du bør vite før du går i land."
 pubDate: 2026-11-17T15:51:52.836Z
+image: "/instagram/lyngor-med-seilbat-sjekkliste-for-en-god-stopp-i-uthavna.png"
 tags: ["Lyngør", "destinasjoner", "gjestehavn", "seiltur"]
 sources: ["https://raetnasjonalpark.no/lyngor/", "https://raetnasjonalpark.no/velkomstsenter-pa-gjeving/", "https://www.visitnorway.no/listings//lyngor/16537/", "https://velihavn.no/gjestehavner/lyngor-seilmakerverksted", "https://www.batsidan.com/hamn/lyngor_gjestehamn/"]
 ---
