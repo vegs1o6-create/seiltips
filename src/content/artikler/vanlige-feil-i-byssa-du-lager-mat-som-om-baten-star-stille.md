@@ -2,6 +2,7 @@
 title: "Vanlige feil i byssa: Du lager mat som om båten står stille"
 description: "Trang bysse og sjøgang krever en annen kjøkkenrutine. Slik lager du mat om bord uten søl, stress og unødige brannfarer."
 pubDate: 2026-11-19T15:38:22.487Z
+image: "/instagram/vanlige-feil-i-byssa-du-lager-mat-som-om-baten-star-stille.png"
 tags: ["livet om bord", "bysse", "matlaging", "sikkerhet"]
 sources: ["https://www.seilmagasinet.no/mat-mat-i-byssa-sm202504/mat-underveis/925803", "https://rs.no/sikker-til-sjos/alarm-du-bor-ha-i-bat/", "https://rs.no/sikker-til-sjos/test-om-gassanlegget-er-tett/", "https://www.sdir.no/regelverk/forskriftsutlisting//sikringstiltak-for-gassfyrte-anlegg-m.m.-som-bruker-propan-eller-andre-lette-kullvannstoffer-anvendt-ombord-pa-fartoy", "https://www.dsb.no/sikkerhverdag/gass-og-brannfarlig-vaske/gassvettreglene/"]
 ---
