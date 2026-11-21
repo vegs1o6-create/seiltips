@@ -2,6 +2,7 @@
 title: "Selvslående fokk forklart: Derfor gjør den seilingen enklere"
 description: "En selvslående fokk flytter seg selv når du slår. Her er fordelene, ulempene og det du bør vite før du velger systemet."
 pubDate: 2026-11-21T14:31:11.383Z
+image: "/instagram/selvslaende-fokk-forklart-derfor-gjor-den-seilingen-enklere.png"
 tags: ["seil", "utstyr", "nybegynner"]
 sources: ["https://www.seilmagasinet.no/enklere-kryss/358212", "https://www.praktisktbatagande.se/artiklar/forenkla-seglingen-med-sjalvslaende-fock", "https://support.seldenmast.com/files/1416831699/excerpts/SelfTackingJibSystemA4-S-1-2.pdf", "https://n-sails.se/rullfock-sjalvslaende-fock/"]
 ---
