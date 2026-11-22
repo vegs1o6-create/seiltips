@@ -2,6 +2,7 @@
 title: "Tre bruktbåtkjøp på Finn.no som skiller seg ut nå"
 description: "Vi har sammenlignet pris, størrelse, alder og utstyr på tre seilbåter som gir mye båt for pengene akkurat nå."
 pubDate: 2026-11-22T21:39:13.471Z
+image: "/instagram/ukens-bruktbaat-tips-2026-11-22.png"
 tags: ["bruktbåt", "finn.no", "kjøpsguide"]
 sources: ["https://www.finn.no/mobility/item/481240257", "https://www.finn.no/mobility/item/480161310", "https://www.finn.no/mobility/item/478241455"]
 ---
