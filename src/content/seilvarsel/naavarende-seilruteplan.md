@@ -1,47 +1,64 @@
 ---
-title: "Seilruteplan 20/11–24/11: Nordlig vind og økende sjø"
-description: "Godt seilvindu dag 1–2, krevende forhold ved Færder dag 3 og roligere, men fortsatt sjøutsatt, videre mot Koster."
-pubDate: 2026-11-20
-periodeFra: 2026-11-20
-periodeTil: 2026-11-24
+title: "Seilruteplan 23/11–27/11: Avtakende nordavind"
+description: "Nordavind avtar gjennom perioden. Dag 4 peker seg ut som beste sydovervindu, mens dag 5 gir et brukbart nordgående alternativ."
+pubDate: 2026-11-23
+periodeFra: 2026-11-23
+periodeTil: 2026-11-27
 tags: ["ruteplanlegging", "vaervarsel"]
 ---
 
 ## Sammendrag
-Dag 1–2 gir brukbare forhold for en lett 35-fots seilbåt, med vind fra VSV/NV som dreier mot VNV og øker vestover.  
-Dag 3 er klart mest krevende: 14,7 m/s ved Færder, kast 19,6 m/s og bølger på 1,5 m.  
-Dag 4 er fortsatt sjøutsatt ved Færder, mens dag 5 gir roligere forhold mot Kosterøyene.  
-Det beste gjennomgående seilvinduet er å starte 20. november og være forbi Færder før 22. november.
+Nordavind dominerer hele perioden, sterkest ved Færder 23.–24. november.  
+Vind og bølger avtar tydelig mot 26.–27. november.  
+Dag 4 er det beste og mest komfortable sydovervinduet for denne båten.  
+Dag 5 er egnet for nordgående seilas, men vinden er svak og motorseiling kan bli nødvendig.
 
 ## Seilføring per dag
-- **20. november:** Full rigg i Oslofjorden, vurder ett rev nær Færder. Vind 3,1–7,1 m/s, kast opptil 9,5 m/s og bølgehøyde opptil 0,5 m.
-- **21. november:** Ett rev anbefales på den eksponerte etappen Drøbak–Færder. Vind ved Færder 10,9 m/s fra VNV, kast 14,5 m/s og bølger 1,1 m.
-- **22. november:** ⚠️ **Uegnet for denne båten og besetningen på åpent farvann.** Dobbelt rev eller stormseil kan være nødvendig ved eventuell nødsituasjon. Ved Færder er vinden 14,7 m/s, kast 19,6 m/s og bølger 1,5 m.
-- **23. november:** Ett rev ved Færder og langs eksponerte partier. Vind 9,9 m/s fra nord og bølger 1,5 m ved Færder. Kastdata mangler.
-- **24. november:** Full rigg i skjermede farvann, vurder ett rev på utsatte partier. Vind 8,7 m/s fra NNØ ved Færder og bølger 0,5 m. Kastdata mangler.
+- **23. november:** ⚠️ Oslo–Drøbak kan seiles med ett rev eller full rigg etter lokale forhold, men ved Færder er 12,0 m/s fra NNØ og kast 16,3 m/s. Bruk dobbelt rev på utsiden, og vurder å vente i havn.
+- **24. november:** Ett rev på åpent farvann. Ved Færder er vinden 10,7 m/s fra NNØ, kast 14,5 m/s og bølgehøyden 0,8 m. Seilbart for erfaren besetning, men ikke et komfortabelt førstebåtvindu.
+- **25. november:** Ett rev eller full rigg med mulighet for å ta ett rev. Vinden ved Færder er 9,6 m/s fra NØ, kast 12,7 m/s, med bølger på 0,8 m.
+- **26. november:** Full rigg, eventuelt ett rev ved Færder. Vinden avtar til 6,2 m/s fra NNØ ved Færder og 2,5 m/s ved Kosterøyene. Motorseiling kan bli aktuelt i de svakeste vindfeltene.
+- **27. november:** Full rigg eller motorseiling. Vinden er svak i Oslo og Drøbak, 1,5–1,6 m/s, og 3,2 m/s fra ØSØ ved Kosterøyene. Kastdata mangler for dagen.
 
 ## Ruteanbefalinger – segmentvis
-- **Oslo → Drøbak:** Passer best 20. november, med avgang omtrent kl. 07–08. Vinden i Oslo er fra VSV, og kurs sydover gir kryssende vind fra babord; nær Drøbak dreier vinden til NV og blir mer akterlig på sydgående kurs. Bølgehøyden er 0,1 m begge steder. Drøbaksundet bør passeres rundt kl. 12–14, nær høyvannet i Drøbak kl. 13:40 på 104 cm over sjøkartnull. Dette gir et naturlig tidspunkt nær tidevannsskiftet, men strømretning og eksakt strømstyrke kan ikke utledes av høydeværdiene alene. På 21. november er lavvann i Drøbak kl. 07:50 på 58 cm; passering etter dette kan være et alternativ, men vinden øker vestover.
 
-- **Drøbak → Færder:** Beste mulighet er 21. november, med avgang rundt kl. 08–09 etter lavvannet i Drøbak kl. 07:50. Kursen er omtrent sydvestlig til sørlig, og vinden fra VNV gir kryss/lensende vindvinkel avhengig av valgt led. Beregn ett rev fra avgang, særlig når dere kommer ut mot Færder. Ved Færder er vinden 10,9 m/s, kast 14,5 m/s og bølgehøyden 1,1 m. Tidevannet ved Færder er lavvann kl. 07:20 på 46 cm og høyvann kl. 14:00 på 78 cm. Ankomst nær eller etter høyvannet kan gi en gunstig timing av tidevannsskiftet, men vind og sjø skal prioriteres.
+### Oslo → Drøbak
+Beste passering er **26. november om morgenen**, med avgang rundt kl. 06:30–07:00. Vinden fra NNV på 2,0 m/s gir liten belastning og kan gi en slak medvind på sørover kurs. Bølgehøyden er 0,0 m i Oslo og Drøbak.
 
-- **Færder → Hvaler:** Unngå 22. november, da nordavind på 14,7 m/s med kast 19,6 m/s og bølger på 1,5 m gjør Færder–Hvaler uegnet for standardbesetningen. Beste alternativ er 23. november, med avgang tidlig, omtrent kl. 07–09, dersom sjøtilstanden og den faktiske vinden bekrefter varselet. Kursen øst-sydøst gir vinden fra nord på en akterlig babordside, men bølgene ved Færder er fortsatt 1,5 m. Ved Hvaler er vinden 4,4 m/s og bølgene 0,4 m. Tidevannsdata mangler ved Færder 23. november; ved Hvaler er høyvann kl. 03:00 på 75 cm.
+Lavvann i Drøbak er kl. 11:00, 58 cm over sjøkartnull. En avgang etter høyvann i Oslo kl. 06:20 gir normalt god mulighet for å treffe utgående tidevannsstrøm gjennom Drøbaksundet, men lokal strøm bør kontrolleres i kart og nautiske publikasjoner. Tidevannsforskjellen er liten og skal bare være en finjustering av timingen.
 
-- **Hvaler → Kosterøyene:** Beste forhold er 24. november, med avgang rundt kl. 08–09. Nordavind fra Hvaler og NNØ ved Koster gir i hovedsak medgående vind på sydgående kurs. Vinden er 3,9 m/s ved Hvaler og 4,5 m/s ved Koster, med bølger på henholdsvis 0,2 og 0,3 m. Tidevann ved Hvaler er høyvann kl. 03:40 på 74 cm og kl. 16:10 på 80 cm. Tidevannsdata mangler ved Kosterøyene, så siste del av etappen må planlegges uten lokal tidevannsreferanse.
+### Drøbak → Færder
+Beste dag er **26. november**, med passering fra sen morgen til tidlig ettermiddag. Vinden ved Færder er 6,2 m/s fra NNØ, kast 8,5 m/s, og bølgehøyden 0,5 m. På sørover kurs blir vinden hovedsakelig aktenfra eller på låringen.
+
+På 23.–24. november er vinden betydelig sterkere ved Færder: henholdsvis 12,0 og 10,7 m/s, med bølgehøyde 1,2 og 0,8 m. Disse dagene krever redusert seilføring og gir mindre komfort for to personer uten vaktgående besetning.
+
+Tidevannsdata i Drøbak viser lavvann kl. 11:00 den 26. november. Planlegg passering av det smale Drøbaksundet mens den utgående strømmen fortsatt kan utnyttes, men ikke la tidevannet overstyre hensynet til vind og sjø.
+
+### Færder → Hvaler
+Passering **26. november på ettermiddagen** er mest komfortabel. Ved Hvaler er vinden 2,9 m/s fra NNØ, kast 4,9 m/s, og bølgehøyden 0,2 m. På kurs østover blir vinden omtrent fra siden eller litt aktenfor tvers, avhengig av valgt lei.
+
+Tidevannet ved Hvaler er lavvann kl. 10:40 og høyvann kl. 17:40. Dette gir ingen stor strømmessig gevinst, men avgang etter lavvann kan gi en mindre fordel på deler av strekningen. Den mest utsatte sjøen ligger normalt rundt Færder; her er prognosen vesentlig roligere enn 23.–25. november.
+
+### Hvaler → Kosterøyene
+**26. november** er beste dag dersom båten allerede ligger i Hvaler. Vinden ved Kosterøyene er 2,5 m/s fra NNØ, kast 4,5 m/s, og bølgehøyden 0,3 m. Vinden blir hovedsakelig aktenfra eller på låringen på sørvestlig kurs, men er svak nok til at motorseiling kan bli nødvendig.
+
+Tidevannsdata mangler for Kosterøyene alle fem dagene. Ved Hvaler er høyvann kl. 17:40 den 26. november. Bruk derfor ikke beregnet strøm ved Koster som beslutningsgrunnlag; naviger etter kart, lokale strømforhold og faktisk sjø.
 
 ## Timing – sydover
-Optimalt er avgang fra Oslo **20. november rundt kl. 07–08**. Da kan første etappe gjennomføres i svak vind og liten sjø, med økende, men fortsatt håndterbar vind mot Færder. Planlegg passering av Drøbaksundet rundt kl. 12–14, nær høyvannet kl. 13:40 på 104 cm over sjøkartnull. Tidevannsforskjellen er moderat og skal bare finjustere tidspunktet; den kan ikke oppveie for vind og sjø lenger sør.
+Det beste tidspunktet for avgang fra Oslo er **26. november rundt kl. 06:30–07:00**. Da er vinden i Oslo 2,0 m/s fra NNV og i Drøbak 2,0 m/s fra N, mens vinden ved Færder senere på dagen er 6,2 m/s fra NNØ med kast 8,5 m/s. Dette gir en klart roligere start enn 23.–25. november, uten front eller nedbør angitt i datagrunnlaget.
 
-Fortsett fra Drøbak 21. november rundt kl. 08–09, etter lavvannet kl. 07:50 på 58 cm, slik at Færder nås før den kraftigste nordavinden 22. november. Ingen frontpassasje er oppgitt i datasettet, og nedbør er oppgitt som nei gjennom hele perioden.
+Avgang like etter høyvann i Oslo kl. 06:20 kan gi gunstig utgående strøm mot Drøbak. Passering av Drøbaksundet bør legges før eller omkring lavvann i Drøbak kl. 11:00, med kontroll av faktisk strøm i sundet. Videre sydover vil vinden ved Færder være moderat og hovedsakelig aktenfra på sørover kurs. Beregn likevel tilstrekkelig tid; Drøbak–Færder er en lang etappe for lett vind og kan kreve motorseiling.
 
 ## Timing – nordover
-For retur fra Kosterøyene/Hvaler peker **24. november, tidlig morgen**, seg ut som beste alternativ. Fra Kosterøyene vil NNØ-vind gi motvind på nordlig kurs, men styrken er bare 4,5 m/s og bølgehøyden 0,3 m. Tidevannsdata mangler ved Kosterøyene. Ved Hvaler er høyvann kl. 03:40 på 74 cm og kl. 16:10 på 80 cm; en avgang etter dagslys gir en praktisk balanse mellom tidevann og sikker navigasjon.
+Det beste nordgående vinduet er **27. november, med avgang fra Kosterøyene etter dagslys, omtrent kl. 08:00**. Vinden ved Kosterøyene er 3,2 m/s fra ØSØ, som gir en brukbar vindvinkel på første del mot Hvaler. Videre mot Færder og Oslo blir vinden svak og mer fra siden eller foran på nordlig kurs. Motorseiling kan derfor bli nødvendig.
 
-Ved videre nordgående seilas mot Drøbak bør passeringen planlegges med særlig oppmerksomhet på Drøbaksundet. Drøbak har høyvann kl. 04:30 på 89 cm og lavvann kl. 22:20 på 60 cm. Unngå å presse en sen ankomst mot lavvannet dersom vind eller sikt blir dårlig. 22. november bør ikke brukes til retur gjennom åpent farvann på grunn av vinden ved Færder.
+Tidevannsdata mangler ved Kosterøyene. Ved Hvaler er høyvann kl. 18:30, men det foreligger ikke tilsvarende komplette tidevannsdata for hele nordgående rute. Ikke planlegg nordgående avgang ut fra antatt strøm ved Koster; bruk faktisk strømobservasjon og lokale navigasjonsdata. På grunn av etappens lengde bør avgang ikke utsettes unødig til ettermiddagen.
 
 ## Konfidensvurdering
-- **Høy konfidens – dag 1–2:** Vind, bølger og nedbør gir et tydelig seilvindu. Forholdene er mest håndterbare i Oslofjorden 20. november og på etappen mot Færder 21. november, men ett rev anbefales vest for Drøbak.
-- **Usikre indikasjoner – dag 3–5:** Dag 3 er likevel tydelig ugunstig ut fra de oppgitte tallene. For dag 4 og 5 mangler kastdata, og lokale vindkast kan derfor avvike. Dag 4 har fortsatt 1,5 m bølger ved Færder; dag 5 ser klart roligere ut. Tidevannsdata mangler flere steder, særlig ved Kosterøyene.
+- **Høy konfidens – dag 1–2:** Sterk nordavind ved Færder, med 12,0 m/s og kast 16,3 m/s dag 1, samt 10,7 m/s og kast 14,5 m/s dag 2. Bølgeforholdene er også tydelig røffere enn senere i perioden.
+- **Høy konfidens – dag 1–2:** Rolige forhold i Oslofjorden og ingen nedbør i de oppgitte punktene, men utsiden ved Færder er klart mer krevende.
+- **Usikre indikasjoner – dag 3–5:** Prognosen viser avtakende vind og bølgehøyde, men tidspunkt og styrke kan endres. Dag 4 fremstår som det beste sydovervinduet, mens dag 5 ser best ut for nordgående seilas.
+- Tidevannsdata mangler ved Kosterøyene alle dagene, og ved Hvaler mangler tidevannsdata 25. november. Strømforhold der må derfor vurderes lokalt.
 
 ## Anbefaling
-Start fra Oslo 20. november om morgenen, bruk 21. november til å komme forbi Færder, og legg inn landligge eller svært konservativ plan 22. november. Fortsett mot Hvaler 23. november bare dersom faktisk vind og sjø bekrefter prognosen, og ta siste etappe til Kosterøyene 24. november.
+Vent med å starte den lange sydoveretappen til **26. november**, og avgang fra Oslo rundt kl. 06:30–07:00 for å utnytte roligere vind og mulig utgående strøm gjennom Drøbaksundet. Unngå å presse båten sørover 23. november, særlig på utsiden av Færder, der vindkastene når 16,3 m/s og bølgehøyden er 1,2 m.
