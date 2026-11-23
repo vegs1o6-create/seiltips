@@ -2,6 +2,7 @@
 title: "Slik finner du båtens reelle pris per tur"
 description: "Båtplass og drivstoff er bare deler av regnestykket. Slik regner du ut hva hver båttur faktisk koster."
 pubDate: 2026-11-23T17:55:29.461Z
+image: "/instagram/slik-finner-du-batens-reelle-pris-per-tur.png"
 tags: ["økonomi", "båtliv"]
 sources: ["https://www.smartepenger.no/kalkulatorer/882-batkalkulator", "https://www.gjensidige.no/godtforberedt/bat/sa-mye-koster-baten-deg-egentlig", "https://www.santanderconsumer.no/magasinet/ferie-og-fritid/batliv/hva-koster-det-a-ha-bat", "https://www.forbrukerradet.no/kontrakter/bat/kjop-av-fritidsbat/"]
 ---
