@@ -2,6 +2,7 @@
 title: "Frost i vannsystemet: Derfor holder det ikke å tømme tanken"
 description: "En tom vanntank betyr ikke nødvendigvis et tomt vannsystem. Slik sikrer du pumper, slanger og varmtvannsbereder før frosten kommer."
 pubDate: 2026-11-25T17:03:43.499Z
+image: "/instagram/frost-i-vannsystemet-derfor-holder-det-ikke-a-tomme-tanken.png"
 tags: ["vinteropplag", "båtpleie"]
 sources: ["https://seatronic.no/magasinet/frostsikre-toalett-septik-og-ferskvann-slik-tommer-og-sikrer-du-anlegget", "https://kveile.no/artikler/frostsikring-bat/", "https://www.if.no/magasinet/bat/vinteropplag-av-baten", "https://snl.no/tele"]
 ---
