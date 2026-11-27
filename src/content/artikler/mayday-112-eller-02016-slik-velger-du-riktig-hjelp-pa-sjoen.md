@@ -2,6 +2,7 @@
 title: "MAYDAY, 112 eller 02016? Slik velger du riktig hjelp på sjøen"
 description: "MAYDAY, 112 og 02016 har ulike roller. Denne sjekklisten hjelper deg å varsle riktig når noe skjer om bord."
 pubDate: 2026-11-27T16:30:10.369Z
+image: "/instagram/mayday-112-eller-02016-slik-velger-du-riktig-hjelp-pa-sjoen.png"
 tags: ["sikkerhet", "VHF", "nødhjelp", "sjømannskap"]
 sources: ["https://rs.no/sikker-til-sjos/nodkommunikasjon-til-sjos/", "https://rs.no/hva-er-02016/", "https://www.sdir.no/fritidsbat/maritim-radio-for-fritidsbatbrukere/hva-kan-kystradiostasjonene-gjore-for-deg/", "https://www.sdir.no/contentassets/94984f5d94354f34a8df9197e293bcde/forskrift-om-tillatelse-til-a-opprette-og-drive-radioutstyr-om-bord-i-norske-skip-og-flyttbare-innretninger.pdf", "https://wwwcdn.imo.org/localresources/en/OurWork/Safety/Documents/Documents%20relevant%20to%20GMDSS/MSC.1-Circ.1658.pdf"]
 ---
